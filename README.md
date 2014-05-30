@@ -12,5 +12,5 @@ This is a pure Java implementation of a USB webcam driver for Android. The goal 
 5. Easy integration to application
 
 ### Supporting Documentation
-[UVC Class Article on Wikipedia](http://en.wikipedia.org/wiki/USB_video_device_class)
-[UVC Class Specification](http://www.usb.org/developers/devclass_docs/USB_Video_Class_1_5.zip)
+1. [UVC Class Article on Wikipedia](http://en.wikipedia.org/wiki/USB_video_device_class)
+2. [UVC Class Specification](http://www.usb.org/developers/devclass_docs/USB_Video_Class_1_5.zip)
