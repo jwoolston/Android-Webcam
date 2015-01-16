@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    provided project.depAppCompat
 }
 
 apply from: '../maven_push.gradle'
