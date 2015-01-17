@@ -70,7 +70,7 @@ public class WebcamManager {
      */
     public static
     @NonNull
-    Webcam getOrCreateWebcam(@NonNull Context context, @NonNull UsbDevice usbDevice) {
+    Webcam getOrCreateWebcam(@NonNull Context context, @NonNull UsbDevice usbDevice) throws UnknownDeviceException{
         Webcam webcam = DEVICES.get(usbDevice);
         if (webcam == null) {
             webcam = new WebcamImpl(context.getApplicationContext(), usbDevice);

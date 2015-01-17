@@ -5,7 +5,9 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.widget.Toast;
 
+import com.jwoolston.usb.webcam.UnknownDeviceException;
 import com.jwoolston.usb.webcam.Webcam;
 import com.jwoolston.usb.webcam.WebcamManager;
 
@@ -35,7 +37,12 @@ public class MainActivity extends ActionBarActivity {
         final Intent intent = getIntent();
         if (intent.hasExtra(UsbManager.EXTRA_DEVICE)) {
             final UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            webcam = WebcamManager.getOrCreateWebcam(this, usbDevice);
+            try {
+                webcam = WebcamManager.getOrCreateWebcam(this, usbDevice);
+            } catch (UnknownDeviceException e) {
+                e.printStackTrace();
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
