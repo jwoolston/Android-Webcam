@@ -1,9 +1,16 @@
 package com.jwoolston.usb.webcam;
 
+import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.net.Uri;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Helper class for abstracting communication to a camera. This implementation directly handles
@@ -15,9 +22,11 @@ class WebcamConnection {
     private static final int INTERFACE_CONTROL = 0;
 
     final UsbDeviceConnection usbDeviceConnection;
-    final UsbManager usbManager;
-    final UsbDevice usbDevice;
-    final UsbInterface usbInterfaceControl;
+    final UsbManager          usbManager;
+    final UsbDevice           usbDevice;
+    final UsbInterface        usbInterfaceControl;
+
+    private OutputStream bufferStream;
 
     WebcamConnection(UsbManager usbManager, UsbDevice usbDevice) throws UnknownDeviceException {
         this.usbManager = usbManager;
@@ -40,4 +49,30 @@ class WebcamConnection {
         return true;
     }
 
+    /**
+     * Begins streaming from the device.
+     *
+     * @param context {@link Context} The application context.
+     * @return {@link Uri} pointing to the buffered stream.
+     * @throws StreamCreationException Thrown if there is a problem establishing the stream buffer.
+     */
+    Uri beginConnectionStreaming(Context context) throws StreamCreationException {
+        try {
+            final File buffer = WebcamManager.getBufferFile(context, usbDevice);
+            bufferStream = new FileOutputStream(buffer);
+            // TODO: Configure and initiate stream
+            return Uri.fromFile(buffer);
+        } catch (IOException e) {
+            throw new StreamCreationException();
+        }
+    }
+
+    /**
+     * Terminates streaming from the device.
+     *
+     * @param context {@link Context} The application context.
+     */
+    void terminateConnection(Context context) {
+        WebcamManager.deleteBufferFile(context, usbDevice);
+    }
 }
