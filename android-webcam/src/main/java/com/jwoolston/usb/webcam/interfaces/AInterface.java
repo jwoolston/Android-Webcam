@@ -1,0 +1,70 @@
+package com.jwoolston.usb.webcam.interfaces;
+
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbInterface;
+
+/**
+ * @author Jared Woolston (jwoolston@idealcorp.com)
+ */
+public abstract class AInterface {
+
+    private static final int LENGTH_STANDARD_DESCRIPTOR = 9;
+
+    protected static final int bInterfaceNumber = 2;
+    protected static final int bInterfaceClass         = 5;
+    protected static final int bInterfaceSubClass      = 6;
+    protected static final int bInterfaceProtocol = 7;
+    protected static final int iInterface = 8;
+
+    private final UsbInterface mUsbInterface;
+
+    private final int mIndexInterface;
+
+    public static AInterface parseDescriptor(UsbDevice device,  byte[] descriptor) throws IllegalArgumentException {
+        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard interface descriptor.");
+        if (descriptor[bInterfaceClass] == Descriptor.VIDEO_CLASS_CODE) {
+            if (descriptor[bInterfaceProtocol] != Descriptor.PROTOCOL.PC_PROTOCOL_15.protocol) {
+                final UsbInterface usbInterface = device.getInterface((int) descriptor[bInterfaceNumber]);
+                return new VideoClassInterface(usbInterface, (int) descriptor[iInterface]);
+            } else {
+                throw new IllegalArgumentException("The provided descriptor has an invalid protocol: " + descriptor[bInterfaceProtocol]);
+            }
+        } else if (descriptor[bInterfaceClass] == Descriptor.AUDIO_CLASS_CODE) {
+            // TODO: Something with the audio class
+            return null;
+        } else {
+            throw new IllegalArgumentException("The provided descriptor has an invalid interface class: " + descriptor[bInterfaceClass]);
+        }
+    }
+
+    protected AInterface(UsbInterface usbInterface, int indexInterface) {
+        mUsbInterface = usbInterface;
+        mIndexInterface = indexInterface;
+    }
+
+    public UsbInterface getUsbInterface() {
+        return mUsbInterface;
+    }
+
+    public int getIndexInterface() {
+        return mIndexInterface;
+    }
+
+    public abstract boolean isClassInterfaceHeader(byte[] descriptor);
+
+    public abstract boolean isTerminal(byte[] descriptor);
+
+    public abstract boolean isUnit(byte[] descriptor);
+
+    public abstract void parseClassInterfaceHeader(byte[] descriptor) throws IllegalArgumentException;
+
+    public abstract void parseTerminal(byte[] descriptor) throws IllegalArgumentException;
+
+    @Override
+    public String toString() {
+        return "AInterface{" +
+                "mUsbInterface=" + mUsbInterface +
+                ", mIndexInterface=" + mIndexInterface +
+                '}';
+    }
+}
