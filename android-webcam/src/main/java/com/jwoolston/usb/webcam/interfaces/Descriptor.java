@@ -68,10 +68,10 @@ public class Descriptor {
                             throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
                         state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
                         Log.d(TAG, "Unit: " + Hexdump.dumpHexString(desc));
+                        aInterface.parseUnit(desc);
                     } else {
-
+                        //throw new IllegalArgumentException("Unknown class specific interface type.");
                     }
-                    Log.d(TAG, "Class Specific Interface: " + Hexdump.dumpHexString(desc));
                     break;
                 case DEVICE:
                 case DEVICE_QUALIFIER:
@@ -95,7 +95,7 @@ public class Descriptor {
         SC_VIDEOSTREAMING(0x02),
         SC_VIDEO_INTERFACE_COLLECTION(0x03);
 
-        final byte subclass;
+        public final byte subclass;
 
         private VIDEO_SUBCLASS(int subclass) {
             this.subclass = (byte) subclass;
@@ -117,7 +117,7 @@ public class Descriptor {
         SC_AUDIOSTREAMING(0x02),
         SC_AUDIO_INTERFACE_COLLECTION(0x03);
 
-        final byte subclass;
+        public final byte subclass;
 
         private AUDIO_SUBCLASS(int subclass) {
             this.subclass = (byte) subclass;
@@ -148,7 +148,7 @@ public class Descriptor {
         CS_INTERFACE(0x24),
         CS_ENDPOINT(0x25);
 
-        final byte type;
+        public final byte type;
 
         private TYPE(int type) {
             this.type = (byte) type;
@@ -168,7 +168,7 @@ public class Descriptor {
         PC_PROTOCOL_UNDEFINED(0x00),
         PC_PROTOCOL_15(0x01);
 
-        final byte protocol;
+        public final byte protocol;
 
         private PROTOCOL(int protocol) {
             this.protocol = (byte) protocol;

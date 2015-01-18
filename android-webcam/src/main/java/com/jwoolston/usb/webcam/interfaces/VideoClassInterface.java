@@ -6,6 +6,10 @@ import android.util.Log;
 import com.jwoolston.usb.webcam.interfaces.terminals.CameraTerminal;
 import com.jwoolston.usb.webcam.interfaces.terminals.VideoInputTerminal;
 import com.jwoolston.usb.webcam.interfaces.terminals.VideoOutputTerminal;
+import com.jwoolston.usb.webcam.interfaces.terminals.VideoTerminal;
+import com.jwoolston.usb.webcam.interfaces.units.VideoProcessingUnit;
+import com.jwoolston.usb.webcam.interfaces.units.VideoSelectorUnit;
+import com.jwoolston.usb.webcam.interfaces.units.VideoUnit;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -50,12 +54,12 @@ public class VideoClassInterface extends AInterface {
 
     @Override
     public boolean isTerminal(byte[] descriptor) {
-        return (VideoInputTerminal.isInputTerminal(descriptor) || VideoOutputTerminal.isOutputTerminal(descriptor));
+        return VideoTerminal.isVideoTerminal(descriptor);
     }
 
     @Override
     public boolean isUnit(byte[] descriptor) {
-        return false;
+        return VideoUnit.isVideoUnit(descriptor);
     }
 
     @Override
@@ -73,7 +77,7 @@ public class VideoClassInterface extends AInterface {
 
     @Override
     public void parseTerminal(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface terminal.");
+        Log.d(TAG, "Parsing Video Class Interface Terminal.");
         if (VideoInputTerminal.isInputTerminal(descriptor)) {
             if (CameraTerminal.isCameraTerminal(descriptor)) {
                 // Parse as camera terminal
@@ -86,18 +90,27 @@ public class VideoClassInterface extends AInterface {
             }
         } else if (VideoOutputTerminal.isOutputTerminal(descriptor)) {
             // Parse as output terminal
-
+            VideoOutputTerminal outputTerminal = new VideoOutputTerminal(descriptor);
+            Log.d(TAG, "" + outputTerminal);
         } else {
-            throw new IllegalArgumentException("The provided descriptor is not a valid VideoTerminal.");
+            throw new IllegalArgumentException("The provided descriptor is not a valid Video Terminal.");
         }
     }
 
     @Override
-    public String toString() {
-        return "VideoClassInterface{" +
-                "mUsbInterface=" + getUsbInterface() +
-                ", mIndexInterface=" + getIndexInterface() +
-                '}';
+    public void parseUnit(byte[] descriptor) throws IllegalArgumentException {
+        Log.d(TAG, "Parsing Video Class Interface Unit.");
+        if (VideoSelectorUnit.isVideoSelectorUnit(descriptor)) {
+            // Parse as video selector unit
+            final VideoSelectorUnit selectorUnit = new VideoSelectorUnit(descriptor);
+            Log.d(TAG, "" + selectorUnit);
+        } else if (VideoProcessingUnit.isVideoProcessingUnit(descriptor)) {
+            // Parse as video processing unit
+            final VideoProcessingUnit processingUnit = new VideoProcessingUnit(descriptor);
+            Log.d(TAG, "" + processingUnit);
+        } else {
+            throw new IllegalArgumentException("The provided descriptor is not a valid Video Unit");
+        }
     }
 
     public static enum VC_INF_SUBTYPE {

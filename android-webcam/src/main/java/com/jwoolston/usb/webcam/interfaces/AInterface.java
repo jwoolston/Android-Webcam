@@ -60,6 +60,8 @@ public abstract class AInterface {
 
     public abstract void parseTerminal(byte[] descriptor) throws IllegalArgumentException;
 
+    public abstract void parseUnit(byte[] descriptor) throws IllegalArgumentException;
+
     @Override
     public String toString() {
         return "AInterface{" +
