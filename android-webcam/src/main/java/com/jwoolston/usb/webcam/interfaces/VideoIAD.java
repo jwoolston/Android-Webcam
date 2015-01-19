@@ -7,15 +7,25 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
 
     private static final String TAG = "VideoIAD";
 
-    private final Descriptor.VIDEO_SUBCLASS mVideoSubclass;
+    private AVideoClassInterface mControlInterface;
 
-    VideoIAD(int first, int count, int iFunction, Descriptor.VIDEO_SUBCLASS subclass) {
-        super(first, count, iFunction);
-        mVideoSubclass = subclass;
+    private AVideoClassInterface[] mStreamingInterfaces;
+
+    VideoIAD(byte[] descriptor) throws IllegalArgumentException {
+        super(descriptor);
+        if (Descriptor.VIDEO_SUBCLASS.getVIDEO_SUBCLASS(descriptor[bFunctionSubClass]) != Descriptor.VIDEO_SUBCLASS.SC_VIDEO_INTERFACE_COLLECTION) {
+            throw new IllegalArgumentException("The provided descriptor does not represent a Video Class Interface Association Descriptor.");
+        }
     }
 
-    public Descriptor.VIDEO_SUBCLASS getVideoSubclass() {
-        return mVideoSubclass;
+    @Override
+    public void addInterface(AInterface aInterface) throws IllegalArgumentException {
+        try {
+            final AVideoClassInterface videoClassInterface = (AVideoClassInterface) aInterface;
+
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("The provided interface is not an instance of VideoClassInterface or its subclasses.");
+        }
     }
 
     @Override
@@ -24,7 +34,6 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
                 "mFirstInterface=" + getIndexFirstInterface() +
                 ", mInterfaceCount=" + getInterfaceCount() +
                 ", mIndexFunction=" + getIndexFunction() +
-                ", mVideoSubclass=" + mVideoSubclass +
                 '}';
     }
 }

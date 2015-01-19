@@ -2,10 +2,8 @@ package com.jwoolston.usb.webcam.interfaces.units;
 
 import android.util.Log;
 
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -29,13 +27,13 @@ public class VideoProcessingUnit extends VideoUnit {
      * Represented multiplier is x100. For example, 4.5 is represented as 450.
      */
     private final int mMaxMultiplier;
-    private final int mIndexProcessing;
+    private final int mIndexProcessing = 0;
 
-    private final Set<CONTROL>  mControlSet;
-    private final Set<STANDARD> mStandardSet;
+    private final Set<CONTROL>  mControlSet = null;
+    private final Set<STANDARD> mStandardSet = null;
 
     public static boolean isVideoProcessingUnit(byte[] descriptor) {
-        return (descriptor.length >= LENGTH & descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype);
+        return (descriptor.length >= LENGTH & descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype);
     }
 
     public VideoProcessingUnit(byte[] descriptor) throws IllegalArgumentException {
@@ -44,7 +42,10 @@ public class VideoProcessingUnit extends VideoUnit {
         if (!isVideoProcessingUnit(descriptor)) { throw new IllegalArgumentException("The provided descriptor is not a valid Video Processing Unit descriptor."); }
         mSourceID = descriptor[bSourceID];
         mMaxMultiplier = descriptor[wMaxMultiplier] | (descriptor[wMaxMultiplier + 1] << 8);
-        mIndexProcessing = descriptor[iProcessing];
+
+        return; //FIXME: This is to deal with the discrepancy with the standard for testing
+
+        /*mIndexProcessing = descriptor[iProcessing];
 
         final int controlBitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls + 2] << 8);
         final Set<CONTROL> controlSet = new HashSet<>();
@@ -70,7 +71,7 @@ public class VideoProcessingUnit extends VideoUnit {
             }
         }
         // The contents of this set should never change
-        mStandardSet = Collections.unmodifiableSet(standardsSet);
+        mStandardSet = Collections.unmodifiableSet(standardsSet);*/
     }
 
     public int getSourceID() {
@@ -102,7 +103,7 @@ public class VideoProcessingUnit extends VideoUnit {
                 ", Index Processing: " + getIndexProcessing() +
                 ", Available Controls: ";
         StringBuilder builder = new StringBuilder(base);
-        for (CONTROL control : mControlSet) {
+        /*for (CONTROL control : mControlSet) {
             builder.append(control).append(',');
         }
         builder.deleteCharAt(builder.length() - 1);
@@ -110,7 +111,7 @@ public class VideoProcessingUnit extends VideoUnit {
         for (STANDARD standard : mStandardSet) {
             builder.append(standard).append(',');
         }
-        builder.deleteCharAt(builder.length() - 1);
+        builder.deleteCharAt(builder.length() - 1);*/
         builder.append('}');
         return builder.toString();
     }

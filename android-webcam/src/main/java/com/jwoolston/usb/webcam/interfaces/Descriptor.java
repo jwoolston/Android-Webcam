@@ -2,11 +2,9 @@ package com.jwoolston.usb.webcam.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.util.Log;
-import android.util.SparseArray;
 
+import com.jwoolston.usb.webcam.interfaces.endpoints.Endpoint;
 import com.jwoolston.usb.webcam.util.Hexdump;
-
-import java.util.ArrayList;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -21,57 +19,79 @@ public class Descriptor {
     private static final int INDEX_DESCRIPTOR_TYPE = 1;
 
     public static void parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
-        final ArrayList<byte[]> descriptors = new ArrayList<>();
-        final ArrayList<VideoIAD> videoIADs = new ArrayList<>();
-        final SparseArray<VideoClassInterface> videoInterfaces = new SparseArray<>();
         int length;
         byte[] desc;
         TYPE type;
         int i = 0;
         STATE state = null;
         AInterface aInterface = null;
+        Endpoint aEndpoint = null;
+        int endpointIndex = 1;
         while (i < rawDescriptor.length) {
             length = rawDescriptor[i];
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = TYPE.getTYPE(desc);
-            InterfaceAssociationDescriptor iad;
+            InterfaceAssociationDescriptor iad = null;
+
             switch (type) {
                 case INTERFACE_ASSOCIATION:
                     if (state != null) throw new IllegalStateException("Tried parsing an IAD at an invalid time: " + state);
                     state = STATE.IAD;
-                    Log.d(TAG, "Interface Association: " + Hexdump.dumpHexString(desc));
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     Log.d(TAG, "" + iad);
                     break;
                 case INTERFACE:
-                    if (state != STATE.IAD) throw new IllegalStateException("Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
+                    if (state != STATE.IAD && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL && state != STATE.STANDARD_ENDPOINT && state != STATE.CLASS_ENDPOINT) {
+                        throw new IllegalStateException("Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
+                    }
                     state = STATE.STANDARD_INTERFACE;
-                    Log.d(TAG, "Standard Interface: " + Hexdump.dumpHexString(desc));
+                    if (iad != null && aInterface != null) {
+                        // We need to save the old one
+                        iad.addInterface(aInterface);
+                    }
+                    endpointIndex = 1;
                     aInterface = AInterface.parseDescriptor(device, desc);
                     Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
                     if (aInterface == null) throw new IllegalStateException("Tried parsing a class interface when no standard interface has been parsed.");
-                    if (aInterface.isClassInterfaceHeader(desc)) {
-                        if (state != STATE.STANDARD_INTERFACE) throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                        state = STATE.CLASS_INTERFACE_HEADER;
-                        aInterface.parseClassInterfaceHeader(desc);
-                    } else if (aInterface.isTerminal(desc)) {
-                        if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
-                            throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                        state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
-                        Log.d(TAG, "Terminal: " + Hexdump.dumpHexString(desc));
-                        aInterface.parseTerminal(desc);
-                    } else if (aInterface.isUnit(desc)) {
-                        if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
-                            throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                        state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
-                        Log.d(TAG, "Unit: " + Hexdump.dumpHexString(desc));
-                        aInterface.parseUnit(desc);
-                    } else {
-                        //throw new IllegalArgumentException("Unknown class specific interface type.");
+                    if (aInterface instanceof VideoControlInterface) {
+                        final VideoControlInterface vcInterface = (VideoControlInterface) aInterface;
+                        if (vcInterface.isClassInterfaceHeader(desc)) {
+                            if (state != STATE.STANDARD_INTERFACE) throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
+                            state = STATE.CLASS_INTERFACE_HEADER;
+                            vcInterface.parseClassInterfaceHeader(desc);
+                            Log.d(TAG, "" + vcInterface);
+                        } else if (vcInterface.isTerminal(desc)) {
+                            if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
+                                throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
+                            state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
+                            vcInterface.parseTerminal(desc);
+                        } else if (vcInterface.isUnit(desc)) {
+                            if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
+                                throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
+                            state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
+                            vcInterface.parseUnit(desc);
+                        } else {
+                            throw new IllegalArgumentException("Unknown class specific interface type.");
+                        }
                     }
+                    break;
+                case ENDPOINT:
+                    if (aInterface == null) throw new IllegalStateException("Tried parsing a standard endpoint when no standard interface has been parsed.");
+                    if (state != STATE.CLASS_INTERFACE_UNIT_TERMINAL) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    state = STATE.STANDARD_ENDPOINT;
+                    aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
+                    aInterface.addEndpoint(endpointIndex, aEndpoint);
+                    ++endpointIndex;
+                    Log.d(TAG, "" + aEndpoint);
+                    break;
+                case CS_ENDPOINT:
+                    if (aEndpoint == null) throw new IllegalStateException("Tried parsing a class endpoint when no standard endpoint has been parsed.");
+                    if (state != STATE.STANDARD_ENDPOINT) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    state = STATE.CLASS_ENDPOINT;
+                    aEndpoint.parseClassDescriptor(desc);
                     break;
                 case DEVICE:
                 case DEVICE_QUALIFIER:
@@ -85,7 +105,7 @@ public class Descriptor {
     }
 
     private static enum STATE {
-        IAD, STANDARD_INTERFACE, CLASS_INTERFACE_HEADER, CLASS_INTERFACE_UNIT_TERMINAL
+        IAD, STANDARD_INTERFACE, CLASS_INTERFACE_HEADER, CLASS_INTERFACE_UNIT_TERMINAL, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
 
 
@@ -98,7 +118,7 @@ public class Descriptor {
         public final byte subclass;
 
         private VIDEO_SUBCLASS(int subclass) {
-            this.subclass = (byte) subclass;
+            this.subclass = (byte) (subclass & 0xFF);
         }
 
         public static VIDEO_SUBCLASS getVIDEO_SUBCLASS(byte subclass) {
@@ -120,7 +140,7 @@ public class Descriptor {
         public final byte subclass;
 
         private AUDIO_SUBCLASS(int subclass) {
-            this.subclass = (byte) subclass;
+            this.subclass = (byte) (subclass & 0xFF);
         }
 
         public static AUDIO_SUBCLASS getAUDIO_SUBCLASS(byte subclass) {
@@ -151,7 +171,7 @@ public class Descriptor {
         public final byte type;
 
         private TYPE(int type) {
-            this.type = (byte) type;
+            this.type = (byte) (type & 0xFF);
         }
 
         public static TYPE getTYPE(byte[] raw) {
@@ -171,7 +191,7 @@ public class Descriptor {
         public final byte protocol;
 
         private PROTOCOL(int protocol) {
-            this.protocol = (byte) protocol;
+            this.protocol = (byte) (protocol & 0xFF);
         }
     }
 }

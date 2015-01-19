@@ -1,6 +1,6 @@
 package com.jwoolston.usb.webcam.interfaces.terminals;
 
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,7 +30,7 @@ public class CameraTerminal extends VideoInputTerminal {
 
     public static boolean isCameraTerminal(byte[] descriptor) {
         if (descriptor.length != LENGTH_DESCRIPTOR) { return false; }
-        if (descriptor[bDescriptorSubtype] != VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) { return false; }
+        if (descriptor[bDescriptorSubtype] != AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) { return false; }
         final TERMINAL_TYPE type = TERMINAL_TYPE.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
         return (type == TERMINAL_TYPE.ITT_CAMERA);
     }

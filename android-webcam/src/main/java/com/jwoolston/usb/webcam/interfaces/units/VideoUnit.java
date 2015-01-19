@@ -1,7 +1,7 @@
 package com.jwoolston.usb.webcam.interfaces.units;
 
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 import com.jwoolston.usb.webcam.interfaces.Descriptor;
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -20,10 +20,10 @@ public class VideoUnit {
     public static boolean isVideoUnit(byte[] descriptor) {
         if (descriptor[bDescriptorType] != Descriptor.TYPE.CS_INTERFACE.type) return false;
         final byte subtype = descriptor[bDescriptorSubtype];
-        return (subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype ||
-            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype ||
-            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype ||
-            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
+        return (subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype ||
+            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype ||
+            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype ||
+            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
     }
 
     protected VideoUnit(byte[] descriptor) throws IllegalArgumentException {

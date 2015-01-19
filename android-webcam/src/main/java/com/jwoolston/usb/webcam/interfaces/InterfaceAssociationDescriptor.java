@@ -1,7 +1,6 @@
 package com.jwoolston.usb.webcam.interfaces;
 
 import android.util.Log;
-import android.util.SparseArray;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -25,8 +24,6 @@ public abstract class InterfaceAssociationDescriptor {
 
     private final int mIndexFunction;
 
-    private final SparseArray<AInterface> mInterfaces;
-
     protected static InterfaceAssociationDescriptor parseIAD(byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Interface Association Descriptor.");
         if (descriptor.length < LENGTH_DESCRIPTOR) {
@@ -36,8 +33,7 @@ public abstract class InterfaceAssociationDescriptor {
             if (descriptor[bFunctionProtocol] != Descriptor.PROTOCOL.PC_PROTOCOL_UNDEFINED.protocol) {
                 throw new IllegalArgumentException("The provided descriptor has an invalid protocol: " + descriptor[bFunctionProtocol]);
             }
-            return new VideoIAD(descriptor[bFirstInterface], descriptor[bInterfaceCount], descriptor[iFunction], Descriptor.VIDEO_SUBCLASS.getVIDEO_SUBCLASS(
-                    descriptor[bFunctionSubClass]));
+            return new VideoIAD(descriptor);
         } else if (descriptor[bFunctionClass] == Descriptor.AUDIO_CLASS_CODE) {
             // TODO: Parse audio IAD
             return null;
@@ -46,11 +42,10 @@ public abstract class InterfaceAssociationDescriptor {
         }
     }
 
-    protected InterfaceAssociationDescriptor(int first, int count, int iFunction) {
-        mInterfaces = new SparseArray<>();
-        mFirstInterface = first;
-        mInterfaceCount = count;
-        mIndexFunction = iFunction;
+    protected InterfaceAssociationDescriptor(byte[] descriptor) throws IllegalArgumentException {
+        mFirstInterface = descriptor[bFirstInterface];
+        mInterfaceCount = descriptor[bInterfaceCount];
+        mIndexFunction = descriptor[iFunction];
     }
 
     public int getIndexFirstInterface() {
@@ -64,6 +59,8 @@ public abstract class InterfaceAssociationDescriptor {
     public int getIndexFunction() {
         return mIndexFunction;
     }
+
+    public abstract void addInterface(AInterface aInterface);
 
     @Override
     public String toString() {

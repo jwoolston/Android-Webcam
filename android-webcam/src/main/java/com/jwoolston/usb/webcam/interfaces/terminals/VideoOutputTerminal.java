@@ -1,6 +1,6 @@
 package com.jwoolston.usb.webcam.interfaces.terminals;
 
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -15,7 +15,7 @@ public class VideoOutputTerminal extends VideoTerminal {
     private final int mSourceID;
 
     public static boolean isOutputTerminal(byte[] descriptor) {
-        return (descriptor.length >= MIN_LENGTH && descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
+        return (descriptor.length >= MIN_LENGTH && descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
     }
 
     public VideoOutputTerminal(byte[] descriptor) throws IllegalArgumentException {

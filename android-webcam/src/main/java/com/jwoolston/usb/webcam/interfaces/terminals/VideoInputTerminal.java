@@ -1,6 +1,6 @@
 package com.jwoolston.usb.webcam.interfaces.terminals;
 
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -12,7 +12,7 @@ public class VideoInputTerminal extends VideoTerminal {
     protected static final int iTerminal = 7;
 
     public static boolean isInputTerminal(byte[] descriptor) {
-        return (descriptor.length >= MIN_LENGTH && descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
+        return (descriptor.length >= MIN_LENGTH && descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
     }
 
     public VideoInputTerminal(byte[] descriptor) throws IllegalArgumentException {

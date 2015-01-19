@@ -1,6 +1,6 @@
 package com.jwoolston.usb.webcam.interfaces.terminals;
 
-import com.jwoolston.usb.webcam.interfaces.VideoClassInterface;
+import com.jwoolston.usb.webcam.interfaces.AVideoClassInterface;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -19,8 +19,8 @@ public abstract class VideoTerminal {
     private final int mAssociatedTerminalID;
 
     public static boolean isVideoTerminal(byte[] descriptor) {
-        return (descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype ||
-                descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
+        return (descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype ||
+                descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
     }
 
     protected VideoTerminal(byte[] descriptor) {
@@ -110,7 +110,7 @@ public abstract class VideoTerminal {
         public int code;
 
         private TERMINAL_TYPE(int code) {
-            this.code = code;
+            this.code = (code & 0xFFFF);
         }
 
         public static TERMINAL_TYPE toTerminalType(byte low, byte high) {
