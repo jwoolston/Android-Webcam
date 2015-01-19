@@ -62,6 +62,8 @@ public abstract class InterfaceAssociationDescriptor {
 
     public abstract void addInterface(AInterface aInterface);
 
+    public abstract AInterface getInterface(int index);
+
     @Override
     public String toString() {
         return "InterfaceAssociationDescriptor{" +

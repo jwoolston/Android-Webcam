@@ -24,6 +24,7 @@ public class Descriptor {
         TYPE type;
         int i = 0;
         STATE state = null;
+        InterfaceAssociationDescriptor iad = null;
         AInterface aInterface = null;
         Endpoint aEndpoint = null;
         int endpointIndex = 1;
@@ -32,7 +33,6 @@ public class Descriptor {
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = TYPE.getTYPE(desc);
-            InterfaceAssociationDescriptor iad = null;
 
             switch (type) {
                 case INTERFACE_ASSOCIATION:
@@ -46,12 +46,12 @@ public class Descriptor {
                         throw new IllegalStateException("Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
                     }
                     state = STATE.STANDARD_INTERFACE;
+                    endpointIndex = 1;
+                    aInterface = AInterface.parseDescriptor(device, desc);
                     if (iad != null && aInterface != null) {
                         // We need to save the old one
                         iad.addInterface(aInterface);
                     }
-                    endpointIndex = 1;
-                    aInterface = AInterface.parseDescriptor(device, desc);
                     Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
