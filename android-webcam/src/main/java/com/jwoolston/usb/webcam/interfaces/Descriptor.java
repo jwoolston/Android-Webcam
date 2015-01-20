@@ -42,45 +42,32 @@ public class Descriptor {
                     Log.d(TAG, "" + iad);
                     break;
                 case INTERFACE:
-                    if (state != STATE.IAD && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL && state != STATE.STANDARD_ENDPOINT && state != STATE.CLASS_ENDPOINT) {
+                    if (state != STATE.IAD && state != STATE.CLASS_INTERFACE && state != STATE.STANDARD_ENDPOINT && state != STATE.CLASS_ENDPOINT) {
                         throw new IllegalStateException("Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
                     }
                     state = STATE.STANDARD_INTERFACE;
                     endpointIndex = 1;
                     aInterface = AInterface.parseDescriptor(device, desc);
                     if (iad != null && aInterface != null) {
-                        // We need to save the old one
-                        iad.addInterface(aInterface);
+                        final AInterface existing = iad.getInterface(aInterface.getInterfaceNumber());
+                        if (existing != null) {
+                            existing.parseAlternateFunction(desc);
+                        } else {
+                            // We need to save the old one
+                            iad.addInterface(aInterface);
+                        }
                     }
                     Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
                     if (aInterface == null) throw new IllegalStateException("Tried parsing a class interface when no standard interface has been parsed.");
-                    if (aInterface instanceof VideoControlInterface) {
-                        final VideoControlInterface vcInterface = (VideoControlInterface) aInterface;
-                        if (vcInterface.isClassInterfaceHeader(desc)) {
-                            if (state != STATE.STANDARD_INTERFACE) throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                            state = STATE.CLASS_INTERFACE_HEADER;
-                            vcInterface.parseClassInterfaceHeader(desc);
-                            Log.d(TAG, "" + vcInterface);
-                        } else if (vcInterface.isTerminal(desc)) {
-                            if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
-                                throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                            state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
-                            vcInterface.parseTerminal(desc);
-                        } else if (vcInterface.isUnit(desc)) {
-                            if (state != STATE.CLASS_INTERFACE_HEADER && state != STATE.CLASS_INTERFACE_UNIT_TERMINAL)
-                                throw new IllegalStateException("Tried parsing a CLASS SPECIFIC INTERFACE at an invalid time: " + state);
-                            state = STATE.CLASS_INTERFACE_UNIT_TERMINAL;
-                            vcInterface.parseUnit(desc);
-                        } else {
-                            throw new IllegalArgumentException("Unknown class specific interface type.");
-                        }
-                    }
+                    if (state != STATE.STANDARD_INTERFACE && state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
+                    state = STATE.CLASS_INTERFACE;
+                    aInterface.parseClassDescriptor(desc);
                     break;
                 case ENDPOINT:
                     if (aInterface == null) throw new IllegalStateException("Tried parsing a standard endpoint when no standard interface has been parsed.");
-                    if (state != STATE.CLASS_INTERFACE_UNIT_TERMINAL) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    if (state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     state = STATE.STANDARD_ENDPOINT;
                     aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
                     aInterface.addEndpoint(endpointIndex, aEndpoint);
@@ -105,7 +92,7 @@ public class Descriptor {
     }
 
     private static enum STATE {
-        IAD, STANDARD_INTERFACE, CLASS_INTERFACE_HEADER, CLASS_INTERFACE_UNIT_TERMINAL, STANDARD_ENDPOINT, CLASS_ENDPOINT
+        IAD, STANDARD_INTERFACE, CLASS_INTERFACE, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
 
 

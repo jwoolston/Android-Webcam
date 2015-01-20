@@ -54,8 +54,7 @@ public abstract class AInterface {
                         return VideoControlInterface.parseVideoControlInterface(device, descriptor);
                     case SC_VIDEOSTREAMING:
                         Log.d(TAG, "Parsing VideoStreamingInterface: " + Hexdump.dumpHexString(descriptor));
-                        return null;
-                        // return new VideoStreamingInterface(device, (int) descriptor[iInterface]);
+                        return VideoStreamingInterface.parseVideoStreamingInterface(device, descriptor);
                     default:
                         throw new IllegalArgumentException("The provided descriptor has an invalid video interface subclass.");
                 }
@@ -96,6 +95,10 @@ public abstract class AInterface {
     public int getIndexInterface() {
         return mIndexInterface;
     }
+
+    public abstract void parseClassDescriptor(byte[] descriptor);
+
+    public abstract void parseAlternateFunction(byte[] descriptor);
 
     @Override
     public String toString() {

@@ -49,6 +49,26 @@ public class VideoControlInterface extends AVideoClassInterface {
     }
 
     @Override
+    public void parseClassDescriptor(byte[] descriptor) {
+        if (isClassInterfaceHeader(descriptor)) {
+            parseClassInterfaceHeader(descriptor);
+            Log.d(TAG, "" + this);
+        } else if (isTerminal(descriptor)) {
+            parseTerminal(descriptor);
+        } else if (isUnit(descriptor)) {
+            parseUnit(descriptor);
+        } else {
+            throw new IllegalArgumentException("Unknown class specific interface type.");
+        }
+    }
+
+    @Override
+    public void parseAlternateFunction(byte[] descriptor) {
+        // Do nothing
+        Log.d(TAG, "parseAlternateFunction() called for VideoControlInterface.");
+    }
+
+    @Override
     public String toString() {
         return "VideoControlInterface{" +
                 "mUVC=" + mUVC +
