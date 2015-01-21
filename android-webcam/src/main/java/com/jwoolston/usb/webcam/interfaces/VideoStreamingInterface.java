@@ -4,6 +4,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
+import com.jwoolston.usb.webcam.interfaces.endpoints.Endpoint;
 import com.jwoolston.usb.webcam.interfaces.streaming.AVideoFormat;
 import com.jwoolston.usb.webcam.interfaces.streaming.MJPEGVideoFormat;
 import com.jwoolston.usb.webcam.interfaces.streaming.MJPEGVideoFrame;
@@ -22,7 +23,7 @@ import java.util.List;
  */
 public class VideoStreamingInterface extends AVideoClassInterface {
 
-    private static final String TAG = "VideoStreamInterface";
+    private static final String TAG = "VideoStreamingInterface";
 
     private static final int bLength = 0;
     private static final int bDescriptorType = 1;
@@ -48,6 +49,17 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     VideoStreamingInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
         mVideoFormats = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return "VideoStreamingInterface{" +
+                "mInputHeader=" + mInputHeader +
+                ", mOutputHeader=" + mOutputHeader +
+                ", mVideoFormats=" + mVideoFormats +
+                ", mColorMatchingDescriptor=" + mColorMatchingDescriptor +
+                ", Usb Interface=" + getUsbInterface() +
+                '}';
     }
 
     @Override
@@ -94,8 +106,8 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 //TODO: Handle STILL IMAGE FRAME descriptor section 3.9.2.5 Pg. 81
                 break;
             case VS_COLORFORMAT:
-                // TODO: This needs to get added to the last compatable frame descriptor
                 mColorMatchingDescriptor = new VideoColorMatchingDescriptor(descriptor);
+                mLastFormat.setColorMatchingDescriptor(mColorMatchingDescriptor);
                 Log.d(TAG, "" + mColorMatchingDescriptor);
                 break;
             default:
@@ -106,6 +118,9 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     @Override
     public void parseAlternateFunction(byte[] descriptor) {
         Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
+        mCurrentSetting = 0xFF & descriptor[bAlternateSetting];
+        final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
+        mEndpoints.put(mCurrentSetting, new Endpoint[endpointCount]);
     }
 
     public static enum VS_INTERFACE_SUBTYPE {

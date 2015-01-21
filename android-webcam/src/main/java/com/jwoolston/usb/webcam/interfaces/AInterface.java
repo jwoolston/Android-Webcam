@@ -3,6 +3,7 @@ package com.jwoolston.usb.webcam.interfaces;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.jwoolston.usb.webcam.interfaces.endpoints.Endpoint;
 import com.jwoolston.usb.webcam.util.Hexdump;
@@ -32,7 +33,9 @@ public abstract class AInterface {
 
     private final int mIndexInterface;
 
-    private final Endpoint[] mEndpoints;
+    protected final SparseArray<Endpoint[]> mEndpoints;
+
+    protected int mCurrentSetting = 0;
 
     protected static UsbInterface getUsbInterface(UsbDevice device, byte[] descriptor) {
         final int index = (0xFF & descriptor[bInterfaceNumber]);
@@ -72,16 +75,18 @@ public abstract class AInterface {
     protected AInterface(UsbInterface usbInterface, byte[] descriptor) {
         mUsbInterface = usbInterface;
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
-        mEndpoints = new Endpoint[endpointCount];
+        mEndpoints = new SparseArray<>();
+        mCurrentSetting = 0xFF & descriptor[bAlternateSetting];
+        mEndpoints.put(mCurrentSetting, new Endpoint[endpointCount]);
         mIndexInterface = (0xFF & descriptor[iInterface]);
     }
 
     public void addEndpoint(int index, Endpoint endpoint) {
-        mEndpoints[index - 1] = endpoint;
+        mEndpoints.get(mCurrentSetting)[index - 1] = endpoint;
     }
 
     public Endpoint getEndpoint(int index) {
-        return mEndpoints[index - 1];
+        return mEndpoints.get(mCurrentSetting)[index - 1];
     }
 
     public int getInterfaceNumber() {

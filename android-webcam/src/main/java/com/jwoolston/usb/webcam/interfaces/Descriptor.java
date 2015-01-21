@@ -36,6 +36,10 @@ public class Descriptor {
 
             switch (type) {
                 case INTERFACE_ASSOCIATION:
+                    if (state == STATE.STANDARD_ENDPOINT) {
+                        i = rawDescriptor.length;
+                        break;
+                    }
                     if (state != null) throw new IllegalStateException("Tried parsing an IAD at an invalid time: " + state);
                     state = STATE.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
@@ -67,7 +71,7 @@ public class Descriptor {
                     break;
                 case ENDPOINT:
                     if (aInterface == null) throw new IllegalStateException("Tried parsing a standard endpoint when no standard interface has been parsed.");
-                    if (state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    if (state != STATE.STANDARD_INTERFACE && state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     state = STATE.STANDARD_ENDPOINT;
                     aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
                     aInterface.addEndpoint(endpointIndex, aEndpoint);
