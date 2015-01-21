@@ -5,7 +5,10 @@ import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
 import com.jwoolston.usb.webcam.interfaces.streaming.AVideoFormat;
+import com.jwoolston.usb.webcam.interfaces.streaming.MJPEGVideoFormat;
+import com.jwoolston.usb.webcam.interfaces.streaming.MJPEGVideoFrame;
 import com.jwoolston.usb.webcam.interfaces.streaming.UncompressedVideoFormat;
+import com.jwoolston.usb.webcam.interfaces.streaming.UncompressedVideoFrame;
 import com.jwoolston.usb.webcam.interfaces.streaming.VideoColorMatchingDescriptor;
 import com.jwoolston.usb.webcam.interfaces.streaming.VideoStreamInputHeader;
 import com.jwoolston.usb.webcam.interfaces.streaming.VideoStreamOutputHeader;
@@ -59,11 +62,31 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 break;
             case VS_FORMAT_UNCOMPRESSED:
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
+                Log.d(TAG, "Adding Video Format: " + uncompressedVideoFormat);
                 mVideoFormats.add(uncompressedVideoFormat);
                 mLastFormat = uncompressedVideoFormat;
                 break;
             case VS_FRAME_UNCOMPRESSED:
-
+                final UncompressedVideoFrame uncompressedVideoFrame = new UncompressedVideoFrame(descriptor);
+                try {
+                    ((UncompressedVideoFormat) mLastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the previously parsed Format: " + mLastFormat.getClass().getName());
+                }
+                break;
+            case VS_FORMAT_MJPEG:
+                final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
+                Log.d(TAG, "Adding Video Format: " + mjpegVideoFormat);
+                mVideoFormats.add(mjpegVideoFormat);
+                mLastFormat = mjpegVideoFormat;
+                break;
+            case VS_FRAME_MJPEG:
+                final MJPEGVideoFrame mjpegVideoFrame = new MJPEGVideoFrame(descriptor);
+                try {
+                    ((MJPEGVideoFormat) mLastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("The parsed MJPEG frame descriptor is not valid for the previously parsed Format: " + mLastFormat.getClass().getName());
+                }
                 break;
             case VS_STILL_IMAGE_FRAME:
                 Log.d(TAG, "VideoStream Still Image Frame Descriptor");

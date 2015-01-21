@@ -1,11 +1,11 @@
 package com.jwoolston.usb.webcam.interfaces.streaming;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.usb.webcam.util.Hexdump;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
@@ -26,6 +26,11 @@ public class UncompressedVideoFormat extends AVideoFormat {
     //| I420   | 30323449-0000-0010-8000-00AA00389B71 |
     //|-----------------------------------------------|
 
+    private static final String YUY2_GUID = "32595559-0000-0010-8000-00AA00389B71";
+    private static final String NV12_GUID = "3231564E-0000-0010-8000-00AA00389B71";
+    private static final String M420_GUID = "3032344D-0000-0010-8000-00AA00389B71";
+    private static final String I420_GUID = "30323449-0000-0010-8000-00AA00389B71";
+
     private static final int bFormatIndex         = 3;
     private static final int bNumFrameDescriptors = 4;
     private static final int guidFormat           = 5;
@@ -38,7 +43,7 @@ public class UncompressedVideoFormat extends AVideoFormat {
 
     private final int     mFormatIndex;
     private final int     mNumberFrames;
-    private final byte[]  mGUID;
+    private final String  mGUID;
     private final int     mBitsPerPixel;
     private final int     mDefaultFrameIndex;
     private final int     mAspectRatioX;
@@ -54,14 +59,34 @@ public class UncompressedVideoFormat extends AVideoFormat {
         mVideoFrames = new SparseArray<>();
         mFormatIndex = (0xFF & descriptor[bFormatIndex]);
         mNumberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
-        mGUID = new byte[16];
-        System.arraycopy(descriptor, guidFormat, mGUID, 0, mGUID.length);
+        byte[] GUIDBytes = new byte[16];
+        System.arraycopy(descriptor, guidFormat, GUIDBytes, 0, GUIDBytes.length);
         mBitsPerPixel = (0xFF & descriptor[bBitsPerPixel]);
         mDefaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
         mAspectRatioX = (0xFF & descriptor[bAspectRatioX]);
         mAspectRatioY = (0xFF & descriptor[bAspectRatioY]);
         mInterlaceFlags = descriptor[bmInterlaceFlags];
         mCopyProtect = descriptor[bCopyProtect] != 0;
+
+        // Parse the GUID bytes to String
+        final StringBuilder builder = new StringBuilder();
+        builder.append(Hexdump.toHexString(GUIDBytes[3])).append(Hexdump.toHexString(GUIDBytes[2])).append(Hexdump.toHexString(GUIDBytes[1])).append(Hexdump.toHexString(GUIDBytes[0]));
+        builder.append('-').append(Hexdump.toHexString(GUIDBytes[5])).append(Hexdump.toHexString(GUIDBytes[4]));
+        builder.append('-').append(Hexdump.toHexString(GUIDBytes[7])).append(Hexdump.toHexString(GUIDBytes[6]));
+        builder.append('-');
+        for (int i = 8; i < 10; ++i) {
+            builder.append(Hexdump.toHexString(GUIDBytes[i]));
+        }
+        builder.append('-');
+        for (int i = 10; i < 16; ++i) {
+            builder.append(Hexdump.toHexString(GUIDBytes[i]));
+        }
+        mGUID = builder.toString();
+    }
+
+    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
+        Log.d(TAG, "Adding video frame: " + frame);
+        mVideoFrames.put(frame.getFrameIndex(), frame);
     }
 
     @Override
@@ -69,7 +94,7 @@ public class UncompressedVideoFormat extends AVideoFormat {
         return "UncompressedVideoFormat{" +
                 "mFormatIndex=" + mFormatIndex +
                 ", mNumberFrames=" + mNumberFrames +
-                ", mGUID=" + Arrays.toString(mGUID) +
+                ", GUID=" + mGUID +
                 ", mBitsPerPixel=" + mBitsPerPixel +
                 ", mDefaultFrameIndex=" + mDefaultFrameIndex +
                 ", AspectRatio=" + mAspectRatioX + ":" + mAspectRatioY +
@@ -78,39 +103,11 @@ public class UncompressedVideoFormat extends AVideoFormat {
                 '}';
     }
 
-    public int getFormatIndex() {
-        return mFormatIndex;
-    }
-
-    public int getNumberFrames() {
-        return mNumberFrames;
-    }
-
-    public byte[] getGUID() {
+    public String getGUID() {
         return mGUID;
     }
 
     public int getBitsPerPixel() {
         return mBitsPerPixel;
-    }
-
-    public int getDefaultFrameIndex() {
-        return mDefaultFrameIndex;
-    }
-
-    public int getAspectRatioX() {
-        return mAspectRatioX;
-    }
-
-    public int getAspectRatioY() {
-        return mAspectRatioY;
-    }
-
-    public byte getInterlaceFlags() {
-        return mInterlaceFlags;
-    }
-
-    public boolean isCopyProtect() {
-        return mCopyProtect;
     }
 }

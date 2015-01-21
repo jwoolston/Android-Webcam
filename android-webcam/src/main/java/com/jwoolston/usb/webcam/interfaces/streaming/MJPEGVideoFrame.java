@@ -5,17 +5,15 @@ import java.util.Arrays;
 /**
  * @author Jared Woolston (jwoolston@idealcorp.com)
  */
-public class UncompressedVideoFrame extends AVideoFrame {
+public class MJPEGVideoFrame extends AVideoFrame {
 
-    private static final String TAG = "UncompressedVideoFrame";
-
-    public UncompressedVideoFrame(byte[] descriptor) throws IllegalArgumentException {
+    public MJPEGVideoFrame(byte[] descriptor) {
         super(descriptor);
     }
 
     @Override
     public String toString() {
-        return "UncompressedVideoFrame{" +
+        return "MJPEGVideoFrame{" +
                 "mStillImageSupported=" + getStillImageSupported() +
                 ", mFixedFrameRateEnabled=" + getFixedFrameRateEnabled() +
                 ", mWidth=" + getWidth() +
