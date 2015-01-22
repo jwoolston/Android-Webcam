@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 /*
  * Copyright 2015 Jared Woolston
  *
@@ -35,6 +37,9 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+        ndk {
+            moduleName = "android-webcam-jni"
+        }
     }
 
     compileOptions {
@@ -45,7 +50,30 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //android.buildTypes.debug.jniDebugBuild = false
         }
+        debug {
+            //android.buildTypes.debug.jniDebugBuild = true
+        }
+    }
+
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/libs'
+        // jni.srcDirs = [] //disable automatic ndk-build call
+    }
+
+    // call regular ndk-build(.cmd) script from app directory
+    println file('src/main/jni/').absolutePath
+    task ndkBuild(type: Exec) {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'ndk-build.cmd', '-C', file('src/main/').absolutePath
+        } else {
+            commandLine 'ndk-build', '-C', file('src/main/').absolutePath
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn ndkBuild
     }
 }
 
