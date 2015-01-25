@@ -33,12 +33,13 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        minSdkVersion 13
+        minSdkVersion 12
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+
         ndk {
-            moduleName = "android-webcam-jni"
+            moduleName 'android-libusb'
         }
     }
 
@@ -46,34 +47,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //android.buildTypes.debug.jniDebugBuild = false
         }
         debug {
-            //android.buildTypes.debug.jniDebugBuild = true
+
         }
-    }
-
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
-        // jni.srcDirs = [] //disable automatic ndk-build call
-    }
-
-    // call regular ndk-build(.cmd) script from app directory
-    println file('src/main/jni/').absolutePath
-    task ndkBuild(type: Exec) {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'ndk-build.cmd', '-C', file('src/main/').absolutePath
-        } else {
-            commandLine 'ndk-build', '-C', file('src/main/').absolutePath
-        }
-    }
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn ndkBuild
     }
 }
 
