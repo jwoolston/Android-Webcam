@@ -6,6 +6,9 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.util.Log;
+
+import com.jwoolston.usb.webcam.interfaces.Descriptor;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,6 +21,8 @@ import java.io.OutputStream;
  * possible, communication begins immediately.
  */
 class WebcamConnection {
+
+    private static final String TAG = "WebcamConnection";
 
     private static final int INTERFACE_CONTROL = 0;
 
@@ -42,6 +47,14 @@ class WebcamConnection {
         // Claim the control interface
         usbDeviceConnection = usbManager.openDevice(usbDevice);
         usbDeviceConnection.claimInterface(usbInterfaceControl, true);
+
+        parseAssiociationDescriptors();
+    }
+
+    private void parseAssiociationDescriptors() {
+        Log.d(TAG, "Parsing raw association descriptors.");
+        final byte[] raw = usbDeviceConnection.getRawDescriptors();
+        Descriptor.parseDescriptors(usbDevice, raw);
     }
 
     boolean isConnected() {
