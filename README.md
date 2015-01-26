@@ -6,7 +6,7 @@ This is a (almost) pure Java implementation of a USB webcam driver for Android. 
 
 ## Main Feature Set (Planned)
 1. Dependency free Mavenized Android library with Java only interface
-2. Support for any USB Host capable Android device
+2. Support for most USB Host capable Android devices. We require the use of `UsbDeviceConnect.getRawDescriptors()` which was added in API 13 (Honeycomb 3.2) so this is the minimum API level.
 3. Support for USB webcam implementations that adhere to the UVC 1.5 classification
 4. Support for full range of device resolutions (240p and greater)
 5. Simple integration to 3rd party applications with multiple implementation options dependant on use case requirements.
