@@ -21,7 +21,7 @@
 #ifndef LIBUSBI_H
 #define LIBUSBI_H
 
-#include <config.h>
+#include "config.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -31,8 +31,8 @@
 #include <poll.h>
 #endif
 
-#include <libusb.h>
-#include <version.h>
+#include "libusb.h"
+#include "version.h"
 
 /* Inside the libusb code, mark all public functions as follows:
  *   return_type API_EXPORTED function_name(params) { ... }
@@ -223,14 +223,14 @@ static inline void usbi_dbg(const char *fmt, ...)
 
 /* Internal abstractions for thread synchronization and poll */
 #if defined(THREADS_POSIX)
-#include <os/threads_posix.h>
+#include "os/threads_posix.h"
 #elif defined(OS_WINDOWS)
 #include <os/threads_windows.h>
 #endif
 
 #if defined(OS_LINUX) || defined(OS_DARWIN) || defined(OS_OPENBSD)
 #include <unistd.h>
-#include <os/poll_posix.h>
+#include "os/poll_posix.h"
 #elif defined(OS_WINDOWS)
 #include <os/poll_windows.h>
 #endif

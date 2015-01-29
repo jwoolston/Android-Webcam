@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.jwoolston.usb.webcam.UnknownDeviceException;
 import com.jwoolston.usb.webcam.Webcam;
 import com.jwoolston.usb.webcam.WebcamManager;
+import com.jwoolston.usb.webcam.libusb.UsbDeviceIsoConnection;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -26,6 +27,9 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "Initializing native layer.");
+        final UsbDeviceIsoConnection util = new UsbDeviceIsoConnection(getApplicationContext());
 
         deviceDisconnectedReceiver = new BroadcastReceiver() {
             @Override
