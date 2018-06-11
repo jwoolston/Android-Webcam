@@ -1,7 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 class AVideoFrame {
 

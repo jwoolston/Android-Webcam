@@ -87,5 +87,4 @@ public class MainActivity extends AppCompatActivity {
             webcam.terminateStreaming(this);
         }
     }
-
 }

@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.units;
 import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class AVideoExtensionUnit extends VideoUnit {
 

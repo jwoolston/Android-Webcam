@@ -4,7 +4,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
 

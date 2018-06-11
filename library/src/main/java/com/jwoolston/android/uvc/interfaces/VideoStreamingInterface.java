@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoStreamingInterface extends AVideoClassInterface {
 

@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
+ */
 public class WebcamManager {
 
     private static final String BUFFER_CACHE_DIR = "/buffer_data";

@@ -7,12 +7,12 @@ import android.hardware.usb.UsbManager;
 import java.nio.ByteBuffer;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class UsbDeviceIsoConnection {
 
     static {
-        System.loadLibrary("android-libusb");
+        System.loadLibrary("usb-runtime");
     }
 
     /**

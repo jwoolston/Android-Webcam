@@ -4,7 +4,7 @@ import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoUnit {
 

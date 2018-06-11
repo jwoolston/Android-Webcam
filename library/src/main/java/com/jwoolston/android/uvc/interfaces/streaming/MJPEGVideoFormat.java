@@ -6,7 +6,7 @@ import android.util.SparseArray;
 import com.jwoolston.android.uvc.util.Hexdump;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class MJPEGVideoFormat extends AVideoFormat {
 

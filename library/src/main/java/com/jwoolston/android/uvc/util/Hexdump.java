@@ -19,6 +19,8 @@ package com.jwoolston.android.uvc.util;
 /**
  * Clone of Android's HexDump class, for use in debugging. Cosmetic changes
  * only.
+ *
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class Hexdump {
     private final static char[] HEX_DIGITS = {

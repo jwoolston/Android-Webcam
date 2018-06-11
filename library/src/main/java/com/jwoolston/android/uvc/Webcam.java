@@ -5,6 +5,9 @@ import android.hardware.usb.UsbDevice;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+/**
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
+ */
 public interface Webcam {
 
     /**

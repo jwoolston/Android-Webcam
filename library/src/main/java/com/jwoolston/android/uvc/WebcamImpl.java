@@ -6,6 +6,9 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+/**
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
+ */
 class WebcamImpl implements Webcam {
 
     private final Context context;

@@ -1,17 +1,16 @@
 package com.jwoolston.android.uvc.interfaces;
 
+import static com.jwoolston.android.uvc.interfaces.Descriptor.VIDEO_SUBCLASS;
+
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 import android.util.SparseArray;
-
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 
-import static com.jwoolston.android.uvc.interfaces.Descriptor.VIDEO_SUBCLASS;
-
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public abstract class AInterface {
 

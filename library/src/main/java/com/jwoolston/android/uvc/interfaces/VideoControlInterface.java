@@ -17,7 +17,7 @@ import com.jwoolston.android.uvc.interfaces.units.VideoUnit;
 import java.util.Arrays;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoControlInterface extends AVideoClassInterface {
 

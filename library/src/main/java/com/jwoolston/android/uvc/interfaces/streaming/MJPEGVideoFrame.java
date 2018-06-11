@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 import java.util.Arrays;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class MJPEGVideoFrame extends AVideoFrame {
 

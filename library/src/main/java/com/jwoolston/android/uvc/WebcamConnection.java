@@ -19,6 +19,8 @@ import java.io.OutputStream;
  * Helper class for abstracting communication to a camera. This implementation directly handles
  * configuration, state, and data transfer. The USB layer is constructed at instantiation and if
  * possible, communication begins immediately.
+ *
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 class WebcamConnection {
 

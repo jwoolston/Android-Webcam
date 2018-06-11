@@ -8,7 +8,7 @@ import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.Arrays;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC USB_Video_Payload_Uncompressed.pdf v1.5 Table 3-1
  */
 public class UncompressedVideoFormat extends AVideoFormat {

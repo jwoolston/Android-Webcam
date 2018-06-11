@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 import android.util.Log;
 
 /**
- * @author Jared Woolston (jwoolston@tenkiv.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC 1.5 Class Specification Table 3-15
  */
 public class VideoStreamOutputHeader extends AVideoStreamHeader {

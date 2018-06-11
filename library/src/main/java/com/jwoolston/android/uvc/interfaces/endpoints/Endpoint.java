@@ -5,7 +5,7 @@ import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
 /**
- * @author Jared Woolston (jwoolston@idealcorp.com)
+ * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class Endpoint {
 
