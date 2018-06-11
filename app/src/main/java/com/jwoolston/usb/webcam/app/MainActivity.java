@@ -7,15 +7,14 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+import com.jwoolston.android.uvc.UnknownDeviceException;
+import com.jwoolston.android.uvc.Webcam;
+import com.jwoolston.android.uvc.WebcamManager;
 
-import com.jwoolston.usb.webcam.UnknownDeviceException;
-import com.jwoolston.usb.webcam.Webcam;
-import com.jwoolston.usb.webcam.WebcamManager;
-
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -84,5 +83,4 @@ public class MainActivity extends ActionBarActivity {
             webcam.terminateStreaming(this);
         }
     }
-
 }

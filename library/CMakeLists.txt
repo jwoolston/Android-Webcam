@@ -7,9 +7,10 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log )
 
-MESSAGE( STATUS "CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR} )
-
-include_directories(libusb/android)
+include_directories(
+    libusb/android
+    libusb/libusb
+    libusb/libusb/os)
 
 # Defines the source code for the library
 set(libusb_SRCS
@@ -33,6 +34,9 @@ add_library(
     SHARED
 
     # Provides a relative path to your source file(s).
+    src/main/cpp/logging.h
+    src/main/cpp/com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection.c
+    src/main/cpp/com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection.h
     ${libusb_SRCS}
 )
 
@@ -41,4 +45,4 @@ set_target_properties(usb-runtime PROPERTIES LINKER_LANGUAGE C)
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
-target_link_libraries(usb-runtime log-lib)
+target_link_libraries(usb-runtime ${log-lib})
