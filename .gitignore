@@ -31,3 +31,5 @@ local.gradle
 ehthumbs.db
 Thumbs.db
 .idea/
+library/.externalNativeBuild/
+*.iml
