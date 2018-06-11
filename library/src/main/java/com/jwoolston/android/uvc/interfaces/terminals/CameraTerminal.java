@@ -21,72 +21,83 @@ public class CameraTerminal extends VideoInputTerminal {
     private static final int bControlSize             = 14;
     private static final int bmControls               = 15;
 
-    private final int mObjectiveFocalLengthMin;
-    private final int mObjectiveFocalLengthMax;
-    private final int mObjectiveFocalLength;
-    private final int mOcularFocalLength;
+    private final int objectiveFocalLengthMin;
+    private final int objectiveFocalLengthMax;
+    private final int objectiveFocalLength;
+    private final int ocularFocalLength;
 
-    private final Set<CONTROL> mControlSet;
+    private final Set<Control> controlSet;
 
     public static boolean isCameraTerminal(byte[] descriptor) {
-        if (descriptor.length != LENGTH_DESCRIPTOR) { return false; }
-        if (descriptor[bDescriptorSubtype] != AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) { return false; }
-        final TERMINAL_TYPE type = TERMINAL_TYPE.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
-        return (type == TERMINAL_TYPE.ITT_CAMERA);
+        if (descriptor.length != LENGTH_DESCRIPTOR) {
+            return false;
+        }
+        if (descriptor[bDescriptorSubtype] != AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) {
+            return false;
+        }
+        final TerminalType type = TerminalType.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
+        return (type == TerminalType.ITT_CAMERA);
     }
 
     public CameraTerminal(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        if (!isCameraTerminal(descriptor)) { throw new IllegalArgumentException("The provided descriptor is not a valid Camera Terminal descriptor."); }
-        mObjectiveFocalLengthMin = descriptor[wObjectiveFocalLengthMin] | (descriptor[wObjectiveFocalLengthMin + 1] << 8);
-        mObjectiveFocalLengthMax = descriptor[wObjectiveFocalLengthMax] | (descriptor[wObjectiveFocalLengthMax + 1] << 8);
-        mObjectiveFocalLength = descriptor[wOcularFocalLength] | (descriptor[wOcularFocalLength + 1] << 8);
-        mOcularFocalLength = descriptor[wOcularFocalLength] | (descriptor[wOcularFocalLength + 1] << 8);
-        final int bitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls + 2] << 8);
-        final Set<CONTROL> controlSet = new HashSet<>();
+        if (!isCameraTerminal(descriptor)) {
+            throw new IllegalArgumentException("The provided descriptor is not a valid Camera Terminal descriptor.");
+        }
+        objectiveFocalLengthMin = descriptor[wObjectiveFocalLengthMin] | (descriptor[wObjectiveFocalLengthMin + 1]
+                                                                          << 8);
+        objectiveFocalLengthMax = descriptor[wObjectiveFocalLengthMax] | (descriptor[wObjectiveFocalLengthMax + 1]
+                                                                          << 8);
+        objectiveFocalLength = descriptor[wOcularFocalLength] | (descriptor[wOcularFocalLength + 1] << 8);
+        ocularFocalLength = descriptor[wOcularFocalLength] | (descriptor[wOcularFocalLength + 1] << 8);
+        final int bitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls + 2]
+                                                                                         << 8);
+        final Set<Control> controlSet = new HashSet<>();
         for (int i = 0; i < 24; ++i) {
             if ((bitMap & (0x01 << i)) != 0) {
                 // The specified flag is present
-                final CONTROL control = CONTROL.controlFromIndex(i);
-                if (control == null) { throw new IllegalArgumentException("Unknown camera control from index: " + i); }
+                final Control control = Control.controlFromIndex(i);
+                if (control == null) {
+                    throw new IllegalArgumentException("Unknown camera control from index: " + i);
+                }
                 controlSet.add(control);
             }
         }
         // The contents of this set should never change
-        mControlSet = Collections.unmodifiableSet(controlSet);
+        this.controlSet = Collections.unmodifiableSet(controlSet);
     }
 
     public int getObjectiveFocalLengthMin() {
-        return mObjectiveFocalLengthMin;
+        return objectiveFocalLengthMin;
     }
 
     public int getObjectiveFocalLengthMax() {
-        return mObjectiveFocalLengthMax;
+        return objectiveFocalLengthMax;
     }
 
     public int getObjectiveFocalLength() {
-        return mObjectiveFocalLength;
+        return objectiveFocalLength;
     }
 
     public int getOcularFocalLength() {
-        return mOcularFocalLength;
+        return ocularFocalLength;
     }
 
-    public boolean hasControl(CONTROL control) {
-        return mControlSet.contains(control);
+    public boolean hasControl(Control control) {
+        return controlSet.contains(control);
     }
 
     @Override
     public String toString() {
         final String base = "CameraTerminal{" +
-                "Terminal Type=" + getTerminalType() +
-                ", Min Objective Focal Length: " + getObjectiveFocalLengthMin() +
-                ", Max Objective Focal Length: " + getObjectiveFocalLengthMax() +
-                ", Objective Focal Length: " + getObjectiveFocalLength() +
-                ", Ocular Focal Length: " + getOcularFocalLength() +
-                ", Available Controls: ";
+                            "Terminal Type=" + getTerminalType() +
+                            ", Min Objective Focal Length: " + getObjectiveFocalLengthMin() +
+                            ", Max Objective Focal Length: " + getObjectiveFocalLengthMax() +
+                            ", Objective Focal Length: " + getObjectiveFocalLength() +
+                            ", Ocular Focal Length: " + getOcularFocalLength() +
+                            ", Available Controls: ";
         final StringBuilder builder = new StringBuilder(base);
-        for (CONTROL control : mControlSet) {
+        for (Control control : controlSet) {
             builder.append(control).append(',');
         }
         builder.deleteCharAt(builder.length() - 1);
@@ -94,7 +105,7 @@ public class CameraTerminal extends VideoInputTerminal {
         return builder.toString();
     }
 
-    public static enum CONTROL {
+    public static enum Control {
         SCANNING_MODE,
         AUTO_EXPOSURE_MODE,
         AUTO_EXPOSURE_PRIORITY,
@@ -120,12 +131,12 @@ public class CameraTerminal extends VideoInputTerminal {
         RESERVED_2,
         RESERVED_3;
 
-        public static CONTROL controlFromIndex(int i) {
-            final CONTROL[] values = CONTROL.values();
+        public static Control controlFromIndex(int i) {
+            final Control[] values = Control.values();
             if (i > values.length || i < 0) {
                 return null;
             }
-            for (CONTROL control : values) {
+            for (Control control : values) {
                 if (control.ordinal() == i) {
                     return control;
                 }

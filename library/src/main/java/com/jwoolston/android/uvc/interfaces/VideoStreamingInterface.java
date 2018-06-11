@@ -118,9 +118,9 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     @Override
     public void parseAlternateFunction(byte[] descriptor) {
         Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
-        mCurrentSetting = 0xFF & descriptor[bAlternateSetting];
+        currentSetting = 0xFF & descriptor[bAlternateSetting];
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
-        mEndpoints.put(mCurrentSetting, new Endpoint[endpointCount]);
+        endpoints.put(currentSetting, new Endpoint[endpointCount]);
     }
 
     public static enum VS_INTERFACE_SUBTYPE {

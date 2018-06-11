@@ -21,9 +21,9 @@ public class Descriptor {
     public static void parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
         int length;
         byte[] desc;
-        TYPE type;
+        Type type;
         int i = 0;
-        STATE state = null;
+        State state = null;
         InterfaceAssociationDescriptor iad = null;
         AInterface aInterface = null;
         Endpoint aEndpoint = null;
@@ -32,24 +32,28 @@ public class Descriptor {
             length = rawDescriptor[i];
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
-            type = TYPE.getTYPE(desc);
+            type = Type.getType(desc);
 
             switch (type) {
                 case INTERFACE_ASSOCIATION:
-                    if (state == STATE.STANDARD_ENDPOINT) {
+                    if (state == State.STANDARD_ENDPOINT) {
                         i = rawDescriptor.length;
                         break;
                     }
-                    if (state != null) throw new IllegalStateException("Tried parsing an IAD at an invalid time: " + state);
-                    state = STATE.IAD;
+                    if (state != null) {
+                        throw new IllegalStateException("Tried parsing an IAD at an invalid time: " + state);
+                    }
+                    state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     Log.d(TAG, "" + iad);
                     break;
                 case INTERFACE:
-                    if (state != STATE.IAD && state != STATE.CLASS_INTERFACE && state != STATE.STANDARD_ENDPOINT && state != STATE.CLASS_ENDPOINT) {
-                        throw new IllegalStateException("Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
+                    if (state != State.IAD && state != State.CLASS_INTERFACE && state != State.STANDARD_ENDPOINT
+                        && state != State.CLASS_ENDPOINT) {
+                        throw new IllegalStateException(
+                                "Tried parsing a STANDARD INTERFACE at an invalid time: " + state);
                     }
-                    state = STATE.STANDARD_INTERFACE;
+                    state = State.STANDARD_INTERFACE;
                     endpointIndex = 1;
                     aInterface = AInterface.parseDescriptor(device, desc);
                     if (iad != null && aInterface != null) {
@@ -64,24 +68,41 @@ public class Descriptor {
                     Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
-                    if (aInterface == null) throw new IllegalStateException("Tried parsing a class interface when no standard interface has been parsed.");
-                    if (state != STATE.STANDARD_INTERFACE && state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
-                    state = STATE.CLASS_INTERFACE;
+                    if (aInterface == null) {
+                        throw new IllegalStateException(
+                                "Tried parsing a class interface when no standard interface has been parsed.");
+                    }
+                    if (state != State.STANDARD_INTERFACE && state != State.CLASS_INTERFACE) {
+                        throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
+                    }
+                    state = State.CLASS_INTERFACE;
                     aInterface.parseClassDescriptor(desc);
                     break;
                 case ENDPOINT:
-                    if (aInterface == null) throw new IllegalStateException("Tried parsing a standard endpoint when no standard interface has been parsed.");
-                    if (state != STATE.STANDARD_INTERFACE && state != STATE.CLASS_INTERFACE) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
-                    state = STATE.STANDARD_ENDPOINT;
+                    if (aInterface == null) {
+                        throw new IllegalStateException(
+                                "Tried parsing a standard endpoint when no standard interface has been parsed.");
+                    }
+                    if (state != State.STANDARD_INTERFACE && state != State.CLASS_INTERFACE) {
+                        throw new IllegalStateException(
+                                "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    }
+                    state = State.STANDARD_ENDPOINT;
                     aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
                     aInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
                     Log.d(TAG, "" + aEndpoint);
                     break;
                 case CS_ENDPOINT:
-                    if (aEndpoint == null) throw new IllegalStateException("Tried parsing a class endpoint when no standard endpoint has been parsed.");
-                    if (state != STATE.STANDARD_ENDPOINT) throw new IllegalStateException("Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
-                    state = STATE.CLASS_ENDPOINT;
+                    if (aEndpoint == null) {
+                        throw new IllegalStateException(
+                                "Tried parsing a class endpoint when no standard endpoint has been parsed.");
+                    }
+                    if (state != State.STANDARD_ENDPOINT) {
+                        throw new IllegalStateException(
+                                "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
+                    }
+                    state = State.CLASS_ENDPOINT;
                     aEndpoint.parseClassDescriptor(desc);
                     break;
                 case DEVICE:
@@ -95,12 +116,12 @@ public class Descriptor {
         }
     }
 
-    private static enum STATE {
+    private static enum State {
         IAD, STANDARD_INTERFACE, CLASS_INTERFACE, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
 
 
-    public static enum VIDEO_SUBCLASS {
+    public static enum VideoSubclass {
         SC_UNDEFINED(0x00),
         SC_VIDEOCONTROL(0x01),
         SC_VIDEOSTREAMING(0x02),
@@ -108,12 +129,12 @@ public class Descriptor {
 
         public final byte subclass;
 
-        private VIDEO_SUBCLASS(int subclass) {
+        private VideoSubclass(int subclass) {
             this.subclass = (byte) (subclass & 0xFF);
         }
 
-        public static VIDEO_SUBCLASS getVIDEO_SUBCLASS(byte subclass) {
-            for (VIDEO_SUBCLASS s : VIDEO_SUBCLASS.values()) {
+        public static VideoSubclass getVideoSubclass(byte subclass) {
+            for (VideoSubclass s : VideoSubclass.values()) {
                 if (s.subclass == subclass) {
                     return s;
                 }
@@ -122,7 +143,7 @@ public class Descriptor {
         }
     }
 
-    public static enum AUDIO_SUBCLASS {
+    public static enum AudioSubclass {
         SC_UNDEFINED(0x00),
         SC_AUDIOCONTROL(0x01),
         SC_AUDIOSTREAMING(0x02),
@@ -130,12 +151,12 @@ public class Descriptor {
 
         public final byte subclass;
 
-        private AUDIO_SUBCLASS(int subclass) {
+        private AudioSubclass(int subclass) {
             this.subclass = (byte) (subclass & 0xFF);
         }
 
-        public static AUDIO_SUBCLASS getAUDIO_SUBCLASS(byte subclass) {
-            for (AUDIO_SUBCLASS a : AUDIO_SUBCLASS.values()) {
+        public static AudioSubclass getAudioSubclass(byte subclass) {
+            for (AudioSubclass a : AudioSubclass.values()) {
                 if (a.subclass == subclass) {
                     return a;
                 }
@@ -144,7 +165,7 @@ public class Descriptor {
         }
     }
 
-    public static enum TYPE {
+    public static enum Type {
         DEVICE(0x01),
         CONFIGURATION(0x02),
         STRING(0x03),
@@ -161,12 +182,12 @@ public class Descriptor {
 
         public final byte type;
 
-        private TYPE(int type) {
+        private Type(int type) {
             this.type = (byte) (type & 0xFF);
         }
 
-        public static TYPE getTYPE(byte[] raw) {
-            for (TYPE t : TYPE.values()) {
+        public static Type getType(byte[] raw) {
+            for (Type t : Type.values()) {
                 if (t.type == raw[INDEX_DESCRIPTOR_TYPE]) {
                     return t;
                 }
@@ -175,13 +196,13 @@ public class Descriptor {
         }
     }
 
-    public static enum PROTOCOL {
+    public static enum Protocol {
         PC_PROTOCOL_UNDEFINED(0x00),
         PC_PROTOCOL_15(0x01);
 
         public final byte protocol;
 
-        private PROTOCOL(int protocol) {
+        private Protocol(int protocol) {
             this.protocol = (byte) (protocol & 0xFF);
         }
     }

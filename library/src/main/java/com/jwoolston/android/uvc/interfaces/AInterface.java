@@ -1,11 +1,12 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import static com.jwoolston.android.uvc.interfaces.Descriptor.VIDEO_SUBCLASS;
+import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 import android.util.SparseArray;
+import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 
@@ -28,13 +29,13 @@ public abstract class AInterface {
     protected static final int bInterfaceProtocol = 7;
     protected static final int iInterface         = 8;
 
-    private final UsbInterface mUsbInterface;
+    private final UsbInterface usbInterface;
 
-    private final int mIndexInterface;
+    private final int indexInterface;
 
-    protected final SparseArray<Endpoint[]> mEndpoints;
+    protected final SparseArray<Endpoint[]> endpoints;
 
-    protected int mCurrentSetting = 0;
+    protected int currentSetting = 0;
 
     protected static UsbInterface getUsbInterface(UsbDevice device, byte[] descriptor) {
         final int index = (0xFF & descriptor[bInterfaceNumber]);
@@ -47,8 +48,8 @@ public abstract class AInterface {
         // Check the class
         if (descriptor[bInterfaceClass] == Descriptor.VIDEO_CLASS_CODE) {
             // For video class, only PC_PROTOCOL_15 is permitted
-            if (descriptor[bInterfaceProtocol] != Descriptor.PROTOCOL.PC_PROTOCOL_15.protocol) {
-                switch (VIDEO_SUBCLASS.getVIDEO_SUBCLASS(descriptor[bInterfaceSubClass])) {
+            if (descriptor[bInterfaceProtocol] != Protocol.PC_PROTOCOL_15.protocol) {
+                switch (VideoSubclass.getVideoSubclass(descriptor[bInterfaceSubClass])) {
                     // We could handle Interface Association Descriptors here, but they don't correspond to an accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
@@ -72,32 +73,32 @@ public abstract class AInterface {
     }
 
     protected AInterface(UsbInterface usbInterface, byte[] descriptor) {
-        mUsbInterface = usbInterface;
+        this.usbInterface = usbInterface;
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
-        mEndpoints = new SparseArray<>();
-        mCurrentSetting = 0xFF & descriptor[bAlternateSetting];
-        mEndpoints.put(mCurrentSetting, new Endpoint[endpointCount]);
-        mIndexInterface = (0xFF & descriptor[iInterface]);
+        endpoints = new SparseArray<>();
+        currentSetting = 0xFF & descriptor[bAlternateSetting];
+        endpoints.put(currentSetting, new Endpoint[endpointCount]);
+        indexInterface = (0xFF & descriptor[iInterface]);
     }
 
     public void addEndpoint(int index, Endpoint endpoint) {
-        mEndpoints.get(mCurrentSetting)[index - 1] = endpoint;
+        endpoints.get(currentSetting)[index - 1] = endpoint;
     }
 
     public Endpoint getEndpoint(int index) {
-        return mEndpoints.get(mCurrentSetting)[index - 1];
+        return endpoints.get(currentSetting)[index - 1];
     }
 
     public int getInterfaceNumber() {
-        return mUsbInterface.getId();
+        return usbInterface.getId();
     }
 
     public UsbInterface getUsbInterface() {
-        return mUsbInterface;
+        return usbInterface;
     }
 
     public int getIndexInterface() {
-        return mIndexInterface;
+        return indexInterface;
     }
 
     public abstract void parseClassDescriptor(byte[] descriptor);
@@ -107,8 +108,8 @@ public abstract class AInterface {
     @Override
     public String toString() {
         return "AInterface{" +
-                "mUsbInterface=" + mUsbInterface +
-                ", mIndexInterface=" + mIndexInterface +
-                '}';
+               "usbInterface=" + usbInterface +
+               ", indexInterface=" + indexInterface +
+               '}';
     }
 }

@@ -1,7 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
 import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
-import com.jwoolston.android.uvc.interfaces.Descriptor;
+import com.jwoolston.android.uvc.interfaces.Descriptor.Type;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -18,7 +18,7 @@ public class VideoUnit {
     private final int mUnitID;
 
     public static boolean isVideoUnit(byte[] descriptor) {
-        if (descriptor[bDescriptorType] != Descriptor.TYPE.CS_INTERFACE.type) return false;
+        if (descriptor[bDescriptorType] != Type.CS_INTERFACE.type) return false;
         final byte subtype = descriptor[bDescriptorSubtype];
         return (subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype ||
             subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype ||
