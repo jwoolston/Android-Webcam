@@ -1,1 +1,1 @@
-include ':app', ':android-webcam'
+include ':app', ':library'

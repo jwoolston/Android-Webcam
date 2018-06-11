@@ -1,0 +1,89 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.dokka-android'
+
+android {
+    compileSdkVersion Integer.parseInt(COMPILE_VERSION)
+    buildToolsVersion BUILD_TOOLS
+
+    lintOptions {
+        disable 'InvalidPackage'
+        abortOnError false
+    }
+
+    defaultConfig {
+        versionName version
+
+        minSdkVersion 14
+        targetSdkVersion Integer.parseInt(TARGET_VERSION)
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                version "3.6.4"
+                arguments '-DANDROID_ARM_NEON=TRUE'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "com.android.support:support-annotations:$support_lib_version"
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+dokka {
+    noStdlibLink = false
+    includeNonPublic = false
+    skipEmptyPackages = true
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+afterEvaluate { project ->
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaAndroidTask) {
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/javadoc"
+        inputs.dir 'src/main/java'
+    }
+
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        classifier = 'javadoc'
+        from "$buildDir/javadoc"
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
+apply from: "${rootDir}/publish.gradle"
