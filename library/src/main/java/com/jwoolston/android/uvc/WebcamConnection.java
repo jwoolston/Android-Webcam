@@ -7,9 +7,8 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.Descriptor;
-
+import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,7 +34,7 @@ class WebcamConnection {
 
     private OutputStream bufferStream;
 
-    WebcamConnection(UsbManager usbManager, UsbDevice usbDevice) throws UnknownDeviceException {
+    WebcamConnection(Context context, UsbManager usbManager, UsbDevice usbDevice) throws UnknownDeviceException {
         this.usbManager = usbManager;
         this.usbDevice = usbDevice;
 
@@ -51,6 +50,9 @@ class WebcamConnection {
         usbDeviceConnection.claimInterface(usbInterfaceControl, true);
 
         parseAssiociationDescriptors();
+
+        Log.d(TAG, "Initializing native layer.");
+        final UsbDeviceIsoConnection util = new UsbDeviceIsoConnection(context, usbDeviceConnection.getFileDescriptor());
     }
 
     private void parseAssiociationDescriptors() {

@@ -20,7 +20,7 @@ class WebcamImpl implements Webcam {
         this.usbDevice = usbDevice;
 
         final UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-        webcamConnection = new WebcamConnection(usbManager, usbDevice);
+        webcamConnection = new WebcamConnection(context.getApplicationContext(), usbManager, usbDevice);
     }
 
     @NonNull

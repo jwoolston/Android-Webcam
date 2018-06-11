@@ -12,21 +12,25 @@ extern "C" {
  * Method:    initialize
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *env, jobject thisObj);
+JNIEXPORT jint JNICALL
+Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *env, jobject instance, jint fd);
 
 /*
  * Class:     com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection
  * Method:    deinitialize
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv *env, jobject thisObj);
+JNIEXPORT jint JNICALL
+Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv *env, jobject instance);
 
 /*
  * Class:     com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection
  * Method:    isochronousTransfer
  * Signature: (Landroid/hardware/usb/UsbDeviceConnection;Ljava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_isochronousTransfer(JNIEnv *env, jobject thisObj, jobject connection, jobject buffer);
+JNIEXPORT jint JNICALL
+Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_isochronousTransfer(JNIEnv *env, jobject instance,
+                                                                                 jobject connection, jobject buffer);
 
 #ifdef __cplusplus
 }

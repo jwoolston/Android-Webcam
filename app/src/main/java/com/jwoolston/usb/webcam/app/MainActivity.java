@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
-import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,9 +25,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Log.d(TAG, "Initializing native layer.");
-        final UsbDeviceIsoConnection util = new UsbDeviceIsoConnection(getApplicationContext());
 
         deviceDisconnectedReceiver = new BroadcastReceiver() {
             @Override
