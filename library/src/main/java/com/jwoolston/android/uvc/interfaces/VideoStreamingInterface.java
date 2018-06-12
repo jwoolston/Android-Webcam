@@ -42,9 +42,6 @@ public class VideoStreamingInterface extends AVideoClassInterface {
         Log.d(TAG, "Parsing Video Class Interface header.");
 
         final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
-        if (usbInterface == null) {
-            throw new IllegalArgumentException("The provided descriptor refers to a non-existant interface.");
-        }
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
 
@@ -56,11 +53,11 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     @Override
     public String toString() {
         return "VideoStreamingInterface{" +
-               "inputHeader=" + inputHeader +
-               ", outputHeader=" + outputHeader +
-               ", videoFormats=" + videoFormats +
-               ", colorMatchingDescriptor=" + colorMatchingDescriptor +
-               ", Usb Interface=" + getUsbInterface() +
+               "\n\tinputHeader=" + inputHeader +
+               "\n\toutputHeader=" + outputHeader +
+               "\n\tvideoFormats=" + videoFormats +
+               "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
+               "\n\tUsb Interface=" + getUsbInterface() +
                '}';
     }
 

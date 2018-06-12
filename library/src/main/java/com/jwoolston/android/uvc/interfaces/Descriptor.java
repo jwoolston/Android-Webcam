@@ -35,6 +35,7 @@ public class Descriptor {
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = Type.getType(desc);
+            Log.v(TAG, "Current state: " + state);
 
             switch (type) {
                 case INTERFACE_ASSOCIATION:

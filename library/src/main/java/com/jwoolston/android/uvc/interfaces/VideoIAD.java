@@ -50,10 +50,10 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
                                                   "FirstInterface=" + getIndexFirstInterface() +
                                                   ", InterfaceCount=" + getInterfaceCount() +
                                                   ", IndexFunction=" + getIndexFunction() +
-                                                  ", Interfaces: ");
+                                                  ", \nInterfaces:\n");
         final int count = getInterfaceCount();
         for (int i = 0; i < count; ++i) {
-            builder.append(getInterface(i)).append(',');
+            builder.append(getInterface(i)).append(',').append('\n');
         }
         builder.append('}');
         return builder.toString();

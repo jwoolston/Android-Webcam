@@ -2,6 +2,8 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 
 import android.util.Log;
 
+import java.util.Arrays;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC 1.5 Class Specification Table 3-14
@@ -39,5 +41,17 @@ public class VideoStreamInputHeader extends AVideoStreamHeader {
         final int sizeControls = (0xFF & descriptor[bControlSize]);
         controlsMask = new byte[sizeControls];
         System.arraycopy(descriptor, bmaControls, controlsMask, 0, controlsMask.length);
+    }
+
+    @Override
+    public String toString() {
+        return "VideoStreamInputHeader{" +
+            "\n\tinfoMask=" + infoMask +
+            "\n\tterminalLink=" + terminalLink +
+            "\n\tstillCaptureMethod=" + stillCaptureMethod +
+            "\n\thardwareTriggerSupported=" + hardwareTriggerSupported +
+            "\n\ttriggerStillImageCapture=" + triggerStillImageCapture +
+            "\n\tcontrolsMask=" + Arrays.toString(controlsMask) +
+            '}';
     }
 }
