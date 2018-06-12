@@ -1,6 +1,5 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.util.Log;
 import android.util.SparseArray;
 import com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
@@ -25,7 +24,6 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
 
     @Override
     public void addInterface(AInterface aInterface) throws IllegalArgumentException {
-        Log.d(TAG, "Adding Interface: " + aInterface);
         try {
             final AVideoClassInterface videoClassInterface = (AVideoClassInterface) aInterface;
             if (interfaces.get(videoClassInterface.getInterfaceNumber()) != null) {

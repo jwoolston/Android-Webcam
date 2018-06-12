@@ -39,8 +39,6 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
     public static VideoStreamingInterface parseVideoStreamingInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface header.");
-
         final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
@@ -73,7 +71,6 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 break;
             case VS_FORMAT_UNCOMPRESSED:
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
-                Log.d(TAG, "Adding Video Format: " + uncompressedVideoFormat);
                 videoFormats.add(uncompressedVideoFormat);
                 lastFormat = uncompressedVideoFormat;
                 break;
@@ -89,7 +86,6 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 break;
             case VS_FORMAT_MJPEG:
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
-                Log.d(TAG, "Adding Video Format: " + mjpegVideoFormat);
                 videoFormats.add(mjpegVideoFormat);
                 lastFormat = mjpegVideoFormat;
                 break;

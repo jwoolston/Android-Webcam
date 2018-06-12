@@ -1,9 +1,9 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.terminals.CameraTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoInputTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoOutputTerminal;
@@ -13,8 +13,9 @@ import com.jwoolston.android.uvc.interfaces.units.VideoEncodingUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoProcessingUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoSelectorUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoUnit;
-
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -24,6 +25,7 @@ public class VideoControlInterface extends AVideoClassInterface {
     private static final String TAG = "VideoControlInterface";
 
     private static final int VIDEO_CLASS_HEADER_LENGTH = 12;
+    private static final int INTERRUPT_ENDPOINT = 0x3;
 
     private static final int bDescriptorSubType = 2;
     private static final int bcdUVC           = 3;
@@ -35,6 +37,11 @@ public class VideoControlInterface extends AVideoClassInterface {
     private int   uvc;
     private int   numberStreamingInterfaces;
     private int[] streamingInterfaces;
+    private UsbEndpoint interruptEndpoint;
+
+    private List<VideoInputTerminal> inputTerminals = new LinkedList<>();
+    private List<VideoOutputTerminal> outputTerminals = new LinkedList<>();
+    private List<VideoUnit> units = new LinkedList<>();
 
     public static VideoControlInterface parseVideoControlInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Video Class Interface header.");
@@ -45,6 +52,15 @@ public class VideoControlInterface extends AVideoClassInterface {
 
     VideoControlInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
+
+        // Check for an interrupt endpoint. Note that we assume the first interrupt endpoint we find is the one of
+        // interest.
+        for (int i = 0; i < usbInterface.getEndpointCount(); ++i) {
+            UsbEndpoint endpoint = usbInterface.getEndpoint(i);
+            if (endpoint.getType() == INTERRUPT_ENDPOINT) {
+                interruptEndpoint = endpoint;
+            }
+        }
     }
 
     @Override
@@ -69,12 +85,20 @@ public class VideoControlInterface extends AVideoClassInterface {
 
     @Override
     public String toString() {
-        return "VideoControlInterface{" +
-               "uvc=" + uvc +
-               ", numberStreamingInterfaces=" + numberStreamingInterfaces +
-               ", streamingInterfaces=" + Arrays.toString(streamingInterfaces) +
-               ", USB Interface=" + getUsbInterface() +
-               '}';
+        StringBuilder builder = new StringBuilder("\tVideoControlInterface{" +
+               "\n\t\t\tuvc=" + uvc +
+               "\n\t\t\tnumberStreamingInterfaces=" + numberStreamingInterfaces +
+               "\n\t\t\tstreamingInterfaces=" + Arrays.toString(streamingInterfaces) +
+               "\n\t\t\tUSB Interface=" + getUsbInterface() +
+               "\n\t\t\tInterrupt Endpoint=" + interruptEndpoint +
+               "\n\t\t\tinput terminals=" + inputTerminals +
+               "\n\t\t\toutput terminals=" + outputTerminals);
+        builder.append("\n\t\t\tVideo Units:");
+        for (VideoUnit unit : units) {
+            builder.append("\n\t\t\t\t").append(unit);
+        }
+        builder.append('}');
+        return builder.toString();
     }
 
     public int getNumberStreamingInterfaces() {
@@ -98,7 +122,6 @@ public class VideoControlInterface extends AVideoClassInterface {
     }
 
     public void parseClassInterfaceHeader(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface header.");
         if (descriptor.length < VIDEO_CLASS_HEADER_LENGTH) throw new IllegalArgumentException("The provided descriptor is not a valid Video Class Interface.");
         uvc = ((0xFF & descriptor[bcdUVC]) << 8) | (0xFF & descriptor[bcdUVC + 1]);
         numberStreamingInterfaces = descriptor[bInCollection];
@@ -109,42 +132,41 @@ public class VideoControlInterface extends AVideoClassInterface {
     }
 
     public void parseTerminal(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface Terminal.");
         if (VideoInputTerminal.isInputTerminal(descriptor)) {
             if (CameraTerminal.isCameraTerminal(descriptor)) {
                 // Parse as camera terminal
                 final CameraTerminal cameraTerminal = new CameraTerminal(descriptor);
-                Log.d(TAG, "" + cameraTerminal);
+                inputTerminals.add(cameraTerminal);
             } else {
                 // Parse as input terminal
                 VideoInputTerminal inputTerminal = new VideoInputTerminal(descriptor);
-                Log.d(TAG, "" + inputTerminal);
+                inputTerminals.add(inputTerminal);
             }
         } else if (VideoOutputTerminal.isOutputTerminal(descriptor)) {
             // Parse as output terminal
             VideoOutputTerminal outputTerminal = new VideoOutputTerminal(descriptor);
-            Log.d(TAG, "" + outputTerminal);
+            outputTerminals.add(outputTerminal);
         } else {
             throw new IllegalArgumentException("The provided descriptor is not a valid Video Terminal.");
         }
     }
 
     public void parseUnit(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface Unit.");
         if (VideoSelectorUnit.isVideoSelectorUnit(descriptor)) {
             // Parse as video selector unit
             final VideoSelectorUnit selectorUnit = new VideoSelectorUnit(descriptor);
-            Log.d(TAG, "" + selectorUnit);
+            units.add(selectorUnit);
         } else if (VideoProcessingUnit.isVideoProcessingUnit(descriptor)) {
             // Parse as video processing unit
             final VideoProcessingUnit processingUnit = new VideoProcessingUnit(descriptor);
-            Log.d(TAG, "" + processingUnit);
+            units.add(processingUnit);
         } else if (VideoEncodingUnit.isVideoEncodingUnit(descriptor)) {
             // Parse as video encoding unit
             final VideoEncodingUnit encodingUnit = new VideoEncodingUnit(descriptor);
-            Log.d(TAG, "" + encodingUnit);
+            units.add(encodingUnit);
         } else if (AVideoExtensionUnit.isVideoExtensionUnit(descriptor)) {
             // Parse as a video extension unit
+            Log.d(TAG, "Parsing video extension unit.");
             // TODO: Figure out how to handle extensions
         } else {
             throw new IllegalArgumentException("The provided descriptor is not a valid Video Unit");
