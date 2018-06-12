@@ -14,6 +14,9 @@ jobs:
 
     steps:
       - checkout
-
-      - run: ./gradlew build
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: "Build" 
+          command: ./gradlew build
 
