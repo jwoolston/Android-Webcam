@@ -29,37 +29,39 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     private static final int bDescriptorType = 1;
     private static final int bDescriptorSubtype = 2;
 
-    private VideoStreamInputHeader  mInputHeader;
-    private VideoStreamOutputHeader mOutputHeader;
+    private VideoStreamInputHeader  inputHeader;
+    private VideoStreamOutputHeader outputHeader;
 
-    private final List<AVideoFormat> mVideoFormats;
+    private final List<AVideoFormat> videoFormats;
 
-    private AVideoFormat mLastFormat;
+    private AVideoFormat lastFormat;
 
-    private VideoColorMatchingDescriptor mColorMatchingDescriptor;
+    private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
     public static VideoStreamingInterface parseVideoStreamingInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Video Class Interface header.");
 
         final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
-        if (usbInterface == null) throw new IllegalArgumentException("The provided descriptor refers to a non-existant interface.");
+        if (usbInterface == null) {
+            throw new IllegalArgumentException("The provided descriptor refers to a non-existant interface.");
+        }
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
 
     VideoStreamingInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
-        mVideoFormats = new ArrayList<>();
+        videoFormats = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         return "VideoStreamingInterface{" +
-                "mInputHeader=" + mInputHeader +
-                ", mOutputHeader=" + mOutputHeader +
-                ", mVideoFormats=" + mVideoFormats +
-                ", mColorMatchingDescriptor=" + mColorMatchingDescriptor +
-                ", Usb Interface=" + getUsbInterface() +
-                '}';
+               "inputHeader=" + inputHeader +
+               ", outputHeader=" + outputHeader +
+               ", videoFormats=" + videoFormats +
+               ", colorMatchingDescriptor=" + colorMatchingDescriptor +
+               ", Usb Interface=" + getUsbInterface() +
+               '}';
     }
 
     @Override
@@ -67,37 +69,40 @@ public class VideoStreamingInterface extends AVideoClassInterface {
         final VS_INTERFACE_SUBTYPE subtype = VS_INTERFACE_SUBTYPE.fromByte(descriptor[bDescriptorSubtype]);
         switch (subtype) {
             case VS_INPUT_HEADER:
-                mInputHeader = new VideoStreamInputHeader(descriptor);
+                inputHeader = new VideoStreamInputHeader(descriptor);
                 break;
             case VS_OUTPUT_HEADER:
-                mOutputHeader = new VideoStreamOutputHeader(descriptor);
+                outputHeader = new VideoStreamOutputHeader(descriptor);
                 break;
             case VS_FORMAT_UNCOMPRESSED:
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
                 Log.d(TAG, "Adding Video Format: " + uncompressedVideoFormat);
-                mVideoFormats.add(uncompressedVideoFormat);
-                mLastFormat = uncompressedVideoFormat;
+                videoFormats.add(uncompressedVideoFormat);
+                lastFormat = uncompressedVideoFormat;
                 break;
             case VS_FRAME_UNCOMPRESSED:
                 final UncompressedVideoFrame uncompressedVideoFrame = new UncompressedVideoFrame(descriptor);
                 try {
-                    ((UncompressedVideoFormat) mLastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
+                    ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
                 } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the previously parsed Format: " + mLastFormat.getClass().getName());
+                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the previously parsed Format: " + lastFormat
+
+                            .getClass().getName());
                 }
                 break;
             case VS_FORMAT_MJPEG:
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
                 Log.d(TAG, "Adding Video Format: " + mjpegVideoFormat);
-                mVideoFormats.add(mjpegVideoFormat);
-                mLastFormat = mjpegVideoFormat;
+                videoFormats.add(mjpegVideoFormat);
+                lastFormat = mjpegVideoFormat;
                 break;
             case VS_FRAME_MJPEG:
                 final MJPEGVideoFrame mjpegVideoFrame = new MJPEGVideoFrame(descriptor);
                 try {
-                    ((MJPEGVideoFormat) mLastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
+                    ((MJPEGVideoFormat) lastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
                 } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("The parsed MJPEG frame descriptor is not valid for the previously parsed Format: " + mLastFormat.getClass().getName());
+                    throw new IllegalArgumentException("The parsed MJPEG frame descriptor is not valid for the previously parsed Format: " + lastFormat
+                            .getClass().getName());
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
@@ -106,9 +111,9 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 //TODO: Handle STILL IMAGE FRAME descriptor section 3.9.2.5 Pg. 81
                 break;
             case VS_COLORFORMAT:
-                mColorMatchingDescriptor = new VideoColorMatchingDescriptor(descriptor);
-                mLastFormat.setColorMatchingDescriptor(mColorMatchingDescriptor);
-                Log.d(TAG, "" + mColorMatchingDescriptor);
+                colorMatchingDescriptor = new VideoColorMatchingDescriptor(descriptor);
+                lastFormat.setColorMatchingDescriptor(colorMatchingDescriptor);
+                Log.d(TAG, "" + colorMatchingDescriptor);
                 break;
             default:
                 Log.d(TAG, "Unknown streaming interface descriptor: " + Hexdump.dumpHexString(descriptor));

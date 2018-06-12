@@ -2,9 +2,10 @@ package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -18,13 +19,14 @@ public class Descriptor {
 
     private static final int INDEX_DESCRIPTOR_TYPE = 1;
 
-    public static void parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
+    public static List<InterfaceAssociationDescriptor> parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
         int length;
         byte[] desc;
         Type type;
         int i = 0;
         State state = null;
         InterfaceAssociationDescriptor iad = null;
+        ArrayList<InterfaceAssociationDescriptor> iads = new ArrayList<>();
         AInterface aInterface = null;
         Endpoint aEndpoint = null;
         int endpointIndex = 1;
@@ -45,6 +47,7 @@ public class Descriptor {
                     }
                     state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
+                    iads.add(iad);
                     Log.d(TAG, "" + iad);
                     break;
                 case INTERFACE:
@@ -114,6 +117,7 @@ public class Descriptor {
             }
             i += length;
         }
+        return iads;
     }
 
     private static enum State {

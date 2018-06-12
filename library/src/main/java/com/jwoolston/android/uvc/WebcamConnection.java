@@ -8,11 +8,13 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
+import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * Helper class for abstracting communication to a camera. This implementation directly handles
@@ -58,7 +60,8 @@ class WebcamConnection {
     private void parseAssiociationDescriptors() {
         Log.d(TAG, "Parsing raw association descriptors.");
         final byte[] raw = usbDeviceConnection.getRawDescriptors();
-        Descriptor.parseDescriptors(usbDevice, raw);
+        final List<InterfaceAssociationDescriptor> iads =  Descriptor.parseDescriptors(usbDevice, raw);
+        Log.i(TAG, "Determined IADs: " + iads);
     }
 
     boolean isConnected() {

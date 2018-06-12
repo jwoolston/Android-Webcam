@@ -46,10 +46,16 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
 
     @Override
     public String toString() {
-        return "VideoIAD{" +
-               "FirstInterface=" + getIndexFirstInterface() +
-               ", InterfaceCount=" + getInterfaceCount() +
-               ", IndexFunction=" + getIndexFunction() +
-               '}';
+        StringBuilder builder = new StringBuilder("VideoIAD{" +
+                                                  "FirstInterface=" + getIndexFirstInterface() +
+                                                  ", InterfaceCount=" + getInterfaceCount() +
+                                                  ", IndexFunction=" + getIndexFunction() +
+                                                  ", Interfaces: ");
+        final int count = getInterfaceCount();
+        for (int i = 0; i < count; ++i) {
+            builder.append(getInterface(i)).append(',');
+        }
+        builder.append('}');
+        return builder.toString();
     }
 }
