@@ -5,7 +5,7 @@
 #include "logging.h"
 
 #include "libusb.h"
-#include "com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection.h"
+#include "isochronous_connection.h"
 
 #define  LOG_TAG    "UsbDeviceIsoConnection-Native"
 
@@ -32,9 +32,8 @@ static void log_exception(JNIEnv *env, jthrowable exception, const char *functio
     }
 }
 
-static void print_devs(libusb_device *dev) {
-    LOGD("Printing USB Device");
-    int i = 0, j = 0;
+static void printDevice(libusb_device *dev) {
+    int j = 0;
     uint8_t path[8];
 
     struct libusb_device_descriptor desc;
@@ -44,7 +43,7 @@ static void print_devs(libusb_device *dev) {
         return;
     }
 
-    LOGI("%04x:%04x (bus %d, device %d)",
+    LOGD("Native USB Initialized for Device %04x:%04x (bus %d, device %d)",
          desc.idVendor, desc.idProduct,
          libusb_get_bus_number(dev), libusb_get_device_address(dev));
 
@@ -54,7 +53,6 @@ static void print_devs(libusb_device *dev) {
         for (j = 1; j < r; j++)
             LOGI(".%d", path[j]);
     }
-    LOGI("\n");
 }
 
 /*
@@ -63,7 +61,7 @@ static void print_devs(libusb_device *dev) {
  * Signature: ()V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *env, jobject instance, jint fd) {
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_initialize(JNIEnv *env, jobject instance, jint fd) {
     LOGD("UsbDeviceIsoConnection.initialize(%i)", fd);
     struct libusb_context *ctx;
     struct libusb_device_handle *dev_handle;
@@ -77,9 +75,7 @@ Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *
     if (dev_handle == NULL) {
         return LIBUSB_ERROR_NO_DEVICE;
     }
-    LOGD("Device handle: %p", dev_handle);
-
-    print_devs(dev_handle->dev);
+    printDevice(dev_handle->dev);
     return 0;
 }
 
@@ -89,7 +85,7 @@ Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *
  * Signature: ()V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv *env, jobject instance) {
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_deinitialize(JNIEnv *env, jobject instance) {
     LOGD("UsbDeviceIsoConnection.deinitialize()");
     libusb_exit(NULL);
     return 0;
@@ -101,7 +97,7 @@ Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv
  * Signature: (Landroid/hardware/usb/UsbDeviceConnection;Ljava/nio/ByteBuffer;)V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_isochronousTransfer(JNIEnv *env, jobject instance,
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_isochronousTransfer(JNIEnv *env, jobject instance,
                                                                                  jobject connection, jobject buffer) {
     LOGD("UsbDeviceIsoConnection.isochronousTransfer()");
     return 0;

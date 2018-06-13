@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
-import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
+import com.jwoolston.android.uvc.libusb.IsochronousConnection;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,11 +50,12 @@ class WebcamConnection {
         // Claim the control interface
         usbDeviceConnection = usbManager.openDevice(usbDevice);
         usbDeviceConnection.claimInterface(usbInterfaceControl, true);
+        //TODO: Throw exception if unable to claim interface
 
         parseAssiociationDescriptors();
 
         Log.d(TAG, "Initializing native layer.");
-        final UsbDeviceIsoConnection util = new UsbDeviceIsoConnection(context, usbDeviceConnection.getFileDescriptor());
+        final IsochronousConnection util = new IsochronousConnection(context, usbDeviceConnection.getFileDescriptor());
     }
 
     private void parseAssiociationDescriptors() {

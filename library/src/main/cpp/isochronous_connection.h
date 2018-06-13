@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ()V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *env, jobject instance, jint fd);
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_initialize(JNIEnv *env, jobject instance, jint fd);
 
 /*
  * Class:     com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection
@@ -21,7 +21,7 @@ Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_initialize(JNIEnv *
  * Signature: ()V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv *env, jobject instance);
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_deinitialize(JNIEnv *env, jobject instance);
 
 /*
  * Class:     com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection
@@ -29,7 +29,7 @@ Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_deinitialize(JNIEnv
  * Signature: (Landroid/hardware/usb/UsbDeviceConnection;Ljava/nio/ByteBuffer;)V
  */
 JNIEXPORT jint JNICALL
-Java_com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection_isochronousTransfer(JNIEnv *env, jobject instance,
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_isochronousTransfer(JNIEnv *env, jobject instance,
                                                                                  jobject connection, jobject buffer);
 
 #ifdef __cplusplus

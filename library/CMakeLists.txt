@@ -35,8 +35,8 @@ add_library(
 
     # Provides a relative path to your source file(s).
     src/main/cpp/logging.h
-    src/main/cpp/com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection.c
-    src/main/cpp/com_jwoolston_android_uvc_libusb_UsbDeviceIsoConnection.h
+    src/main/cpp/isochronous_connection.c
+    src/main/cpp/isochronous_connection.h
     ${libusb_SRCS}
 )
 

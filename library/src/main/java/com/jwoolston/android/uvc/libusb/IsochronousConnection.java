@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class UsbDeviceIsoConnection {
+public class IsochronousConnection {
 
     private static final String TAG = "UsbDeviceIsoConnection";
 
@@ -34,7 +34,7 @@ public class UsbDeviceIsoConnection {
      *
      * @param context {@link Context} The application context.
      */
-    public UsbDeviceIsoConnection(Context context, int fd) {
+    public IsochronousConnection(Context context, int fd) {
         sContext = context.getApplicationContext();
         sUsbManager = (UsbManager) sContext.getSystemService(Context.USB_SERVICE);
         final int retval = initialize(fd);
