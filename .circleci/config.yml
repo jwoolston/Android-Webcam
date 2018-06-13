@@ -14,6 +14,7 @@ jobs:
 
     steps:
       - checkout
+      - run: openssl aes-256-cbc -d -in private.asc.enc -out private.asc -k $ENC_FILE_KEY
       - run: git submodule sync
       - run: git submodule update --init
       - run:

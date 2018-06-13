@@ -1,21 +1,21 @@
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-static String getTagName() { return System.getenv('TRAVIS_TAG') ?: "" }
+static String getTagName() { return System.getenv('CIRCLE_TAG') ?: "" }
 
 boolean isSnapshot() { return version.contains("SNAPSHOT") }
 
 static boolean isTag() { return !getTagName().isEmpty() }
 
-static boolean isTravis() { return System.getenv('TRAVIS_BUILD_NUMBER') ? true : false }
+static boolean isCircle() { return System.getenv('CIRCLECI') ? true : false }
 
-static String buildNumber() { return System.getenv('TRAVIS_BUILD_NUMBER') ?: "0" }
+static String buildNumber() { return System.getenv('CIRCLE_BUILD_NUM') ?: "0" }
 
 static String getRepositoryUsername() { return System.getenv('SONATYPE_USERNAME') ?: "" }
 
 static String getRepositoryPassword() { return System.getenv('SONATYPE_PASSWORD') ?: "" }
 
-static String getBranchName() { return System.getenv('TRAVIS_BRANCH') }
+static String getBranchName() { return System.getenv('CIRCLE_BRANCH') }
 
 boolean isRelease() { return isTag() && !isSnapshot() }
 
@@ -24,7 +24,7 @@ afterEvaluate { project ->
     println "Tag ${getTagName()}"
     println "Branch ${getBranchName()}"
     println "Is Release ${isRelease()}"
-    println "Is Travis ${isTravis()}"
+    println "Is Circle ${isCircle()}"
     println "Has Username ${!getRepositoryUsername().empty}"
     println "Has Password ${!getRepositoryPassword().empty}"
     println "Version ${version}"
@@ -40,7 +40,7 @@ afterEvaluate { project ->
                     authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
                 }
 
-                snapshotRepository(url: isTravis() ? "https://oss.sonatype.org/content/repositories/snapshots" : mavenLocal().url) {
+                snapshotRepository(url: isCircle() ? "https://oss.sonatype.org/content/repositories/snapshots" : mavenLocal().url) {
                     authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
                 }
 
