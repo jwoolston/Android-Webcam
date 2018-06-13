@@ -4,7 +4,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
-import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFrame;
@@ -70,11 +70,13 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 outputHeader = new VideoStreamOutputHeader(descriptor);
                 break;
             case VS_FORMAT_UNCOMPRESSED:
+                Log.d(TAG, "VideoStream Uncompressed Format Descriptor");
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
                 videoFormats.add(uncompressedVideoFormat);
                 lastFormat = uncompressedVideoFormat;
                 break;
             case VS_FRAME_UNCOMPRESSED:
+                Log.d(TAG, "VideoStream Uncompressed Frame Descriptor");
                 final UncompressedVideoFrame uncompressedVideoFrame = new UncompressedVideoFrame(descriptor);
                 try {
                     ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
@@ -85,11 +87,13 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 }
                 break;
             case VS_FORMAT_MJPEG:
+                Log.d(TAG, "VideoStream MJPEG Format Descriptor");
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
                 videoFormats.add(mjpegVideoFormat);
                 lastFormat = mjpegVideoFormat;
                 break;
             case VS_FRAME_MJPEG:
+                Log.d(TAG, "VideoStream MJPEG Frame Descriptor");
                 final MJPEGVideoFrame mjpegVideoFrame = new MJPEGVideoFrame(descriptor);
                 try {
                     ((MJPEGVideoFormat) lastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
@@ -118,7 +122,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
         Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
         currentSetting = 0xFF & descriptor[bAlternateSetting];
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
-        endpoints.put(currentSetting, new Endpoint[endpointCount]);
+        endpoints.put(currentSetting, new InterruptEndpoint[endpointCount]);
     }
 
     public static enum VS_INTERFACE_SUBTYPE {

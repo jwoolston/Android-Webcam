@@ -7,7 +7,7 @@ import android.hardware.usb.UsbInterface;
 import android.util.Log;
 import android.util.SparseArray;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
-import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 
 /**
@@ -33,7 +33,7 @@ public abstract class AInterface {
 
     private final int indexInterface;
 
-    protected final SparseArray<Endpoint[]> endpoints;
+    protected final SparseArray<InterruptEndpoint[]> endpoints;
 
     protected int currentSetting = 0;
 
@@ -77,16 +77,20 @@ public abstract class AInterface {
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints = new SparseArray<>();
         currentSetting = 0xFF & descriptor[bAlternateSetting];
-        endpoints.put(currentSetting, new Endpoint[endpointCount]);
+        endpoints.put(currentSetting, new InterruptEndpoint[endpointCount]);
         indexInterface = (0xFF & descriptor[iInterface]);
     }
 
-    public void addEndpoint(int index, Endpoint endpoint) {
+    public void addEndpoint(int index, InterruptEndpoint endpoint) {
         endpoints.get(currentSetting)[index - 1] = endpoint;
     }
 
-    public Endpoint getEndpoint(int index) {
+    public InterruptEndpoint getEndpoint(int index) {
         return endpoints.get(currentSetting)[index - 1];
+    }
+
+    public InterruptEndpoint[] getCurrentEndpoints(){
+        return endpoints.get(currentSetting);
     }
 
     public int getInterfaceNumber() {

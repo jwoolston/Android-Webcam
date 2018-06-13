@@ -2,7 +2,7 @@ package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.util.Log;
-import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Descriptor {
         InterfaceAssociationDescriptor iad = null;
         ArrayList<InterfaceAssociationDescriptor> iads = new ArrayList<>();
         AInterface aInterface = null;
-        Endpoint aEndpoint = null;
+        InterruptEndpoint aEndpoint = null;
         int endpointIndex = 1;
         while (i < rawDescriptor.length) {
             length = rawDescriptor[i];
@@ -92,7 +92,7 @@ public class Descriptor {
                                 "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     }
                     state = State.STANDARD_ENDPOINT;
-                    aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
+                    aEndpoint = InterruptEndpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
                     aInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
                     Log.d(TAG, "" + aEndpoint);

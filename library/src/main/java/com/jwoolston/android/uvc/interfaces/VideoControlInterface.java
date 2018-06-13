@@ -1,7 +1,6 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.terminals.CameraTerminal;
@@ -37,7 +36,6 @@ public class VideoControlInterface extends AVideoClassInterface {
     private int   uvc;
     private int   numberStreamingInterfaces;
     private int[] streamingInterfaces;
-    private UsbEndpoint interruptEndpoint;
 
     private List<VideoInputTerminal> inputTerminals = new LinkedList<>();
     private List<VideoOutputTerminal> outputTerminals = new LinkedList<>();
@@ -52,15 +50,6 @@ public class VideoControlInterface extends AVideoClassInterface {
 
     VideoControlInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
-
-        // Check for an interrupt endpoint. Note that we assume the first interrupt endpoint we find is the one of
-        // interest.
-        for (int i = 0; i < usbInterface.getEndpointCount(); ++i) {
-            UsbEndpoint endpoint = usbInterface.getEndpoint(i);
-            if (endpoint.getType() == INTERRUPT_ENDPOINT) {
-                interruptEndpoint = endpoint;
-            }
-        }
     }
 
     @Override
@@ -90,7 +79,7 @@ public class VideoControlInterface extends AVideoClassInterface {
                "\n\t\t\tnumberStreamingInterfaces=" + numberStreamingInterfaces +
                "\n\t\t\tstreamingInterfaces=" + Arrays.toString(streamingInterfaces) +
                "\n\t\t\tUSB Interface=" + getUsbInterface() +
-               "\n\t\t\tInterrupt Endpoint=" + interruptEndpoint +
+               "\n\t\t\tEndpoints=" + Arrays.toString(getCurrentEndpoints()) +
                "\n\t\t\tinput terminals=" + inputTerminals +
                "\n\t\t\toutput terminals=" + outputTerminals);
         builder.append("\n\t\t\tVideo Units:");

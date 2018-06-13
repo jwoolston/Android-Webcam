@@ -7,9 +7,9 @@ import android.util.Log;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class Endpoint {
+public class InterruptEndpoint {
 
-    private static final String TAG = "Endpoint";
+    private static final String TAG = "InterruptEndpoint";
 
     private static final int LENGTH_STANDARD_DESCRIPTOR = 7;
     private static final int LENGTH_CLASS_DESCRIPTOR = 5;
@@ -24,65 +24,65 @@ public class Endpoint {
     private static final int bDescriptorSubType = 2;
     private static final int wMaxTransferSize = 3;
 
-    private UsbEndpoint mEndpoint; // This would be final but intelli-sense doesn't like it not being initialized
+    private UsbEndpoint endpoint; // This would be final but intelli-sense doesn't like it not being initialized
 
-    private final byte mRawAttributes;
-    private final int mEndpointAddress;
-    private final int mInterval; // ms
+    private final byte rawAttributes;
+    private final int  endpointAddress;
+    private final int  interval; // ms
 
-    private int mMaxTransferSize;
+    private int maxTransferSize;
 
-    public static Endpoint parseDescriptor(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
+    public static InterruptEndpoint parseDescriptor(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing standard endpoint.");
         if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard endpoint descriptor.");
-        return new Endpoint(usbInterface, descriptor);
+        return new InterruptEndpoint(usbInterface, descriptor);
     }
 
-    protected Endpoint(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
+    protected InterruptEndpoint(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
         if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("The provided descriptor is not a valid standard endpoint descriptor.");
 
-        mEndpointAddress = 0xFF & descriptor[bEndpointAddress]; // Masking to deal with Java's signed bytes
+        endpointAddress = 0xFF & descriptor[bEndpointAddress]; // Masking to deal with Java's signed bytes
         final int count = usbInterface.getEndpointCount();
         for (int i = 0; i < count; ++i) {
             final UsbEndpoint endpoint = usbInterface.getEndpoint(i);
-            if (endpoint.getAddress() == mEndpointAddress) {
-                mEndpoint = endpoint;
+            if (endpoint.getAddress() == endpointAddress) {
+                this.endpoint = endpoint;
                 break;
             }
         }
 
-        mRawAttributes = descriptor[bmAttributes];
-        mInterval = descriptor[bInterval] * 2; // Interval is 2^(value-1) ms
+        rawAttributes = descriptor[bmAttributes];
+        interval = descriptor[bInterval] * 2; // Interval is 2^(value-1) ms
     }
 
     public void parseClassDescriptor(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Class Specific Endpoint Descriptor.");
-        if (descriptor.length < LENGTH_CLASS_DESCRIPTOR || descriptor[bDescriptorSubType] != VIDEO_ENDPOINT.EP_INTERRUPT.code) {
+        Log.d(TAG, "Parsing Class Specific InterruptEndpoint Descriptor.");
+        if (descriptor.length < LENGTH_CLASS_DESCRIPTOR || descriptor[bDescriptorSubType] != VideoEndpoint.EP_INTERRUPT.code) {
             throw new IllegalArgumentException("The provided descriptor is not a valid class endpoint descriptor.");
         }
-        mMaxTransferSize = descriptor[wMaxTransferSize] | (descriptor[wMaxTransferSize + 1] << 8);
+        maxTransferSize = descriptor[wMaxTransferSize] | (descriptor[wMaxTransferSize + 1] << 8);
     }
 
     public int getInterval() {
-        return mInterval;
+        return interval;
     }
 
     public UsbEndpoint getEndpoint() {
-        return mEndpoint;
+        return endpoint;
     }
 
     protected byte getRawAttributes() {
-        return mRawAttributes;
+        return rawAttributes;
     }
 
     @Override
     public String toString() {
-        return "Endpoint{" +
-                "mEndpoint=" + mEndpoint +
-                '}';
+        return "InterruptEndpoint{" +
+               "endpoint=" + endpoint +
+               '}';
     }
 
-    public static enum VIDEO_ENDPOINT {
+    public static enum VideoEndpoint {
         EP_UNDEFINED(0x00),
         EP_GENERAL(0x01),
         EP_ENDPOINT(0x02),
@@ -90,7 +90,7 @@ public class Endpoint {
 
         public final byte code;
 
-        private VIDEO_ENDPOINT(int code) {
+        private VideoEndpoint(int code) {
             this.code = (byte) (code & 0xFF);
         }
 
