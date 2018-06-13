@@ -59,13 +59,11 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 outputHeader = new VideoStreamOutputHeader(descriptor);
                 break;
             case VS_FORMAT_UNCOMPRESSED:
-                Log.d(TAG, "VideoStream Uncompressed Format Descriptor");
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
                 videoFormats.add(uncompressedVideoFormat);
                 lastFormat = uncompressedVideoFormat;
                 break;
             case VS_FRAME_UNCOMPRESSED:
-                Log.d(TAG, "VideoStream Uncompressed Frame Descriptor");
                 final UncompressedVideoFrame uncompressedVideoFrame = new UncompressedVideoFrame(descriptor);
                 try {
                     ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
@@ -75,13 +73,11 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 }
                 break;
             case VS_FORMAT_MJPEG:
-                Log.d(TAG, "VideoStream MJPEG Format Descriptor");
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
                 videoFormats.add(mjpegVideoFormat);
                 lastFormat = mjpegVideoFormat;
                 break;
             case VS_FRAME_MJPEG:
-                Log.d(TAG, "VideoStream MJPEG Frame Descriptor");
                 final MJPEGVideoFrame mjpegVideoFrame = new MJPEGVideoFrame(descriptor);
                 try {
                     ((MJPEGVideoFormat) lastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
