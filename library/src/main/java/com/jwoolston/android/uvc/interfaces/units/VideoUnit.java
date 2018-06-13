@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Type;
 
 /**
@@ -20,10 +20,10 @@ public class VideoUnit {
     public static boolean isVideoUnit(byte[] descriptor) {
         if (descriptor[bDescriptorType] != Type.CS_INTERFACE.type) return false;
         final byte subtype = descriptor[bDescriptorSubtype];
-        return (subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype ||
-            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype ||
-            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype ||
-            subtype == AVideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
+        return (subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype ||
+            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype ||
+            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype ||
+            subtype == VideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
     }
 
     protected VideoUnit(byte[] descriptor) throws IllegalArgumentException {

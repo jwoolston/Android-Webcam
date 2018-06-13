@@ -25,18 +25,19 @@ public class UncompressedVideoFrame extends AVideoFrame {
     @Override
     public String toString() {
         return "UncompressedVideoFrame{" +
-               "mStillImageSupported=" + getStillImageSupported() +
-               ", mFixedFrameRateEnabled=" + getFixedFrameRateEnabled() +
-               ", mWidth=" + getWidth() +
-               ", mHeight=" + getHeight() +
-               ", mMinBitRate=" + getMinBitRate() +
-               ", mMaxBitRate=" + getMaxBitRate() +
-               ", mDefaultFrameInterval=" + getDefaultFrameInterval() +
-               ", mFrameIntervalType=" + getFrameIntervalType() +
-               ", mMinFrameInterval=" + getMinFrameInterval() +
-               ", mMaxFrameInterval=" + getMaxFrameInterval() +
-               ", mFrameIntervalStep=" + getFrameIntervalStep() +
-               ", mFrameIntervals=" + Arrays.toString(getFrameIntervals()) +
+               "Frame Index=" + getFrameIndex() +
+               ", StillImageSupported=" + getStillImageSupported() +
+               ", FixedFrameRateEnabled=" + getFixedFrameRateEnabled() +
+               ", Width=" + getWidth() +
+               ", Height=" + getHeight() +
+               ", MinBitRate=" + getMinBitRate() +
+               ", MaxBitRate=" + getMaxBitRate() +
+               ", DefaultFrameInterval=" + getDefaultFrameInterval() +
+               ", FrameIntervalType=" + getFrameIntervalType() +
+               ", MinFrameInterval=" + getMinFrameInterval() +
+               ", MaxFrameInterval=" + getMaxFrameInterval() +
+               ", FrameIntervalStep=" + getFrameIntervalStep() +
+               ", FrameIntervals=" + Arrays.toString(getFrameIntervals()) +
                '}';
     }
 }

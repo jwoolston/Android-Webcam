@@ -5,9 +5,9 @@ import android.hardware.usb.UsbInterface;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class InterruptEndpoint extends Endpoint {
+public class BulkEndpoint extends Endpoint {
 
-    protected InterruptEndpoint(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
+    protected BulkEndpoint(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
         super(usbInterface, descriptor);
     }
 }

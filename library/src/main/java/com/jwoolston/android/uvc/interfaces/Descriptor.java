@@ -2,7 +2,7 @@ package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.util.Log;
-import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +27,14 @@ public class Descriptor {
         State state = null;
         InterfaceAssociationDescriptor iad = null;
         ArrayList<InterfaceAssociationDescriptor> iads = new ArrayList<>();
-        AInterface aInterface = null;
-        InterruptEndpoint aEndpoint = null;
+        UvcInterface uvcInterface = null;
+        Endpoint aEndpoint = null;
         int endpointIndex = 1;
         while (i < rawDescriptor.length) {
             length = rawDescriptor[i];
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = Type.getType(desc);
-            Log.v(TAG, "Current state: " + state);
-
             switch (type) {
                 case INTERFACE_ASSOCIATION:
                     if (state == State.STANDARD_ENDPOINT) {
@@ -59,20 +57,19 @@ public class Descriptor {
                     }
                     state = State.STANDARD_INTERFACE;
                     endpointIndex = 1;
-                    aInterface = AInterface.parseDescriptor(device, desc);
-                    if (iad != null && aInterface != null) {
-                        final AInterface existing = iad.getInterface(aInterface.getInterfaceNumber());
+                    uvcInterface = UvcInterface.parseDescriptor(device, desc);
+                    if (iad != null && uvcInterface != null) {
+                        final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
                             existing.parseAlternateFunction(desc);
                         } else {
                             // We need to save the old one
-                            iad.addInterface(aInterface);
+                            iad.addInterface(uvcInterface);
                         }
                     }
-                    Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a class interface when no standard interface has been parsed.");
                     }
@@ -80,10 +77,10 @@ public class Descriptor {
                         throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
                     }
                     state = State.CLASS_INTERFACE;
-                    aInterface.parseClassDescriptor(desc);
+                    uvcInterface.parseClassDescriptor(desc);
                     break;
                 case ENDPOINT:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a standard endpoint when no standard interface has been parsed.");
                     }
@@ -92,8 +89,8 @@ public class Descriptor {
                                 "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     }
                     state = State.STANDARD_ENDPOINT;
-                    aEndpoint = InterruptEndpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
-                    aInterface.addEndpoint(endpointIndex, aEndpoint);
+                    aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
+                    uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
                     Log.d(TAG, "" + aEndpoint);
                     break;
@@ -124,7 +121,6 @@ public class Descriptor {
     private static enum State {
         IAD, STANDARD_INTERFACE, CLASS_INTERFACE, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
-
 
     public static enum VideoSubclass {
         SC_UNDEFINED(0x00),

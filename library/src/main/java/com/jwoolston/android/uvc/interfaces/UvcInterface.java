@@ -1,21 +1,20 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
-
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
-import android.util.Log;
 import android.util.SparseArray;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
-import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
-import com.jwoolston.android.uvc.util.Hexdump;
+import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+
+import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public abstract class AInterface {
+public abstract class UvcInterface {
 
-    private static final String TAG = "AInterface";
+    private static final String TAG = "UvcInterface";
 
     private static final int LENGTH_STANDARD_DESCRIPTOR = 9;
 
@@ -33,7 +32,7 @@ public abstract class AInterface {
 
     private final int indexInterface;
 
-    protected final SparseArray<InterruptEndpoint[]> endpoints;
+    protected final SparseArray<Endpoint[]> endpoints;
 
     protected int currentSetting = 0;
 
@@ -42,7 +41,7 @@ public abstract class AInterface {
         return device.getInterface(index);
     }
 
-    public static AInterface parseDescriptor(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
+    public static UvcInterface parseDescriptor(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
         // Check the length
         if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard interface descriptor.");
         // Check the class
@@ -53,10 +52,10 @@ public abstract class AInterface {
                     // We could handle Interface Association Descriptors here, but they don't correspond to an accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
-                        Log.d(TAG, "Parsing VideoControlInterface.");
+                        //Log.d(TAG, "Parsing VideoControlInterface.");
                         return VideoControlInterface.parseVideoControlInterface(device, descriptor);
                     case SC_VIDEOSTREAMING:
-                        Log.d(TAG, "Parsing VideoStreamingInterface: " + Hexdump.dumpHexString(descriptor));
+                        //Log.d(TAG, "Parsing VideoStreamingInterface: " + Hexdump.dumpHexString(descriptor));
                         return VideoStreamingInterface.parseVideoStreamingInterface(device, descriptor);
                     default:
                         throw new IllegalArgumentException("The provided descriptor has an invalid video interface subclass.");
@@ -72,24 +71,24 @@ public abstract class AInterface {
         }
     }
 
-    protected AInterface(UsbInterface usbInterface, byte[] descriptor) {
+    protected UvcInterface(UsbInterface usbInterface, byte[] descriptor) {
         this.usbInterface = usbInterface;
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints = new SparseArray<>();
         currentSetting = 0xFF & descriptor[bAlternateSetting];
-        endpoints.put(currentSetting, new InterruptEndpoint[endpointCount]);
+        endpoints.put(currentSetting, new Endpoint[endpointCount]);
         indexInterface = (0xFF & descriptor[iInterface]);
     }
 
-    public void addEndpoint(int index, InterruptEndpoint endpoint) {
+    public void addEndpoint(int index, Endpoint endpoint) {
         endpoints.get(currentSetting)[index - 1] = endpoint;
     }
 
-    public InterruptEndpoint getEndpoint(int index) {
+    public Endpoint getEndpoint(int index) {
         return endpoints.get(currentSetting)[index - 1];
     }
 
-    public InterruptEndpoint[] getCurrentEndpoints(){
+    public Endpoint[] getCurrentEndpoints(){
         return endpoints.get(currentSetting);
     }
 

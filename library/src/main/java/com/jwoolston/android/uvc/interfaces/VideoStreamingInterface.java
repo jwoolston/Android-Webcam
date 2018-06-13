@@ -4,7 +4,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
-import com.jwoolston.android.uvc.interfaces.endpoints.InterruptEndpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFrame;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoStreamingInterface extends AVideoClassInterface {
+public class VideoStreamingInterface extends VideoClassInterface {
 
     private static final String TAG = "VideoStreamingInterface";
 
@@ -29,7 +29,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     private static final int bDescriptorType = 1;
     private static final int bDescriptorSubtype = 2;
 
-    private VideoStreamInputHeader  inputHeader;
+    private VideoStreamInputHeader inputHeader;
     private VideoStreamOutputHeader outputHeader;
 
     private final List<AVideoFormat> videoFormats;
@@ -39,24 +39,13 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
     public static VideoStreamingInterface parseVideoStreamingInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
-        final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
+        final UsbInterface usbInterface = UvcInterface.getUsbInterface(device, descriptor);
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
 
     VideoStreamingInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
         videoFormats = new ArrayList<>();
-    }
-
-    @Override
-    public String toString() {
-        return "VideoStreamingInterface{" +
-               "\n\tinputHeader=" + inputHeader +
-               "\n\toutputHeader=" + outputHeader +
-               "\n\tvideoFormats=" + videoFormats +
-               "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
-               "\n\tUsb Interface=" + getUsbInterface() +
-               '}';
     }
 
     @Override
@@ -81,9 +70,8 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 try {
                     ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
                 } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the previously parsed Format: " + lastFormat
-
-                            .getClass().getName());
+                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the " +
+                        "previously parsed Format: " + lastFormat.getClass().getName());
                 }
                 break;
             case VS_FORMAT_MJPEG:
@@ -99,7 +87,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                     ((MJPEGVideoFormat) lastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
                 } catch (ClassCastException e) {
                     throw new IllegalArgumentException("The parsed MJPEG frame descriptor is not valid for the previously parsed Format: " + lastFormat
-                            .getClass().getName());
+                        .getClass().getName());
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
@@ -119,10 +107,22 @@ public class VideoStreamingInterface extends AVideoClassInterface {
 
     @Override
     public void parseAlternateFunction(byte[] descriptor) {
-        Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
+        //Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
         currentSetting = 0xFF & descriptor[bAlternateSetting];
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
-        endpoints.put(currentSetting, new InterruptEndpoint[endpointCount]);
+        endpoints.put(currentSetting, new Endpoint[endpointCount]);
+    }
+
+    @Override
+    public String toString() {
+        return "VideoStreamingInterface{" +
+            "\n\tinputHeader=" + inputHeader +
+            "\n\toutputHeader=" + outputHeader +
+            "\n\tvideoFormats=" + videoFormats +
+            "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
+            "\n\tUsb Interface=" + getUsbInterface() +
+            "\n\tNumber Alternate Functions=" + endpoints.size() +
+            '}';
     }
 
     public static enum VS_INTERFACE_SUBTYPE {

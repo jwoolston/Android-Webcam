@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 import java.util.Arrays;
 
@@ -27,7 +27,7 @@ public class VideoSelectorUnit extends VideoUnit {
 
     public static boolean isVideoSelectorUnit(byte[] descriptor) {
         return (descriptor.length >= MIN_LENGTH
-                & descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype);
+                & descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_SELECTOR_UNIT.subtype);
     }
 
     public VideoSelectorUnit(byte[] descriptor) throws IllegalArgumentException {

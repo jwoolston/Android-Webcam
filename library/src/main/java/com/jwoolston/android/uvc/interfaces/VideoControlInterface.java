@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoControlInterface extends AVideoClassInterface {
+public class VideoControlInterface extends VideoClassInterface {
 
     private static final String TAG = "VideoControlInterface";
 
@@ -44,7 +44,7 @@ public class VideoControlInterface extends AVideoClassInterface {
     public static VideoControlInterface parseVideoControlInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Video Class Interface header.");
 
-        final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
+        final UsbInterface usbInterface = UvcInterface.getUsbInterface(device, descriptor);
         return new VideoControlInterface(usbInterface, descriptor);
     }
 

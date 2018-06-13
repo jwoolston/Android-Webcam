@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 /**
  * The Extension Unit (XU) is the method provided by this specification to add vendor-specific building blocks to the
@@ -36,7 +36,7 @@ public class AVideoExtensionUnit extends VideoUnit {
 
     public static boolean isVideoExtensionUnit(byte[] descriptor) {
         return (descriptor.length >= MIN_LENGTH
-                & descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
+                & descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_EXTENSION_UNIT.subtype);
     }
 
     protected AVideoExtensionUnit(byte[] descriptor) throws IllegalArgumentException {

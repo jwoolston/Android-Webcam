@@ -2,7 +2,7 @@ package com.jwoolston.android.uvc.interfaces.units;
 
 import android.util.Log;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,7 +63,7 @@ public class VideoEncodingUnit extends VideoUnit {
 
     public static boolean isVideoEncodingUnit(byte[] descriptor) {
         return (descriptor.length >= LENGTH
-                & descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype);
+                & descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_ENCODING_UNIT.subtype);
     }
 
     public VideoEncodingUnit(byte[] descriptor) throws IllegalArgumentException {

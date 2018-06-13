@@ -61,9 +61,9 @@ public abstract class InterfaceAssociationDescriptor {
         return indexFunction;
     }
 
-    public abstract void addInterface(AInterface aInterface);
+    public abstract void addInterface(UvcInterface uvcInterface);
 
-    public abstract AInterface getInterface(int index);
+    public abstract UvcInterface getInterface(int index);
 
     @Override
     public String toString() {

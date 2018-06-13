@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.terminals;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,7 +61,7 @@ public class CameraTerminal extends VideoInputTerminal {
         if (descriptor.length != LENGTH_DESCRIPTOR) {
             return false;
         }
-        if (descriptor[bDescriptorSubtype] != AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) {
+        if (descriptor[bDescriptorSubtype] != VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) {
             return false;
         }
         final TerminalType type = TerminalType.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);

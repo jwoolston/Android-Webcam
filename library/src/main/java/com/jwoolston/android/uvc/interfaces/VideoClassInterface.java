@@ -5,11 +5,11 @@ import android.hardware.usb.UsbInterface;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public abstract class AVideoClassInterface extends AInterface {
+public abstract class VideoClassInterface extends UvcInterface {
 
     private static final String TAG = "AVideoClassInterface";
 
-    AVideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
+    VideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
     }
 
