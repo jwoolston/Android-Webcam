@@ -1,11 +1,19 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.util.UsbHelper;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
@@ -28,17 +36,15 @@ public abstract class UvcInterface {
     protected static final int bInterfaceProtocol = 7;
     protected static final int iInterface         = 8;
 
-    private final UsbInterface usbInterface;
-
-    private final int indexInterface;
-
+    protected final SparseArray<UsbInterface> usbInterfaces;
     protected final SparseArray<Endpoint[]> endpoints;
 
     protected int currentSetting = 0;
 
     protected static UsbInterface getUsbInterface(UsbDevice device, byte[] descriptor) {
-        final int index = (0xFF & descriptor[bInterfaceNumber]);
-        return device.getInterface(index);
+        final int indexNumber = (0xFF & descriptor[bInterfaceNumber]);
+        final int alternateSetting = (0xFF & descriptor[bAlternateSetting]);
+        return device.getInterface(indexNumber + alternateSetting);
     }
 
     public static UvcInterface parseDescriptor(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
@@ -72,12 +78,23 @@ public abstract class UvcInterface {
     }
 
     protected UvcInterface(UsbInterface usbInterface, byte[] descriptor) {
-        this.usbInterface = usbInterface;
-        final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
+        usbInterfaces = new SparseArray<>();
         endpoints = new SparseArray<>();
         currentSetting = 0xFF & descriptor[bAlternateSetting];
+        usbInterfaces.put(currentSetting, usbInterface);
+        final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
-        indexInterface = (0xFF & descriptor[iInterface]);
+    }
+
+    public void selectAlternateSetting(@NonNull UsbDeviceConnection connection, int alternateSetting) throws UnsupportedOperationException {
+        currentSetting = alternateSetting;
+        final UsbInterface usbInterface = getUsbInterface();
+        if (usbInterface == null) {
+            throw new UnsupportedOperationException("There is not alternate setting: " + alternateSetting);
+        }
+        connection.claimInterface(usbInterface, true);
+        final int result = UsbHelper.selectInterface(connection, usbInterface, currentSetting, 500);
+        Log.d(TAG, "Interface selection result: " + result);
     }
 
     public void addEndpoint(int index, Endpoint endpoint) {
@@ -93,26 +110,30 @@ public abstract class UvcInterface {
     }
 
     public int getInterfaceNumber() {
-        return usbInterface.getId();
+        return usbInterfaces.get(currentSetting).getId();
     }
 
+    @Nullable
     public UsbInterface getUsbInterface() {
-        return usbInterface;
+        return usbInterfaces.get(currentSetting);
     }
 
-    public int getIndexInterface() {
-        return indexInterface;
+    public List<UsbInterface> getUsbInterfaceList() {
+        final LinkedList<UsbInterface> interfaces = new LinkedList<>();
+        for (int i = 0; i < usbInterfaces.size(); ++i) {
+            interfaces.add(usbInterfaces.get(usbInterfaces.keyAt(i)));
+        }
+        return interfaces;
     }
 
     public abstract void parseClassDescriptor(byte[] descriptor);
 
-    public abstract void parseAlternateFunction(byte[] descriptor);
+    public abstract void parseAlternateFunction(@NonNull UsbDevice device, byte[] descriptor);
 
     @Override
     public String toString() {
         return "AInterface{" +
-               "usbInterface=" + usbInterface +
-               ", indexInterface=" + indexInterface +
+               "usbInterface=" + usbInterfaces +
                '}';
     }
 }

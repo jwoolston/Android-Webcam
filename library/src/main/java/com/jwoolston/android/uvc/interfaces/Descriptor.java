@@ -61,7 +61,7 @@ public class Descriptor {
                     if (iad != null && uvcInterface != null) {
                         final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
-                            existing.parseAlternateFunction(desc);
+                            existing.parseAlternateFunction(device, desc);
                         } else {
                             // We need to save the old one
                             iad.addInterface(uvcInterface);

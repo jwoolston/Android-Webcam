@@ -2,6 +2,7 @@ package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.terminals.CameraTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoInputTerminal;
@@ -67,7 +68,7 @@ public class VideoControlInterface extends VideoClassInterface {
     }
 
     @Override
-    public void parseAlternateFunction(byte[] descriptor) {
+    public void parseAlternateFunction(@NonNull UsbDevice device, byte[] descriptor) {
         // Do nothing
         Log.d(TAG, "parseAlternateFunction() called for VideoControlInterface.");
     }

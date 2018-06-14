@@ -8,11 +8,14 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.util.Log;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
+import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.libusb.IsochronousConnection;
 import com.jwoolston.android.uvc.requests.PowerModeControl;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -62,6 +65,12 @@ class WebcamConnection {
         Log.d(TAG, "Initializing native layer.");
         final IsochronousConnection util = new IsochronousConnection(context, usbDeviceConnection.getFileDescriptor());
 
+        Log.d(TAG, "Attempting to select zero bandwidth stream interface.");
+        //iads.get(0).getInterface(1).selectAlternateSetting(usbDeviceConnection, 0);
+        VideoStreamingInterface streamingInterface = (VideoStreamingInterface) iads.get(0).getInterface(1);
+        streamingInterface.selectAlternateSetting(usbDeviceConnection, 0);
+        //util.selectAlternateSetting(streamingInterface.getInterfaceNumber(), 0);
+
         //clearStall(usbInterfaceControl.getEndpoint(0));
 
         Log.d(TAG, "Attempting to set current power mode.");
@@ -70,7 +79,7 @@ class WebcamConnection {
         Log.v(TAG, "Request: " + control);
         /*int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
                 .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);*/
-        int retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
+        /*int retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
                 .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);
         try {
             Thread.sleep(5000);
@@ -78,7 +87,7 @@ class WebcamConnection {
             e.printStackTrace();
         }
         retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
-                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);
+                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);*/
 
         /*Log.v(TAG, "Control transfer length: " + retval);
         clearStall(usbInterfaceControl.getEndpoint(0));

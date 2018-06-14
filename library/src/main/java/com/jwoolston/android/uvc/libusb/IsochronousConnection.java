@@ -3,6 +3,7 @@ package com.jwoolston.android.uvc.libusb;
 import android.content.Context;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import java.nio.ByteBuffer;
 
@@ -54,5 +55,7 @@ public class IsochronousConnection {
                                       byte[] buffer,
                                       int length,
                                       int timeout);
+
+    public native boolean selectAlternateSetting(int interfaceId, int alternateSetting);
 
 }

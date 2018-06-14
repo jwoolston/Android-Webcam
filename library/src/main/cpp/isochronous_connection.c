@@ -128,3 +128,20 @@ Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_controlTransfer(JNIE
     (*env)->ReleaseByteArrayElements(env, buffer_, buffer, 0);
     return status;
 }
+
+JNIEXPORT jboolean JNICALL
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_selectAlternateSetting(JNIEnv *env, jobject instance,
+                                                                                   jint interfaceId,
+                                                                                   jint alternateSetting) {
+
+    int status = libusb_set_interface_alt_setting(deviceHandle, interfaceId, alternateSetting);
+    if (status != 0) {
+        if (status < 0) {
+            LOGE("%s: %s\n", "Alternate Setting Select Error", libusb_error_name(status));
+            return JNI_FALSE;
+        } else {
+            LOGD("Alternate Setting Selected.");
+            return JNI_TRUE;
+        }
+    }
+}

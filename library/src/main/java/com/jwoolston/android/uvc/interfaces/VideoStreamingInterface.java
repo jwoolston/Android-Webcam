@@ -2,6 +2,7 @@ package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
@@ -102,9 +103,9 @@ public class VideoStreamingInterface extends VideoClassInterface {
     }
 
     @Override
-    public void parseAlternateFunction(byte[] descriptor) {
-        //Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
+    public void parseAlternateFunction(@NonNull UsbDevice device, byte[] descriptor) {
         currentSetting = 0xFF & descriptor[bAlternateSetting];
+        usbInterfaces.put(currentSetting, getUsbInterface(device, descriptor));
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
     }
@@ -116,8 +117,8 @@ public class VideoStreamingInterface extends VideoClassInterface {
             "\n\toutputHeader=" + outputHeader +
             "\n\tvideoFormats=" + videoFormats +
             "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
-            "\n\tUsb Interface=" + getUsbInterface() +
-            "\n\tNumber Alternate Functions=" + endpoints.size() +
+            "\n\tUsb Interface=" + getUsbInterfaceList() +
+            "\n\tNumber Alternate Functions=" + usbInterfaces.size() +
             '}';
     }
 
