@@ -2,6 +2,7 @@
 
 #include <jni.h>
 #include <libusbi.h>
+#include <string.h>
 #include "logging.h"
 
 #include "libusb.h"
@@ -16,6 +17,8 @@ static jmethodID java_lang_Throwable_toString;
 
 static jclass android_hardware_usb_UsbDeviceConnection = NULL;
 static jmethodID android_hardware_usb_UsbDeviceConnection_getFileDescriptor;
+
+static struct libusb_device_handle *deviceHandle;
 
 static void log_exception(JNIEnv *env, jthrowable exception, const char *function) {
     jstring exc_string = (*env)->CallObjectMethod(env, exception, java_lang_Throwable_toString);
@@ -76,6 +79,10 @@ Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_initialize(JNIEnv *e
         return LIBUSB_ERROR_NO_DEVICE;
     }
     printDevice(dev_handle->dev);
+
+    libusb_claim_interface(dev_handle, 0);
+
+    deviceHandle = dev_handle;
     return 0;
 }
 
@@ -101,4 +108,23 @@ Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_isochronousTransfer(
                                                                                  jobject connection, jobject buffer) {
     LOGD("UsbDeviceIsoConnection.isochronousTransfer()");
     return 0;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_jwoolston_android_uvc_libusb_IsochronousConnection_controlTransfer(JNIEnv *env, jobject instance,
+                                                                            jint requestType, jint request, jint value,
+                                                                            jint index, jbyteArray buffer_, jint length,
+                                                                            jint timeout) {
+    jbyte *buffer = (*env)->GetByteArrayElements(env, buffer_, NULL);
+
+    int status = libusb_control_transfer(deviceHandle, requestType, request, value, index, buffer, length, timeout);
+    if (status != (signed) length) {
+        if (status < 0)
+            LOGE("%s: %s\n", "Control Transfer Error", libusb_error_name(status));
+        else
+            LOGD("%s ==> %d\n", "Control Transfered", status);
+    }
+
+    (*env)->ReleaseByteArrayElements(env, buffer_, buffer, 0);
+    return status;
 }

@@ -54,4 +54,25 @@ public abstract class VideoClassRequest {
     public int getLength() {
         return data.length;
     }
+
+    @Override public String toString() {
+        final StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+        sb.append("{");
+        sb.append("requestType=").append(requestType);
+        sb.append(", request=").append(request);
+        sb.append(", wValue=").append(wValue);
+        sb.append(", wIndex=").append(wIndex);
+        sb.append(", data=");
+        if (data == null) {
+            sb.append("null");
+        } else {
+            sb.append('[');
+            for (int i = 0; i < data.length; ++i) {
+                sb.append(i == 0 ? "" : ", ").append(data[i]);
+            }
+            sb.append(']');
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }

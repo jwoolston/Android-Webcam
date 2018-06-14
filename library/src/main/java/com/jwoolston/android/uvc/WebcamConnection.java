@@ -3,6 +3,7 @@ package com.jwoolston.android.uvc;
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
+import com.jwoolston.android.uvc.libusb.IsochronousConnection;
 import com.jwoolston.android.uvc.requests.PowerModeControl;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,15 +60,31 @@ class WebcamConnection {
         parseAssiociationDescriptors();
 
         Log.d(TAG, "Initializing native layer.");
-        //final IsochronousConnection util = new IsochronousConnection(context, usbDeviceConnection.getFileDescriptor
-        // ());
+        final IsochronousConnection util = new IsochronousConnection(context, usbDeviceConnection.getFileDescriptor());
+
+        //clearStall(usbInterfaceControl.getEndpoint(0));
 
         Log.d(TAG, "Attempting to set current power mode.");
-        final PowerModeControl control = PowerModeControl.setFullPowerMode(
+        final PowerModeControl control = PowerModeControl.getInfoPowerMode(
                 (VideoControlInterface) iads.get(0).getInterface(0));
-        int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
+        Log.v(TAG, "Request: " + control);
+        /*int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
+                .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);*/
+        int retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
+                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
+                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);
+
+        /*Log.v(TAG, "Control transfer length: " + retval);
+        clearStall(usbInterfaceControl.getEndpoint(0));
+        retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
                 .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);
-        Log.v(TAG, "Control transfer length: " + retval);
+        Log.v(TAG, "Control transfer length: " + retval);*/
     }
 
     private void parseAssiociationDescriptors() {
@@ -79,6 +97,24 @@ class WebcamConnection {
     boolean isConnected() {
         // FIXME
         return true;
+    }
+
+    private static final   int    DETECT_STALL = 130; // (0x82)
+    protected static final int    CLEAR_STALL  = 2;
+    private final          byte[] stall        = new byte[2];
+
+    void clearStall(UsbEndpoint endpoint) {
+        final int index = endpoint.getDirection() | (endpoint.getEndpointNumber() & 0xf);
+        final int byteCount = usbDeviceConnection.controlTransfer(DETECT_STALL, 0, 0, index, stall, 2, 2000);
+
+        if (byteCount == -1) {
+            return;
+        }
+
+        if ((stall[0] & 0x1) != 0 || (stall[1] & 0x1) != 0) {
+            Log.d(TAG, "Clearing stalled endpoint: " + endpoint);
+            usbDeviceConnection.controlTransfer(CLEAR_STALL, 1, 0, index, null, 0, 2000);
+        }
     }
 
     /**

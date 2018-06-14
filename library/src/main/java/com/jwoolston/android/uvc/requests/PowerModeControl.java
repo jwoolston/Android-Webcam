@@ -60,25 +60,25 @@ public class PowerModeControl extends InterfaceControlRequest {
 
     @NonNull
     public static PowerModeControl setFullPowerMode(@NonNull VideoControlInterface controlInterface) {
-        return new PowerModeControl(Request.SET_CUR, (short) (0xFF & controlInterface.getIndexInterface()),
+        return new PowerModeControl(Request.SET_CUR, (short) (0xFF & controlInterface.getInterfaceNumber()),
                                     new byte[] { FULL_POWER_MODE });
     }
 
     @NonNull
     public static PowerModeControl setVendorPowerMode(@NonNull VideoControlInterface controlInterface) {
-        return new PowerModeControl(Request.SET_CUR, (short) (0xFF & controlInterface.getIndexInterface()),
+        return new PowerModeControl(Request.SET_CUR, (short) (0xFF & controlInterface.getInterfaceNumber()),
                                     new byte[] { VENDOR_SPECIFIC_MODE });
     }
 
     @NonNull
     public static PowerModeControl getCurrentPowerMode(@NonNull VideoControlInterface controlInterface) {
-        return new PowerModeControl(Request.GET_CUR, (short) (0xFF & controlInterface.getIndexInterface()),
+        return new PowerModeControl(Request.GET_CUR, (short) (0xFF & controlInterface.getInterfaceNumber()),
                                     new byte[1]);
     }
 
     @NonNull
     public static PowerModeControl getInfoPowerMode(@NonNull VideoControlInterface controlInterface) {
-        return new PowerModeControl(Request.GET_INFO, (short) (0xFF & controlInterface.getIndexInterface()),
+        return new PowerModeControl(Request.GET_INFO, (short) (0xFF & controlInterface.getInterfaceNumber()),
                                     new byte[1]);
     }
 

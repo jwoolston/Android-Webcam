@@ -47,4 +47,12 @@ public class IsochronousConnection {
 
     public native int isochronousTransfer(UsbDeviceConnection connection, ByteBuffer buffer);
 
+    public native int controlTransfer(int requestType,
+                                      int request,
+                                      int value,
+                                      int index,
+                                      byte[] buffer,
+                                      int length,
+                                      int timeout);
+
 }
