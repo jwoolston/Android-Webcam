@@ -12,20 +12,23 @@ public class VideoInputTerminal extends VideoTerminal {
     protected static final int iTerminal = 7;
 
     public static boolean isInputTerminal(byte[] descriptor) {
-        return (descriptor.length >= MIN_LENGTH && descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
+        return (descriptor.length >= MIN_LENGTH
+                && descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
     }
 
     public VideoInputTerminal(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        if (!isInputTerminal(descriptor)) throw new IllegalArgumentException("Provided descriptor is not a valid video input terminal.");
+        if (!isInputTerminal(descriptor)) {
+            throw new IllegalArgumentException("Provided descriptor is not a valid video input terminal.");
+        }
     }
 
     @Override
     public String toString() {
         return "InputTerminal{" +
-                "mTerminalType=" + getTerminalType() +
-                ", mTerminalID=" + getTerminalID() +
-                ", mAssociatedTerminalID=" + getAssociatedTerminalID() +
-                '}';
+               "terminalType=" + getTerminalType() +
+               ", terminalID=" + getTerminalID() +
+               ", associatedTerminalID=" + getAssociatedTerminalID() +
+               '}';
     }
 }

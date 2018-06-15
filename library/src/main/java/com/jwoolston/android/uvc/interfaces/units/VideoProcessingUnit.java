@@ -48,11 +48,11 @@ public class VideoProcessingUnit extends VideoUnit {
         /*mIndexProcessing = descriptor[iProcessing];
 
         final int controlBitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls + 2] << 8);
-        final Set<CONTROL> controlSet = new HashSet<>();
+        final Set<Control> controlSet = new HashSet<>();
         for (int i = 0; i < 24; ++i) {
             if ((controlBitMap & (0x01 << i)) != 0) {
                 // The specified flag is present
-                final CONTROL control = CONTROL.controlFromIndex(i);
+                final Control control = Control.controlFromIndex(i);
                 if (control == null) { throw new IllegalArgumentException("Unknown processing unit control from index: " + i); }
                 controlSet.add(control);
             }
@@ -103,7 +103,7 @@ public class VideoProcessingUnit extends VideoUnit {
                 ", Index Processing: " + getIndexProcessing() +
                 ", Available Controls: ";
         StringBuilder builder = new StringBuilder(base);
-        /*for (CONTROL control : mControlSet) {
+        /*for (Control control : mControlSet) {
             builder.append(control).append(',');
         }
         builder.deleteCharAt(builder.length() - 1);

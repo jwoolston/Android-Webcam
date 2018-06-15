@@ -32,15 +32,14 @@ public class VideoControlInterface extends AVideoClassInterface {
     private static final int bInCollection    = 11;
     private static final int baInterfaceNr_1  = 12;
 
-    private int   mUVC;
-    private int   mNumberStreamingInterfaces;
-    private int[] mStreamingInterfaces;
+    private int   uvc;
+    private int   numberStreamingInterfaces;
+    private int[] streamingInterfaces;
 
     public static VideoControlInterface parseVideoControlInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Video Class Interface header.");
 
         final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
-        if (usbInterface == null) throw new IllegalArgumentException("The provided descriptor refers to a non-existant interface.");
         return new VideoControlInterface(usbInterface, descriptor);
     }
 
@@ -71,18 +70,19 @@ public class VideoControlInterface extends AVideoClassInterface {
     @Override
     public String toString() {
         return "VideoControlInterface{" +
-                "mUVC=" + mUVC +
-                ", mNumberStreamingInterfaces=" + mNumberStreamingInterfaces +
-                ", mStreamingInterfaces=" + Arrays.toString(mStreamingInterfaces) +
-                '}';
+               "uvc=" + uvc +
+               ", numberStreamingInterfaces=" + numberStreamingInterfaces +
+               ", streamingInterfaces=" + Arrays.toString(streamingInterfaces) +
+               ", USB Interface=" + getUsbInterface() +
+               '}';
     }
 
     public int getNumberStreamingInterfaces() {
-        return mNumberStreamingInterfaces;
+        return numberStreamingInterfaces;
     }
 
     public int getUVCVersion() {
-        return mUVC;
+        return uvc;
     }
 
     public boolean isClassInterfaceHeader(byte[] descriptor) {
@@ -100,11 +100,11 @@ public class VideoControlInterface extends AVideoClassInterface {
     public void parseClassInterfaceHeader(byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Video Class Interface header.");
         if (descriptor.length < VIDEO_CLASS_HEADER_LENGTH) throw new IllegalArgumentException("The provided descriptor is not a valid Video Class Interface.");
-        mUVC = ((0xFF & descriptor[bcdUVC]) << 8) | (0xFF & descriptor[bcdUVC + 1]);
-        mNumberStreamingInterfaces = descriptor[bInCollection];
-        mStreamingInterfaces = new int[mNumberStreamingInterfaces];
-        for (int i = 0; i < mNumberStreamingInterfaces; ++i) {
-            mStreamingInterfaces[i] = (0xFF & descriptor[baInterfaceNr_1 + i]);
+        uvc = ((0xFF & descriptor[bcdUVC]) << 8) | (0xFF & descriptor[bcdUVC + 1]);
+        numberStreamingInterfaces = descriptor[bInCollection];
+        streamingInterfaces = new int[numberStreamingInterfaces];
+        for (int i = 0; i < numberStreamingInterfaces; ++i) {
+            streamingInterfaces[i] = (0xFF & descriptor[baInterfaceNr_1 + i]);
         }
     }
 

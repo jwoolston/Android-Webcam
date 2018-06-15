@@ -10,13 +10,13 @@ public abstract class VideoTerminal {
     protected static final int bLength            = 0;
     protected static final int bDescriptorType    = 1;
     protected static final int bDescriptorSubtype = 2;
-    protected static final int bTerminalID    = 3;
-    protected static final int wTerminalType  = 4;
-    protected static final int bAssocTerminal = 6;
+    protected static final int bTerminalID        = 3;
+    protected static final int wTerminalType      = 4;
+    protected static final int bAssocTerminal     = 6;
 
-    private final TERMINAL_TYPE mTerminalType;
-    private final int mTerminalID;
-    private final int mAssociatedTerminalID;
+    private final TerminalType terminalType;
+    private final int          terminalID;
+    private final int          associatedTerminalID;
 
     public static boolean isVideoTerminal(byte[] descriptor) {
         return (descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype ||
@@ -24,36 +24,37 @@ public abstract class VideoTerminal {
     }
 
     protected VideoTerminal(byte[] descriptor) {
-        mTerminalType = TERMINAL_TYPE.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
-        mTerminalID = descriptor[bTerminalID];
-        mAssociatedTerminalID = descriptor[bAssocTerminal];
+        terminalType = TerminalType.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
+        terminalID = descriptor[bTerminalID];
+        associatedTerminalID = descriptor[bAssocTerminal];
     }
 
-    public TERMINAL_TYPE getTerminalType() {
-        return mTerminalType;
+    public TerminalType getTerminalType() {
+        return terminalType;
     }
 
     public int getTerminalID() {
-        return mTerminalID;
+        return terminalID;
     }
 
     public int getAssociatedTerminalID() {
-        return mAssociatedTerminalID;
+        return associatedTerminalID;
     }
 
     /**
-     * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC Class specification v1.5</a> Table B-1 through B-4.
+     * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC Class specification
+     * v1.5</a> Table B-1 through B-4.
      */
-    public static enum TERMINAL_TYPE {
+    public static enum TerminalType {
         /**
-         * A terminal dealing with a signal carried over a vendor-specific interface. The vendor-specfic interface descriptor must contain a field that
-         * references the terminal.
+         * A terminal dealing with a signal carried over a vendor-specific interface. The vendor-specfic interface
+         * descriptor must contain a field that references the terminal.
          */
         TT_VENDOR_SPECIFIC(0x0100),
 
         /**
-         * A terminal dealing with a signal carried over an endpoint in a VideoStreaming interface. The VideoStreaming interface descriptor points to the
-         * associated terminal through the bTerminalLink field.
+         * A terminal dealing with a signal carried over an endpoint in a VideoStreaming interface. The
+         * VideoStreaming interface descriptor points to the associated terminal through the bTerminalLink field.
          */
         TT_STREAMING(0x0101),
 
@@ -109,13 +110,13 @@ public abstract class VideoTerminal {
 
         public int code;
 
-        private TERMINAL_TYPE(int code) {
+        private TerminalType(int code) {
             this.code = (code & 0xFFFF);
         }
 
-        public static TERMINAL_TYPE toTerminalType(byte low, byte high) {
+        public static TerminalType toTerminalType(byte low, byte high) {
             final int code = ((high << 8) | low);
-            for (TERMINAL_TYPE terminal : TERMINAL_TYPE.values()) {
+            for (TerminalType terminal : TerminalType.values()) {
                 if (terminal.code == code) {
                     return terminal;
                 }

@@ -1,6 +1,7 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.util.Log;
+import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -18,11 +19,11 @@ public abstract class InterfaceAssociationDescriptor {
     protected static final int bFunctionProtocol = 6;
     protected static final int iFunction         = 7;
 
-    private final int mFirstInterface;
+    private final int firstInterface;
 
-    private final int mInterfaceCount;
+    private final int interfaceCount;
 
-    private final int mIndexFunction;
+    private final int indexFunction;
 
     protected static InterfaceAssociationDescriptor parseIAD(byte[] descriptor) throws IllegalArgumentException {
         Log.d(TAG, "Parsing Interface Association Descriptor.");
@@ -30,7 +31,7 @@ public abstract class InterfaceAssociationDescriptor {
             throw new IllegalArgumentException("The provided descriptor is not long enough. Have " + descriptor.length + " need " + LENGTH_DESCRIPTOR);
         }
         if (descriptor[bFunctionClass] == Descriptor.VIDEO_CLASS_CODE) {
-            if (descriptor[bFunctionProtocol] != Descriptor.PROTOCOL.PC_PROTOCOL_UNDEFINED.protocol) {
+            if (descriptor[bFunctionProtocol] != Protocol.PC_PROTOCOL_UNDEFINED.protocol) {
                 throw new IllegalArgumentException("The provided descriptor has an invalid protocol: " + descriptor[bFunctionProtocol]);
             }
             return new VideoIAD(descriptor);
@@ -43,21 +44,21 @@ public abstract class InterfaceAssociationDescriptor {
     }
 
     protected InterfaceAssociationDescriptor(byte[] descriptor) throws IllegalArgumentException {
-        mFirstInterface = descriptor[bFirstInterface];
-        mInterfaceCount = descriptor[bInterfaceCount];
-        mIndexFunction = descriptor[iFunction];
+        firstInterface = descriptor[bFirstInterface];
+        interfaceCount = descriptor[bInterfaceCount];
+        indexFunction = descriptor[iFunction];
     }
 
     public int getIndexFirstInterface() {
-        return mFirstInterface;
+        return firstInterface;
     }
 
     public int getInterfaceCount() {
-        return mInterfaceCount;
+        return interfaceCount;
     }
 
     public int getIndexFunction() {
-        return mIndexFunction;
+        return indexFunction;
     }
 
     public abstract void addInterface(AInterface aInterface);
@@ -67,9 +68,9 @@ public abstract class InterfaceAssociationDescriptor {
     @Override
     public String toString() {
         return "InterfaceAssociationDescriptor{" +
-                "mFirstInterface=" + mFirstInterface +
-                ", mInterfaceCount=" + mInterfaceCount +
-                ", mIndexFunction=" + mIndexFunction +
+                "FirstInterface=" + firstInterface +
+                ", InterfaceCount=" + interfaceCount +
+                ", IndexFunction=" + indexFunction +
                 '}';
     }
 }
