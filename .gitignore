@@ -14,7 +14,7 @@ local.gradle
  
 # Signing files
 .signing/
-private.asc
+private.gpg
  
 # User-specific configurations
 .idea/libraries

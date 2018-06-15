@@ -16,8 +16,8 @@ jobs:
       - checkout
       - run: echo "signing.keyId=${SIGNING_KEY}" >> "gradle.properties"
       - run: echo "signing.password=${SIGNING_PASSWORD}" >> "gradle.properties"
-      - run: echo "signing.secretKeyRingFile=../private.asc" >> "gradle.properties"
-      - run: openssl aes-256-cbc -d -in private.asc.enc -out private.asc -k $ENC_FILE_KEY
+      - run: echo "signing.secretKeyRingFile=../private.gpg" >> "gradle.properties"
+      - run: openssl aes-256-cbc -d -in private.gpg.enc -out private.gpg -k $ENC_FILE_KEY
       - run: git submodule sync
       - run: git submodule update --init
       - run:
