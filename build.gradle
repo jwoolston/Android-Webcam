@@ -21,9 +21,11 @@ repositories {
 }
 
 allprojects {
+    boolean isTag = !System.getenv('TRAVIS_TAG')?.isEmpty() ?: false
+    String buildNumber = System.getenv('TRAVIS_BUILD_NUMBER') ?: "0"
 
     group 'com.jwoolston.android.uvc'
-    version VERSION_NAME + ".${buildNumber()}" + (isTag() ? "" : "-SNAPSHOT")
+    version "$VERSION_NAME.${buildNumber}" + (isTag ? "" : "-SNAPSHOT")
 
     repositories {
         mavenCentral()
@@ -32,10 +34,3 @@ allprojects {
     }
 }
 
-static boolean isTag() {
-    return !System.getenv('TRAVIS_TAG')?.isEmpty() ?: false
-}
-
-static String buildNumber() {
-    return System.getenv('TRAVIS_BUILD_NUMBER') ?: "0"
-}
