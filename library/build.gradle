@@ -23,7 +23,6 @@ android {
 
         externalNativeBuild {
             cmake {
-                version "3.6.4"
                 arguments '-DANDROID_ARM_NEON=TRUE'
             }
         }
