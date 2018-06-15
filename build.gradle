@@ -21,8 +21,9 @@ repositories {
 }
 
 allprojects {
-    boolean isTag = !System.getenv('TRAVIS_TAG')?.isEmpty() ?: false
-    String buildNumber = System.getenv('TRAVIS_BUILD_NUMBER') ?: "0"
+    String tagName = System.getenv('CIRCLE_TAG')
+    boolean isTag = tagName != null && !tagName.isEmpty()
+    String buildNumber = System.getenv('CIRCLE_BUILD_NUM') ?: "0"
 
     group 'com.jwoolston.android.uvc'
     version "$VERSION_NAME.${buildNumber}" + (isTag ? "" : "-SNAPSHOT")
