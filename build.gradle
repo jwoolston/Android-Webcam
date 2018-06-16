@@ -25,7 +25,7 @@ allprojects {
     boolean isTag = tagName != null && !tagName.isEmpty()
     String buildNumber = System.getenv('CIRCLE_BUILD_NUM') ?: "0"
 
-    group 'com.jwoolston.android.uvc'
+    group 'com.jwoolston.android'
     version "$VERSION_NAME.${buildNumber}" + (isTag ? "" : "-SNAPSHOT")
 
     repositories {
