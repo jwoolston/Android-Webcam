@@ -20,25 +20,12 @@ android {
         resourcePrefix 'webc_'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        externalNativeBuild {
-            cmake {
-                version "3.6.4"
-                arguments '-DANDROID_ARM_NEON=TRUE'
-            }
-        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path 'CMakeLists.txt'
         }
     }
 
