@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: toxicbakery/alpine-glibc-android:release-ndk-1.1.1
+    - image: toxicbakery/alpine-glibc-android:release-1.1.1
   environment:
     # Customize the JVM maximum heap limit
     JVM_OPTS: -Xmx3200m
@@ -13,7 +13,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: 
+      - run:
           name: Git Submodules
           command: |
             git submodule sync
