@@ -24,8 +24,6 @@ import timber.log.Timber;
  */
 public class VideoStreamingInterface extends AVideoClassInterface {
 
-    private static final String TAG = "VideoStreamingInterface";
-
     private static final int bLength = 0;
     private static final int bDescriptorType = 1;
     private static final int bDescriptorSubtype = 2;

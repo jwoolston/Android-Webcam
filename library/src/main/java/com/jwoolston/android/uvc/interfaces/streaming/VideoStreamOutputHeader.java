@@ -8,8 +8,6 @@ import timber.log.Timber;
  */
 public class VideoStreamOutputHeader extends AVideoStreamHeader {
 
-    private static final String TAG = "VideoStreamOutputHeader";
-
     private static final int MIN_HEADER_LENGTH = 9;
 
     private static final int bTerminalLink = 7;

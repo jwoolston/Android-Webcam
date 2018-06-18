@@ -11,8 +11,6 @@ import timber.log.Timber;
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
 
-    private static final String TAG = "VideoIAD";
-
     private SparseArray<AVideoClassInterface> interfaces;
 
     VideoIAD(byte[] descriptor) throws IllegalArgumentException {

@@ -9,8 +9,6 @@ import timber.log.Timber;
  */
 public abstract class InterfaceAssociationDescriptor {
 
-    private static final String TAG = "IAD";
-
     private static final int LENGTH_DESCRIPTOR = 8;
 
     protected static final int bFirstInterface   = 2;

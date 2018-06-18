@@ -15,8 +15,6 @@ import timber.log.Timber;
  */
 public class Descriptor {
 
-    private static final String TAG = "Descriptor";
-
     static final byte VIDEO_CLASS_CODE = ((byte) 0x0E);
     static final byte AUDIO_CLASS_CODE = ((byte) 0x01);
 

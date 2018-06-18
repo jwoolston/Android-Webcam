@@ -11,8 +11,6 @@ import timber.log.Timber;
  */
 public class MJPEGVideoFormat extends AVideoFormat {
 
-    private static final String TAG = "MJPEGVideoFormat";
-
     private static final int LENGTH = 11;
 
     private static final int bFormatIndex = 3;

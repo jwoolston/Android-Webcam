@@ -17,8 +17,6 @@ import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
  */
 public abstract class AInterface {
 
-    private static final String TAG = "AInterface";
-
     private static final int LENGTH_STANDARD_DESCRIPTOR = 9;
 
     protected static final int bLength            = 0;

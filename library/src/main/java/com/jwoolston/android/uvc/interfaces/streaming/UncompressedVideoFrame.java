@@ -7,8 +7,6 @@ import java.util.Arrays;
  */
 public class UncompressedVideoFrame extends AVideoFrame {
 
-    private static final String TAG = "UncompressedVideoFrame";
-
     public UncompressedVideoFrame(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
     }

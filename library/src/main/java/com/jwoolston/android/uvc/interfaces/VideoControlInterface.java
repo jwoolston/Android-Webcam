@@ -22,8 +22,6 @@ import timber.log.Timber;
  */
 public class VideoControlInterface extends AVideoClassInterface {
 
-    private static final String TAG = "VideoControlInterface";
-
     private static final int VIDEO_CLASS_HEADER_LENGTH = 12;
 
     private static final int bDescriptorSubType = 2;

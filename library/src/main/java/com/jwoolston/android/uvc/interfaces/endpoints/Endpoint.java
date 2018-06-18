@@ -10,8 +10,6 @@ import timber.log.Timber;
  */
 public class Endpoint {
 
-    private static final String TAG = "Endpoint";
-
     private static final int LENGTH_STANDARD_DESCRIPTOR = 7;
     private static final int LENGTH_CLASS_DESCRIPTOR = 5;
 

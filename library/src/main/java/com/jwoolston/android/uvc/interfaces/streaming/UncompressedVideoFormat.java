@@ -12,8 +12,6 @@ import timber.log.Timber;
  */
 public class UncompressedVideoFormat extends AVideoFormat {
 
-    private static final String TAG = "UncompressedVideoFormat";
-
     private static final int LENGTH = 27;
 
     //|-----------------------------------------------|

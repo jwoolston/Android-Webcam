@@ -11,8 +11,6 @@ import timber.log.Timber;
  */
 public class VideoProcessingUnit extends VideoUnit {
 
-    private static final String TAG = "VideoProcessingUnit";
-
     private static final int LENGTH = 11; //TODO: Spec says 13?
 
     private static final int bSourceID      = 4;

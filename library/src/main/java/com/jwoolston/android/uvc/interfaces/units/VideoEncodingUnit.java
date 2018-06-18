@@ -13,8 +13,6 @@ import timber.log.Timber;
  */
 public class VideoEncodingUnit extends VideoUnit {
 
-    private static final String TAG = "VideoEncodingUnit";
-
     private static final int LENGTH = 13;
 
     private static final int bSourceID = 4;
