@@ -2,7 +2,8 @@ package com.jwoolston.android.uvc.interfaces.endpoints;
 
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
-import android.util.Log;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -33,7 +34,7 @@ public class Endpoint {
     private int mMaxTransferSize;
 
     public static Endpoint parseDescriptor(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing standard endpoint.");
+        Timber.d("Parsing standard endpoint.");
         if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard endpoint descriptor.");
         return new Endpoint(usbInterface, descriptor);
     }
@@ -56,7 +57,7 @@ public class Endpoint {
     }
 
     public void parseClassDescriptor(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Class Specific Endpoint Descriptor.");
+        Timber.d("Parsing Class Specific Endpoint Descriptor.");
         if (descriptor.length < LENGTH_CLASS_DESCRIPTOR || descriptor[bDescriptorSubType] != VIDEO_ENDPOINT.EP_INTERRUPT.code) {
             throw new IllegalArgumentException("The provided descriptor is not a valid class endpoint descriptor.");
         }

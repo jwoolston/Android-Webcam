@@ -1,8 +1,8 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
-
 import java.util.Arrays;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -31,7 +31,7 @@ public class VideoStreamInputHeader extends AVideoStreamHeader {
 
     public VideoStreamInputHeader(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing VideoStreamInputHeader");
+        Timber.d("Parsing VideoStreamInputHeader");
         if (descriptor.length < MIN_HEADER_LENGTH) throw new IllegalArgumentException("The provided descriptor is not long enough to be a valid VideoStreamInputHeader.");
         infoMask = descriptor[bmInfo];
         terminalLink = (0xFF & descriptor[bTerminalLink]);

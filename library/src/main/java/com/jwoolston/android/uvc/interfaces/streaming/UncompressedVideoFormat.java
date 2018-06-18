@@ -1,11 +1,10 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.android.uvc.util.Hexdump;
 
-import java.util.Arrays;
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -85,7 +84,7 @@ public class UncompressedVideoFormat extends AVideoFormat {
     }
 
     public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
+        Timber.d("Adding video frame: %s", frame);
         mVideoFrames.put(frame.getFrameIndex(), frame);
     }
 

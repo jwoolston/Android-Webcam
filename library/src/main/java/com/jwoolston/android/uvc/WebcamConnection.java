@@ -6,15 +6,18 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
-import android.util.Log;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Helper class for abstracting communication to a camera. This implementation directly handles
@@ -24,8 +27,6 @@ import java.util.List;
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 class WebcamConnection {
-
-    private static final String TAG = "WebcamConnection";
 
     private static final int INTERFACE_CONTROL = 0;
 
@@ -53,15 +54,15 @@ class WebcamConnection {
 
         parseAssiociationDescriptors();
 
-        Log.d(TAG, "Initializing native layer.");
+        Timber.d("Initializing native layer.");
         final UsbDeviceIsoConnection util = new UsbDeviceIsoConnection(context, usbDeviceConnection.getFileDescriptor());
     }
 
     private void parseAssiociationDescriptors() {
-        Log.d(TAG, "Parsing raw association descriptors.");
+        Timber.d("Parsing raw association descriptors.");
         final byte[] raw = usbDeviceConnection.getRawDescriptors();
         final List<InterfaceAssociationDescriptor> iads =  Descriptor.parseDescriptors(usbDevice, raw);
-        Log.i(TAG, "Determined IADs: " + iads);
+        Timber.i("Determined IADs: %s", iads);
     }
 
     boolean isConnected() {

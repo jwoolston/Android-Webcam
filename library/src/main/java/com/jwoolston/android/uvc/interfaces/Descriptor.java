@@ -1,11 +1,14 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
-import android.util.Log;
+
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -35,7 +38,7 @@ public class Descriptor {
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = Type.getType(desc);
-            Log.v(TAG, "Current state: " + state);
+            Timber.v("Current state: %s", state);
 
             switch (type) {
                 case INTERFACE_ASSOCIATION:
@@ -49,7 +52,7 @@ public class Descriptor {
                     state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     iads.add(iad);
-                    Log.d(TAG, "" + iad);
+                    Timber.d("%s", iad);
                     break;
                 case INTERFACE:
                     if (state != State.IAD && state != State.CLASS_INTERFACE && state != State.STANDARD_ENDPOINT
@@ -69,7 +72,7 @@ public class Descriptor {
                             iad.addInterface(aInterface);
                         }
                     }
-                    Log.d(TAG, "" + aInterface);
+                    Timber.d("%s", aInterface);
                     break;
                 case CS_INTERFACE:
                     if (aInterface == null) {
@@ -95,7 +98,7 @@ public class Descriptor {
                     aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
                     aInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
-                    Log.d(TAG, "" + aEndpoint);
+                    Timber.d("%s", aEndpoint);
                     break;
                 case CS_ENDPOINT:
                     if (aEndpoint == null) {
@@ -114,7 +117,7 @@ public class Descriptor {
                 case CONFIGURATION:
                     break;
                 default:
-                    Log.d(TAG, "Descriptor: " + Hexdump.dumpHexString(desc));
+                    Timber.d("Descriptor: %s", Hexdump.dumpHexString(desc));
             }
             i += length;
         }

@@ -1,14 +1,16 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
-
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
-import android.util.Log;
 import android.util.SparseArray;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
+
+import timber.log.Timber;
+
+import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -53,10 +55,10 @@ public abstract class AInterface {
                     // We could handle Interface Association Descriptors here, but they don't correspond to an accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
-                        Log.d(TAG, "Parsing VideoControlInterface.");
+                        Timber.d("Parsing VideoControlInterface.");
                         return VideoControlInterface.parseVideoControlInterface(device, descriptor);
                     case SC_VIDEOSTREAMING:
-                        Log.d(TAG, "Parsing VideoStreamingInterface: " + Hexdump.dumpHexString(descriptor));
+                        Timber.d("Parsing VideoStreamingInterface: %s", Hexdump.dumpHexString(descriptor));
                         return VideoStreamingInterface.parseVideoStreamingInterface(device, descriptor);
                     default:
                         throw new IllegalArgumentException("The provided descriptor has an invalid video interface subclass.");
