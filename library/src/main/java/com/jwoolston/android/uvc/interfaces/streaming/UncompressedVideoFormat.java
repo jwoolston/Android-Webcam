@@ -1,19 +1,16 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.android.uvc.util.Hexdump;
 
-import java.util.Arrays;
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC USB_Video_Payload_Uncompressed.pdf v1.5 Table 3-1
  */
 public class UncompressedVideoFormat extends AVideoFormat {
-
-    private static final String TAG = "UncompressedVideoFormat";
 
     private static final int LENGTH = 27;
 
@@ -85,7 +82,7 @@ public class UncompressedVideoFormat extends AVideoFormat {
     }
 
     public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
+        Timber.d("Adding video frame: %s", frame);
         mVideoFrames.put(frame.getFrameIndex(), frame);
     }
 

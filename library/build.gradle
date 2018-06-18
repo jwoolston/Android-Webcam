@@ -40,6 +40,7 @@ dependencies {
 
     implementation "com.android.support:support-annotations:$support_lib_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.jakewharton.timber:timber:$timber_version"
 
     api 'com.jwoolston.android:libusb:1.0.25-SNAPSHOT'
 

@@ -1,19 +1,17 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import timber.log.Timber;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoEncodingUnit extends VideoUnit {
-
-    private static final String TAG = "VideoEncodingUnit";
 
     private static final int LENGTH = 13;
 
@@ -34,7 +32,7 @@ public class VideoEncodingUnit extends VideoUnit {
 
     public VideoEncodingUnit(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing video processing unit.");
+        Timber.d("Parsing video processing unit.");
         if (!isVideoEncodingUnit(descriptor)) { throw new IllegalArgumentException("The provided descriptor is not a valid Video Encoding Unit descriptor."); }
         mSourceID = descriptor[bSourceID];
         mIndexEncoding = descriptor[iEncoding];
