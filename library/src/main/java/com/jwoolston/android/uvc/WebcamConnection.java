@@ -1,12 +1,13 @@
 package com.jwoolston.android.uvc;
 
 import android.content.Context;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbInterface;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import com.jwoolston.android.libusb.DevicePermissionDenied;
+import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
+import com.jwoolston.android.libusb.UsbManager;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.libusb.UsbDeviceIsoConnection;
@@ -32,24 +33,22 @@ class WebcamConnection {
     final UsbDeviceConnection usbDeviceConnection;
     final UsbManager          usbManager;
     final UsbDevice           usbDevice;
-    final UsbInterface        usbInterfaceControl;
 
     private OutputStream bufferStream;
 
-    WebcamConnection(Context context, UsbManager usbManager, UsbDevice usbDevice) throws UnknownDeviceException {
-        this.usbManager = usbManager;
-        this.usbDevice = usbDevice;
+    WebcamConnection(Context context, @NonNull android.hardware.usb.UsbDevice usbDevice) throws UnknownDeviceException,
+                                                                                                DevicePermissionDenied {
+        this.usbManager = new UsbManager(context);
+        //this.usbDevice = usbDevice;
+        this.usbDevice = null;
 
         // A Webcam must have at least a control interface and a video interface
         if (usbDevice.getInterfaceCount() < 2) {
             throw new UnknownDeviceException();
         }
 
-        usbInterfaceControl = usbDevice.getInterface(INTERFACE_CONTROL);
-
         // Claim the control interface
-        usbDeviceConnection = usbManager.openDevice(usbDevice);
-        usbDeviceConnection.claimInterface(usbInterfaceControl, true);
+        usbDeviceConnection = usbManager.registerDevice(usbDevice);
 
         parseAssiociationDescriptors();
 

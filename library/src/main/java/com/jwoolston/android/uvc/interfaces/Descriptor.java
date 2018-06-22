@@ -1,7 +1,7 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.hardware.usb.UsbDevice;
 import android.util.Log;
+import com.jwoolston.android.libusb.UsbDevice;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;

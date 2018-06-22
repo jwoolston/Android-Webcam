@@ -1,9 +1,8 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbInterface;
 import android.util.Log;
-
+import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFormat;
@@ -14,7 +13,6 @@ import com.jwoolston.android.uvc.interfaces.streaming.VideoColorMatchingDescript
 import com.jwoolston.android.uvc.interfaces.streaming.VideoStreamInputHeader;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoStreamOutputHeader;
 import com.jwoolston.android.uvc.util.Hexdump;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -2,10 +2,10 @@ package com.jwoolston.android.uvc.interfaces;
 
 import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbInterface;
 import android.util.Log;
 import android.util.SparseArray;
+import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;

@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.hardware.usb.UsbInterface;
+import com.jwoolston.android.libusb.UsbInterface;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)

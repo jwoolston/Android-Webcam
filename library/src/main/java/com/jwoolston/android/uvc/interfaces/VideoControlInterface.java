@@ -1,9 +1,8 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbInterface;
 import android.util.Log;
-
+import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.terminals.CameraTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoInputTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoOutputTerminal;
@@ -13,7 +12,6 @@ import com.jwoolston.android.uvc.interfaces.units.VideoEncodingUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoProcessingUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoSelectorUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoUnit;
-
 import java.util.Arrays;
 
 /**

@@ -1,8 +1,8 @@
 package com.jwoolston.android.uvc.interfaces.endpoints;
 
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.util.Log;
+import com.jwoolston.android.libusb.UsbEndpoint;
+import com.jwoolston.android.libusb.UsbInterface;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)

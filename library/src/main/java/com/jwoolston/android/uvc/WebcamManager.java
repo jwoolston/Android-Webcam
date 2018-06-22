@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc;
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.support.annotation.NonNull;
-
+import com.jwoolston.android.libusb.DevicePermissionDenied;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -73,7 +73,8 @@ public class WebcamManager {
      */
     public static
     @NonNull
-    Webcam getOrCreateWebcam(@NonNull Context context, @NonNull UsbDevice usbDevice) throws UnknownDeviceException{
+    Webcam getOrCreateWebcam(@NonNull Context context, @NonNull UsbDevice usbDevice) throws UnknownDeviceException,
+                                                                                            DevicePermissionDenied {
         Webcam webcam = DEVICES.get(usbDevice);
         if (webcam == null) {
             webcam = new WebcamImpl(context.getApplicationContext(), usbDevice);
