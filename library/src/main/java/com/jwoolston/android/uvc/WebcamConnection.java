@@ -3,7 +3,6 @@ package com.jwoolston.android.uvc;
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -12,7 +11,6 @@ import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
-import com.jwoolston.android.uvc.libusb.IsochronousConnection;
 import com.jwoolston.android.uvc.requests.PowerModeControl;
 
 import java.io.File;
@@ -104,24 +102,6 @@ class WebcamConnection {
     boolean isConnected() {
         // FIXME
         return true;
-    }
-
-    private static final   int    DETECT_STALL = 130; // (0x82)
-    protected static final int    CLEAR_STALL  = 2;
-    private final          byte[] stall        = new byte[2];
-
-    void clearStall(UsbEndpoint endpoint) {
-        final int index = endpoint.getDirection() | (endpoint.getEndpointNumber() & 0xf);
-        final int byteCount = usbDeviceConnection.controlTransfer(DETECT_STALL, 0, 0, index, stall, 2, 2000);
-
-        if (byteCount == -1) {
-            return;
-        }
-
-        if ((stall[0] & 0x1) != 0 || (stall[1] & 0x1) != 0) {
-            Log.d(TAG, "Clearing stalled endpoint: " + endpoint);
-            usbDeviceConnection.controlTransfer(CLEAR_STALL, 1, 0, index, null, 0, 2000);
-        }
     }
 
     /**
