@@ -7,7 +7,40 @@ import java.util.Set;
 import timber.log.Timber;
 
 /**
+ * The Encoding Unit controls attributes of the encoder that encodes the video being streamed through it. It has a
+ * single input and multiple output pins. It provides support for the following features which can be used before or
+ * after streaming has started.
+ *
+ * <br>-Select Layer
+ * <br>-Video Resolution
+ * <br>-Profile and Toolset
+ * <br>-Minimum Frame Interval
+ * <br>-Slice Mode
+ * <br>-Rate Control Mode
+ * <br>-Average Bitrate Control
+ * <br>-CPB Size Control
+ * <br>-Peak Bit Rate
+ * <br>-Quantization Parameter
+ * <br>-Synchronization and Long Term Reference Frame
+ * <br>-Long Term Reference Buffers
+ * <br>-Long Term Picture
+ * <br>-Valid Long Term Pictures
+ * <br>-LevelIDC
+ * <br>-SEI Message
+ * <br>-QP Range
+ * <br>-Priority ID
+ * <br>-Start or Stop Layer
+ * <br>-Error Resiliency
+ *
+ * Support for the Encoding Unit control is optional and only applicable to devices with onboard video encoders. The
+ * Select Layer control also allows control of individual streams for devices that support simulcast transport of
+ * more than one stream. Individual payloads may specialize the behavior of each of these controls to align with the
+ * feature set defined by the associated encoder, e.g. H.264. This specialized behavior is defined in the associated
+ * payload specification.
+ *
  * @author Jared Woolston (Jared.Woolston@gmail.com)
+ * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC 1.5 Class
+ * Specification §2.3.6</a>
  */
 public class VideoEncodingUnit extends VideoUnit {
 

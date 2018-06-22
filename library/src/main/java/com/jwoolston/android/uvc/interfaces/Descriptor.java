@@ -34,8 +34,6 @@ public class Descriptor {
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = Type.getType(desc);
-            Timber.v("Current state: %s", state);
-
             switch (type) {
                 case INTERFACE_ASSOCIATION:
                     if (state == State.STANDARD_ENDPOINT) {
@@ -62,13 +60,12 @@ public class Descriptor {
                     if (iad != null && uvcInterface != null) {
                         final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
-                            existing.parseAlternateFunction(desc);
+                            existing.parseAlternateFunction(connection, desc);
                         } else {
                             // We need to save the old one
                             iad.addInterface(uvcInterface);
                         }
                     }
-                    Timber.d("%s", uvcInterface);
                     break;
                 case CS_INTERFACE:
                     if (uvcInterface == null) {
@@ -123,7 +120,6 @@ public class Descriptor {
     private static enum State {
         IAD, STANDARD_INTERFACE, CLASS_INTERFACE, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
-
 
     public static enum VideoSubclass {
         SC_UNDEFINED(0x00),

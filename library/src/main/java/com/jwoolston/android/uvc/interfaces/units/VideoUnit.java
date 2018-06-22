@@ -1,7 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import com.jwoolston.android.uvc.interfaces.Descriptor.Type;
 import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.Descriptor.Type;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.jwoolston.android.libusb.DevicePermissionDenied;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             final UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             try {
                 webcam = WebcamManager.getOrCreateWebcam(this, usbDevice);
-            } catch (UnknownDeviceException e) {
+            } catch (UnknownDeviceException | DevicePermissionDenied e) {
                 e.printStackTrace();
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }

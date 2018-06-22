@@ -1,5 +1,7 @@
 package com.jwoolston.android.uvc.interfaces;
 
+import android.support.annotation.NonNull;
+import com.jwoolston.android.libusb.UsbDevice;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
@@ -37,8 +39,6 @@ public class VideoStreamingInterface extends VideoClassInterface {
     public static VideoStreamingInterface parseVideoStreamingInterface(UsbDeviceConnection connection,
                                                                        byte[] descriptor) throws
                                                                                           IllegalArgumentException {
-        Timber.d("Parsing Video Class Interface header.");
-
         final UsbInterface usbInterface = UvcInterface.getUsbInterface(connection, descriptor);
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
@@ -46,17 +46,6 @@ public class VideoStreamingInterface extends VideoClassInterface {
     VideoStreamingInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
         videoFormats = new ArrayList<>();
-    }
-
-    @Override
-    public String toString() {
-        return "VideoStreamingInterface{" +
-               "\n\tinputHeader=" + inputHeader +
-               "\n\toutputHeader=" + outputHeader +
-               "\n\tvideoFormats=" + videoFormats +
-               "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
-               "\n\tUsb Interface=" + getUsbInterface() +
-               '}';
     }
 
     @Override
@@ -71,7 +60,6 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 break;
             case VS_FORMAT_UNCOMPRESSED:
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
-                Timber.d("Adding Video Format: %s", uncompressedVideoFormat);
                 videoFormats.add(uncompressedVideoFormat);
                 lastFormat = uncompressedVideoFormat;
                 break;
@@ -81,15 +69,12 @@ public class VideoStreamingInterface extends VideoClassInterface {
                     ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
                 } catch (ClassCastException e) {
                     throw new IllegalArgumentException(
-                            "The parsed uncompressed frame descriptor is not valid for the previously parsed Format: "
-                            + lastFormat
-
-                                    .getClass().getName());
+                            "The parsed uncompressed frame descriptor is not valid for the " +
+                            "previously parsed Format: " + lastFormat.getClass().getName());
                 }
                 break;
             case VS_FORMAT_MJPEG:
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
-                Timber.d("Adding Video Format: %s", mjpegVideoFormat);
                 videoFormats.add(mjpegVideoFormat);
                 lastFormat = mjpegVideoFormat;
                 break;
@@ -120,11 +105,23 @@ public class VideoStreamingInterface extends VideoClassInterface {
     }
 
     @Override
-    public void parseAlternateFunction(byte[] descriptor) {
-        Timber.d("Parsing alternate function for VideoStreamingInterface: %s", getInterfaceNumber());
+    public void parseAlternateFunction(@NonNull UsbDeviceConnection connection, byte[] descriptor) {
         currentSetting = 0xFF & descriptor[bAlternateSetting];
+        usbInterfaces.put(currentSetting, getUsbInterface(connection, descriptor));
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
+    }
+
+    @Override
+    public String toString() {
+        return "VideoStreamingInterface{" +
+               "\n\tinputHeader=" + inputHeader +
+               "\n\toutputHeader=" + outputHeader +
+               "\n\tvideoFormats=" + videoFormats +
+               "\n\tcolorMatchingDescriptor=" + colorMatchingDescriptor +
+               "\n\tUsb Interface=" + getUsbInterfaceList() +
+               "\n\tNumber Alternate Functions=" + usbInterfaces.size() +
+               '}';
     }
 
     public static enum VS_INTERFACE_SUBTYPE {

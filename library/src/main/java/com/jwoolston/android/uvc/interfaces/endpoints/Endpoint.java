@@ -2,13 +2,12 @@ package com.jwoolston.android.uvc.interfaces.endpoints;
 
 import com.jwoolston.android.libusb.UsbEndpoint;
 import com.jwoolston.android.libusb.UsbInterface;
-
 import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class Endpoint {
+public abstract class Endpoint {
 
     private static final int LENGTH_STANDARD_DESCRIPTOR = 7;
     private static final int LENGTH_CLASS_DESCRIPTOR = 5;
@@ -20,78 +19,110 @@ public class Endpoint {
     private static final int wMaxPacketSize = 4;
     private static final int bInterval = 6; // Interval is 2^(value-1) ms
 
-    private static final int bDescriptorSubType = 2;
-    private static final int wMaxTransferSize = 3;
+    private UsbEndpoint endpoint; // Often this will be null after initial parsing, the endpoint wont enumerate until
+    // we activate the alternate setting.
 
-    private UsbEndpoint mEndpoint; // This would be final but intelli-sense doesn't like it not being initialized
+    private final VideoEndpoint type;
+    private final byte rawAttributes;
+    private final int endpointAddress;
+    private final int interval; // USB Frames
 
-    private final byte mRawAttributes;
-    private final int mEndpointAddress;
-    private final int mInterval; // ms
-
-    private int mMaxTransferSize;
+    private int maxPacketSize;
 
     public static Endpoint parseDescriptor(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
-        Timber.d("Parsing standard endpoint.");
-        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard endpoint descriptor.");
-        return new Endpoint(usbInterface, descriptor);
+        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) {
+            throw new IllegalArgumentException("Descriptor is not long enough to be a standard endpoint descriptor.");
+        }
+        VideoEndpoint type = VideoEndpoint.fromAttributes(descriptor[bmAttributes]);
+        switch (type) {
+            case EP_ISOCHRONOUS:
+                return new IsochronousEndpoint(usbInterface, descriptor);
+            case EP_BULK:
+                return new BulkEndpoint(usbInterface, descriptor);
+            case EP_INTERRUPT:
+                return new InterruptEndpoint(usbInterface, descriptor);
+            default:
+                throw new IllegalArgumentException("Descriptor is not for a recognized endpoint type.");
+        }
     }
 
     protected Endpoint(UsbInterface usbInterface, byte[] descriptor) throws IllegalArgumentException {
-        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("The provided descriptor is not a valid standard endpoint descriptor.");
+        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) {
+            throw new IllegalArgumentException("The provided descriptor is not a valid standard endpoint descriptor.");
+        }
 
-        mEndpointAddress = 0xFF & descriptor[bEndpointAddress]; // Masking to deal with Java's signed bytes
+        endpointAddress = 0xFF & descriptor[bEndpointAddress]; // Masking to deal with Java's signed bytes
         final int count = usbInterface.getEndpointCount();
         for (int i = 0; i < count; ++i) {
             final UsbEndpoint endpoint = usbInterface.getEndpoint(i);
-            if (endpoint.getAddress() == mEndpointAddress) {
-                mEndpoint = endpoint;
+            if (endpoint.getAddress() == endpointAddress) {
+                this.endpoint = endpoint;
                 break;
             }
         }
 
-        mRawAttributes = descriptor[bmAttributes];
-        mInterval = descriptor[bInterval] * 2; // Interval is 2^(value-1) ms
+        rawAttributes = descriptor[bmAttributes];
+        interval = descriptor[bInterval];
+        maxPacketSize = ((0xFF & descriptor[wMaxPacketSize]) << 8) | (0xFF & descriptor[wMaxPacketSize + 1]);
+        type = VideoEndpoint.fromAttributes(rawAttributes);
     }
 
     public void parseClassDescriptor(byte[] descriptor) throws IllegalArgumentException {
         Timber.d("Parsing Class Specific Endpoint Descriptor.");
-        if (descriptor.length < LENGTH_CLASS_DESCRIPTOR || descriptor[bDescriptorSubType] != VIDEO_ENDPOINT.EP_INTERRUPT.code) {
+        if (descriptor.length < LENGTH_CLASS_DESCRIPTOR) {
             throw new IllegalArgumentException("The provided descriptor is not a valid class endpoint descriptor.");
         }
-        mMaxTransferSize = descriptor[wMaxTransferSize] | (descriptor[wMaxTransferSize + 1] << 8);
     }
 
     public int getInterval() {
-        return mInterval;
+        return interval;
     }
 
     public UsbEndpoint getEndpoint() {
-        return mEndpoint;
+        return endpoint;
     }
 
     protected byte getRawAttributes() {
-        return mRawAttributes;
+        return rawAttributes;
     }
 
     @Override
     public String toString() {
         return "Endpoint{" +
-                "mEndpoint=" + mEndpoint +
-                '}';
+            "endpoint=" + endpoint +
+            ", type=" + type +
+            ", rawAttributes=" + rawAttributes +
+            ", endpointAddress=" + endpointAddress +
+            ", interval=" + interval +
+            ", maxPacketSize=" + maxPacketSize +
+            '}';
     }
 
-    public static enum VIDEO_ENDPOINT {
-        EP_UNDEFINED(0x00),
-        EP_GENERAL(0x01),
-        EP_ENDPOINT(0x02),
+    public static enum VideoEndpoint {
+        EP_CONTROL(0x0),
+        EP_ISOCHRONOUS(0x01),
+        EP_BULK(0x02),
         EP_INTERRUPT(0x03);
 
         public final byte code;
 
-        private VIDEO_ENDPOINT(int code) {
+        private VideoEndpoint(int code) {
             this.code = (byte) (code & 0xFF);
         }
 
+        public static VideoEndpoint fromAttributes(byte attributes) {
+            int typeCode = attributes & 0x3;
+            switch (typeCode) {
+                case 0x0:
+                    return EP_CONTROL;
+                case 0x01:
+                    return EP_ISOCHRONOUS;
+                case 0x02:
+                    return EP_BULK;
+                case 0x03:
+                    return EP_INTERRUPT;
+            }
+            return null;
+        }
     }
 }

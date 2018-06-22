@@ -12,39 +12,42 @@ public class VideoColorMatchingDescriptor {
     private static final int bTransferCharacteristics = 4;
     private static final int bMatrixCoefficients = 5;
 
-    private final COLOR_PRIMARIES          mColorPrimaries;
-    private final TRANSFER_CHARACTERISTICS mTransferCharacteristics;
-    private final MATRIX_COEFFICIENTS mMatrixCoefficients;
+    private final ColorPrimaries colorPrimaries;
+    private final TransferCharacteristics transferCharacteristics;
+    private final MatrixCoefficients matrixCoefficients;
 
     public VideoColorMatchingDescriptor(byte[] descriptor) throws IllegalArgumentException {
-        if (descriptor.length < LENGTH) throw new IllegalArgumentException("Provided descriptor is not long enough to be a Video Color Matching Descriptor.");
-        mColorPrimaries = COLOR_PRIMARIES.fromDescriptor(descriptor[bColorPrimaries] & 0xFF);
-        mTransferCharacteristics = TRANSFER_CHARACTERISTICS.fromDescriptor(descriptor[bTransferCharacteristics] & 0xFF);
-        mMatrixCoefficients = MATRIX_COEFFICIENTS.fromDescriptor(descriptor[bMatrixCoefficients] & 0xFF);
+        if (descriptor.length < LENGTH) {
+            throw new IllegalArgumentException("Provided descriptor is not long enough to be a Video Color Matching " +
+                "Descriptor.");
+        }
+        colorPrimaries = ColorPrimaries.fromDescriptor(descriptor[bColorPrimaries] & 0xFF);
+        transferCharacteristics = TransferCharacteristics.fromDescriptor(descriptor[bTransferCharacteristics] & 0xFF);
+        matrixCoefficients = MatrixCoefficients.fromDescriptor(descriptor[bMatrixCoefficients] & 0xFF);
     }
 
-    public COLOR_PRIMARIES getColorPrimaries() {
-        return mColorPrimaries;
+    public ColorPrimaries getColorPrimaries() {
+        return colorPrimaries;
     }
 
-    public TRANSFER_CHARACTERISTICS getTransferCharacteristics() {
-        return mTransferCharacteristics;
+    public TransferCharacteristics getTransferCharacteristics() {
+        return transferCharacteristics;
     }
 
-    public MATRIX_COEFFICIENTS getMatrixCoefficients() {
-        return mMatrixCoefficients;
+    public MatrixCoefficients getMatrixCoefficients() {
+        return matrixCoefficients;
     }
 
     @Override
     public String toString() {
         return "VideoColorMatchingDescriptor{" +
-                "mColorPrimaries=" + mColorPrimaries +
-                ", mTransferCharacteristics=" + mTransferCharacteristics +
-                ", mMatrixCoefficients=" + mMatrixCoefficients +
-                '}';
+            "colorPrimaries=" + colorPrimaries +
+            ", transferCharacteristics=" + transferCharacteristics +
+            ", matrixCoefficients=" + matrixCoefficients +
+            '}';
     }
 
-    public static enum COLOR_PRIMARIES {
+    public static enum ColorPrimaries {
         UNSPECIFIED,
         BT_709,
         sRGB,
@@ -53,9 +56,9 @@ public class VideoColorMatchingDescriptor {
         SMPTE_170M,
         SMPTE_240M;
 
-        public static COLOR_PRIMARIES fromDescriptor(int id) {
+        public static ColorPrimaries fromDescriptor(int id) {
             if (id >= 8) return sRGB;
-            for (COLOR_PRIMARIES characteristics : COLOR_PRIMARIES.values()) {
+            for (ColorPrimaries characteristics : ColorPrimaries.values()) {
                 if (characteristics.ordinal() == id) {
                     return characteristics;
                 }
@@ -63,12 +66,13 @@ public class VideoColorMatchingDescriptor {
             return sRGB;
         }
     }
-    public static enum TRANSFER_CHARACTERISTICS {
+
+    public static enum TransferCharacteristics {
         UNSPECIFIED, BT_709, BT_470_2M, BT_470_2BG, SMPTE_170M, SMPTE_240M, LINEAR, sRGB;
 
-        public static TRANSFER_CHARACTERISTICS fromDescriptor(int id) {
+        public static TransferCharacteristics fromDescriptor(int id) {
             if (id >= 8) return BT_709;
-            for (TRANSFER_CHARACTERISTICS characteristics : TRANSFER_CHARACTERISTICS.values()) {
+            for (TransferCharacteristics characteristics : TransferCharacteristics.values()) {
                 if (characteristics.ordinal() == id) {
                     return characteristics;
                 }
@@ -77,7 +81,7 @@ public class VideoColorMatchingDescriptor {
         }
     }
 
-    public static enum MATRIX_COEFFICIENTS {
+    public static enum MatrixCoefficients {
         UNSPECIFIED,
         BT_709,
         FCC,
@@ -85,9 +89,9 @@ public class VideoColorMatchingDescriptor {
         SMPTE_170M,
         SMPTE_240M;
 
-        public static MATRIX_COEFFICIENTS fromDescriptor(int id) {
+        public static MatrixCoefficients fromDescriptor(int id) {
             if (id >= 8) return SMPTE_170M;
-            for (MATRIX_COEFFICIENTS characteristics : MATRIX_COEFFICIENTS.values()) {
+            for (MatrixCoefficients characteristics : MatrixCoefficients.values()) {
                 if (characteristics.ordinal() == id) {
                     return characteristics;
                 }

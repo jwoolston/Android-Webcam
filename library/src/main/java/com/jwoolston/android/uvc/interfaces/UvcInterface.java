@@ -2,13 +2,16 @@ package com.jwoolston.android.uvc.interfaces;
 
 import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
-import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.LibusbError;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
-import com.jwoolston.android.uvc.util.Hexdump;
+import java.util.LinkedList;
+import java.util.List;
 import timber.log.Timber;
 
 /**
@@ -28,21 +31,19 @@ public abstract class UvcInterface {
     protected static final int bInterfaceProtocol = 7;
     protected static final int iInterface         = 8;
 
-    private final UsbInterface usbInterface;
-
-    private final int indexInterface;
-
-    protected final SparseArray<Endpoint[]> endpoints;
+    protected final SparseArray<UsbInterface> usbInterfaces;
+    protected final SparseArray<Endpoint[]>   endpoints;
 
     protected int currentSetting = 0;
 
     protected static UsbInterface getUsbInterface(UsbDeviceConnection connection, byte[] descriptor) {
-        final int index = (0xFF & descriptor[bInterfaceNumber]);
-        return connection.getDevice().getInterface(index);
+        final int indexNumber = (0xFF & descriptor[bInterfaceNumber]);
+        final int alternateSetting = (0xFF & descriptor[bAlternateSetting]);
+        return connection.getDevice().getInterface(indexNumber + alternateSetting);
     }
 
     public static UvcInterface parseDescriptor(UsbDeviceConnection connection, byte[] descriptor) throws
-                                                                                                IllegalArgumentException {
+                                                                                                  IllegalArgumentException {
         // Check the length
         if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) {
             throw new IllegalArgumentException("Descriptor is not long enough to be a standard interface descriptor.");
@@ -56,10 +57,8 @@ public abstract class UvcInterface {
                     // accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
-                        Timber.d("Parsing VideoControlInterface.");
                         return VideoControlInterface.parseVideoControlInterface(connection, descriptor);
                     case SC_VIDEOSTREAMING:
-                        Timber.d("Parsing VideoStreamingInterface: %s", Hexdump.dumpHexString(descriptor));
                         return VideoStreamingInterface.parseVideoStreamingInterface(connection, descriptor);
                     default:
                         throw new IllegalArgumentException(
@@ -79,12 +78,24 @@ public abstract class UvcInterface {
     }
 
     protected UvcInterface(UsbInterface usbInterface, byte[] descriptor) {
-        this.usbInterface = usbInterface;
-        final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
+        usbInterfaces = new SparseArray<>();
         endpoints = new SparseArray<>();
         currentSetting = 0xFF & descriptor[bAlternateSetting];
+        usbInterfaces.put(currentSetting, usbInterface);
+        final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
-        indexInterface = (0xFF & descriptor[iInterface]);
+    }
+
+    public void selectAlternateSetting(@NonNull UsbDeviceConnection connection, int alternateSetting) throws
+                                                                                                      UnsupportedOperationException {
+        currentSetting = alternateSetting;
+        final UsbInterface usbInterface = getUsbInterface();
+        if (usbInterface == null) {
+            throw new UnsupportedOperationException("There is not alternate setting: " + alternateSetting);
+        }
+        connection.claimInterface(usbInterface, true);
+        final LibusbError result = connection.setInterface(usbInterface);
+        Timber.d("Interface selection result: %s", result);
     }
 
     public void addEndpoint(int index, Endpoint endpoint) {
@@ -95,27 +106,35 @@ public abstract class UvcInterface {
         return endpoints.get(currentSetting)[index - 1];
     }
 
+    public Endpoint[] getCurrentEndpoints() {
+        return endpoints.get(currentSetting);
+    }
+
     public int getInterfaceNumber() {
-        return usbInterface.getId();
+        return usbInterfaces.get(currentSetting).getId();
     }
 
+    @Nullable
     public UsbInterface getUsbInterface() {
-        return usbInterface;
+        return usbInterfaces.get(currentSetting);
     }
 
-    public int getIndexInterface() {
-        return indexInterface;
+    public List<UsbInterface> getUsbInterfaceList() {
+        final LinkedList<UsbInterface> interfaces = new LinkedList<>();
+        for (int i = 0; i < usbInterfaces.size(); ++i) {
+            interfaces.add(usbInterfaces.get(usbInterfaces.keyAt(i)));
+        }
+        return interfaces;
     }
 
     public abstract void parseClassDescriptor(byte[] descriptor);
 
-    public abstract void parseAlternateFunction(byte[] descriptor);
+    public abstract void parseAlternateFunction(@NonNull UsbDeviceConnection connection, byte[] descriptor);
 
     @Override
     public String toString() {
         return "AInterface{" +
-               "usbInterface=" + usbInterface +
-               ", indexInterface=" + indexInterface +
+               "usbInterface=" + usbInterfaces +
                '}';
     }
 }

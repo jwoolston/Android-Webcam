@@ -5,7 +5,39 @@ import java.util.Set;
 import timber.log.Timber;
 
 /**
+ * The Processing Unit (PU) controls image attributes of the video being streamed through it. It has a single input
+ * and output pin. It provides support for the following features:
+ * <br><br><b>User Controls</b>
+ * <br>- Brightness
+ * <br>- Hue
+ * <br>- Saturation
+ * <br>- Sharpness
+ * <br>- Gamma
+ * <br>- Digital Multiplier (Zoom)
+ * <br><br><b>Auto Controls</b>
+ * <br>-White Balance Temperature
+ * <br>-White Balance Component
+ * <br>-Backlight Compensation
+ * <br>-Contrast
+ * <br><br><b>Other</b>
+ * <br>-Gain
+ * <br>-Power Line Frequency
+ * <br>-Analog Video Standard
+ * <br>-Analog Video Lock Status
+ *
+ * Support for any particular control is optional. In particular, if the device supports the White Balance function,
+ * it shall implement either the White Balance Temperature control or the White Balance Component control, but not
+ * both. The User Controls indicate properties that are governed by user preference and not subject to any automatic
+ * adjustment by the device. The Auto Controls will provide support for an auto setting (with an on/off state). If
+ * the auto setting for a particular control is supported and set to the on state, the device will provide automatic
+ * adjustment of the control, and read requests to the related control will reflect the automatically set value.
+ * Attempts to programmatically set the Focus control when in auto mode shall result in protocol STALL with an error
+ * code of <b>bRequestErrorCode</b> = “Wrong State”. When leaving an auto mode, the related control shall remain at the
+ * value that was in effect just before the transition.
+ *
  * @author Jared Woolston (Jared.Woolston@gmail.com)
+ * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC 1.5 Class
+ * Specification §2.3.5</a>
  */
 public class VideoProcessingUnit extends VideoUnit {
 
@@ -99,7 +131,7 @@ public class VideoProcessingUnit extends VideoUnit {
     @Override
     public String toString() {
         final String base = "VideoProcessingUnit{" +
-                            ", Unit ID: " + getUnitID() +
+                            "Unit ID: " + getUnitID() +
                             ", Source ID: " + getSourceID() +
                             ", Max Multiplier: " + getMaxMultiplier() +
                             ", Index Processing: " + getIndexProcessing() +

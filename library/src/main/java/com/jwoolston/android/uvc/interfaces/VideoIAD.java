@@ -24,10 +24,9 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
     }
 
     @Override
-    public void addInterface(UvcInterface aInterface) throws IllegalArgumentException {
-        Timber.d("Adding Interface: %s", aInterface);
+    public void addInterface(UvcInterface uvcInterface) throws IllegalArgumentException {
         try {
-            final VideoClassInterface videoClassInterface = (VideoClassInterface) aInterface;
+            final VideoClassInterface videoClassInterface = (VideoClassInterface) uvcInterface;
             if (interfaces.get(videoClassInterface.getInterfaceNumber()) != null) {
                 throw new IllegalArgumentException(
                         "An interface with the same index as the provided interface already exists!");
