@@ -11,21 +11,21 @@ import com.jwoolston.android.libusb.DevicePermissionDenied;
  */
 class WebcamImpl implements Webcam {
 
-    private final Context context;
-    private final UsbDevice usbDevice;
+    private final Context          context;
+    private final UsbDevice        device;
     private final WebcamConnection webcamConnection;
 
-    WebcamImpl(Context context, UsbDevice usbDevice) throws UnknownDeviceException, DevicePermissionDenied {
+    WebcamImpl(Context context, UsbDevice device) throws UnknownDeviceException, DevicePermissionDenied {
         this.context = context;
-        this.usbDevice = usbDevice;
+        this.device = device;
 
-        webcamConnection = new WebcamConnection(context.getApplicationContext(), usbDevice);
+        webcamConnection = new WebcamConnection(context.getApplicationContext(), device);
     }
 
     @NonNull
     @Override
-    public UsbDevice getUsbDevice() {
-        return usbDevice;
+    public UsbDevice getDevice() {
+        return device;
     }
 
     @Override

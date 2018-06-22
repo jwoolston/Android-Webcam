@@ -1,14 +1,13 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.util.Log;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public abstract class InterfaceAssociationDescriptor {
-
-    private static final String TAG = "IAD";
 
     private static final int LENGTH_DESCRIPTOR = 8;
 
@@ -26,7 +25,7 @@ public abstract class InterfaceAssociationDescriptor {
     private final int indexFunction;
 
     protected static InterfaceAssociationDescriptor parseIAD(byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Interface Association Descriptor.");
+        Timber.d("Parsing Interface Association Descriptor.");
         if (descriptor.length < LENGTH_DESCRIPTOR) {
             throw new IllegalArgumentException("The provided descriptor is not long enough. Have " + descriptor.length + " need " + LENGTH_DESCRIPTOR);
         }

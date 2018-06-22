@@ -7,8 +7,6 @@ import com.jwoolston.android.libusb.UsbInterface;
  */
 public abstract class AVideoClassInterface extends AInterface {
 
-    private static final String TAG = "AVideoClassInterface";
-
     AVideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
     }

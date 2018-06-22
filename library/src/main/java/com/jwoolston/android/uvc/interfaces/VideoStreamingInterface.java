@@ -1,6 +1,5 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.util.Log;
 import com.jwoolston.android.libusb.UsbDevice;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
@@ -16,12 +15,12 @@ import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoStreamingInterface extends AVideoClassInterface {
-
-    private static final String TAG = "VideoStreamingInterface";
 
     private static final int bLength = 0;
     private static final int bDescriptorType = 1;
@@ -37,7 +36,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
     private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
     public static VideoStreamingInterface parseVideoStreamingInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
-        Log.d(TAG, "Parsing Video Class Interface header.");
+        Timber.d("Parsing Video Class Interface header.");
 
         final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
         return new VideoStreamingInterface(usbInterface, descriptor);
@@ -71,7 +70,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 break;
             case VS_FORMAT_UNCOMPRESSED:
                 final UncompressedVideoFormat uncompressedVideoFormat = new UncompressedVideoFormat(descriptor);
-                Log.d(TAG, "Adding Video Format: " + uncompressedVideoFormat);
+                Timber.d("Adding Video Format: %s", uncompressedVideoFormat);
                 videoFormats.add(uncompressedVideoFormat);
                 lastFormat = uncompressedVideoFormat;
                 break;
@@ -87,7 +86,7 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 break;
             case VS_FORMAT_MJPEG:
                 final MJPEGVideoFormat mjpegVideoFormat = new MJPEGVideoFormat(descriptor);
-                Log.d(TAG, "Adding Video Format: " + mjpegVideoFormat);
+                Timber.d("Adding Video Format: %s", mjpegVideoFormat);
                 videoFormats.add(mjpegVideoFormat);
                 lastFormat = mjpegVideoFormat;
                 break;
@@ -101,23 +100,23 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
-                Log.d(TAG, "VideoStream Still Image Frame Descriptor");
-                Log.d(TAG, "" + Hexdump.dumpHexString(descriptor));
+                Timber.d("VideoStream Still Image Frame Descriptor");
+                Timber.d("%s", Hexdump.dumpHexString(descriptor));
                 //TODO: Handle STILL IMAGE FRAME descriptor section 3.9.2.5 Pg. 81
                 break;
             case VS_COLORFORMAT:
                 colorMatchingDescriptor = new VideoColorMatchingDescriptor(descriptor);
                 lastFormat.setColorMatchingDescriptor(colorMatchingDescriptor);
-                Log.d(TAG, "" + colorMatchingDescriptor);
+                Timber.d("%s", colorMatchingDescriptor);
                 break;
             default:
-                Log.d(TAG, "Unknown streaming interface descriptor: " + Hexdump.dumpHexString(descriptor));
+                Timber.d("Unknown streaming interface descriptor: %s", Hexdump.dumpHexString(descriptor));
         }
     }
 
     @Override
     public void parseAlternateFunction(byte[] descriptor) {
-        Log.d(TAG, "Parsing alternate function for VideoStreamingInterface: " + getInterfaceNumber());
+        Timber.d("Parsing alternate function for VideoStreamingInterface: %s", getInterfaceNumber());
         currentSetting = 0xFF & descriptor[bAlternateSetting];
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);

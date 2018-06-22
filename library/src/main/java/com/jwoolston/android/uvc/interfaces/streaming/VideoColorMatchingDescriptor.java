@@ -6,8 +6,6 @@ package com.jwoolston.android.uvc.interfaces.streaming;
  */
 public class VideoColorMatchingDescriptor {
 
-    private static final String TAG = "VideoColorMatchingDescriptor";
-
     private static final int LENGTH = 6;
 
     private static final int bColorPrimaries = 3;

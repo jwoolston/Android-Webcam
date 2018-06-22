@@ -1,15 +1,15 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.util.Log;
 import android.util.SparseArray;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
-
-    private static final String TAG = "VideoIAD";
 
     private SparseArray<AVideoClassInterface> interfaces;
 
@@ -25,7 +25,7 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
 
     @Override
     public void addInterface(AInterface aInterface) throws IllegalArgumentException {
-        Log.d(TAG, "Adding Interface: " + aInterface);
+        Timber.d("Adding Interface: %s", aInterface);
         try {
             final AVideoClassInterface videoClassInterface = (AVideoClassInterface) aInterface;
             if (interfaces.get(videoClassInterface.getInterfaceNumber()) != null) {

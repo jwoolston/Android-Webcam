@@ -1,17 +1,15 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
 
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoProcessingUnit extends VideoUnit {
-
-    private static final String TAG = "VideoProcessingUnit";
 
     private static final int LENGTH = 11; //TODO: Spec says 13?
 
@@ -38,7 +36,7 @@ public class VideoProcessingUnit extends VideoUnit {
 
     public VideoProcessingUnit(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing video processing unit.");
+        Timber.d("Parsing video processing unit.");
         if (!isVideoProcessingUnit(descriptor)) { throw new IllegalArgumentException("The provided descriptor is not a valid Video Processing Unit descriptor."); }
         mSourceID = descriptor[bSourceID];
         mMaxMultiplier = descriptor[wMaxMultiplier] | (descriptor[wMaxMultiplier + 1] << 8);

@@ -21,11 +21,15 @@ jobs:
       - run:
           name: Execute Gradle
           command: |
-            echo "signing.keyId=${SIGNING_KEY}" >> "gradle.properties"
-            echo "signing.password=${SIGNING_PASSWORD}" >> "gradle.properties"
-            echo "signing.secretKeyRingFile=../private.gpg" >> "gradle.properties"
-            openssl aes-256-cbc -d -in private.gpg.enc -out private.gpg -k $ENC_FILE_KEY
-            ./gradlew build uploadArchives
+            if [ "master" = "$CIRCLE_BRANCH" ] || [ ! -z "$CIRCLE_TAG" ]; then
+              echo "signing.keyId=${SIGNING_KEY}" >> "gradle.properties"
+              echo "signing.password=${SIGNING_PASSWORD}" >> "gradle.properties"
+              echo "signing.secretKeyRingFile=../private.gpg" >> "gradle.properties"
+              openssl aes-256-cbc -d -in private.gpg.enc -out private.gpg -k $ENC_FILE_KEY
+              ./gradlew build uploadArchives
+            else
+              ./gradlew build
+            fi
 
 workflows:
   version: 2
