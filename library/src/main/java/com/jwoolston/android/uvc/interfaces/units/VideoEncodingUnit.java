@@ -1,12 +1,12 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * The Encoding Unit controls attributes of the encoder that encodes the video being streamed through it. It has a
@@ -46,8 +46,6 @@ import java.util.Set;
  */
 public class VideoEncodingUnit extends VideoUnit {
 
-    private static final String TAG = "VideoEncodingUnit";
-
     private static final int LENGTH = 13;
 
     private static final int bSourceID         = 4;
@@ -68,7 +66,7 @@ public class VideoEncodingUnit extends VideoUnit {
 
     public VideoEncodingUnit(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing video processing unit.");
+        Timber.d("Parsing video processing unit.");
         if (!isVideoEncodingUnit(descriptor)) {
             throw new IllegalArgumentException(
                     "The provided descriptor is not a valid Video Encoding Unit descriptor.");

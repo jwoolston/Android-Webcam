@@ -7,8 +7,6 @@ import android.hardware.usb.UsbInterface;
  */
 public abstract class VideoClassInterface extends UvcInterface {
 
-    private static final String TAG = "AVideoClassInterface";
-
     VideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
     }

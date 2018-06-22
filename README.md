@@ -1,4 +1,4 @@
-Android-Webcam
+Android-Webcam [![CircleCI](https://circleci.com/gh/jwoolston/Android-Webcam/tree/master.svg?style=svg)](https://circleci.com/gh/jwoolston/Android-Webcam/tree/master)
 ==============
 
 ## Overview

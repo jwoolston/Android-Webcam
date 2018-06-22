@@ -17,12 +17,14 @@ import java.util.List;
 
 import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
+import timber.log.Timber;
+
+import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public abstract class UvcInterface {
-
-    private static final String TAG = "UvcInterface";
 
     private static final int LENGTH_STANDARD_DESCRIPTOR = 9;
 
@@ -58,10 +60,8 @@ public abstract class UvcInterface {
                     // We could handle Interface Association Descriptors here, but they don't correspond to an accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
-                        //Log.d(TAG, "Parsing VideoControlInterface.");
                         return VideoControlInterface.parseVideoControlInterface(device, descriptor);
                     case SC_VIDEOSTREAMING:
-                        //Log.d(TAG, "Parsing VideoStreamingInterface: " + Hexdump.dumpHexString(descriptor));
                         return VideoStreamingInterface.parseVideoStreamingInterface(device, descriptor);
                     default:
                         throw new IllegalArgumentException("The provided descriptor has an invalid video interface subclass.");
@@ -94,7 +94,7 @@ public abstract class UvcInterface {
         }
         connection.claimInterface(usbInterface, true);
         final int result = UsbHelper.selectInterface(connection, usbInterface, currentSetting, 500);
-        Log.d(TAG, "Interface selection result: " + result);
+        Timber.d("Interface selection result: " + result);
     }
 
     public void addEndpoint(int index, Endpoint endpoint) {

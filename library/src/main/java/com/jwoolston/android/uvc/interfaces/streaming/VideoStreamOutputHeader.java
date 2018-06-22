@@ -1,14 +1,12 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC 1.5 Class Specification Table 3-15
  */
 public class VideoStreamOutputHeader extends AVideoStreamHeader {
-
-    private static final String TAG = "VideoStreamOutputHeader";
 
     private static final int MIN_HEADER_LENGTH = 9;
 
@@ -21,7 +19,7 @@ public class VideoStreamOutputHeader extends AVideoStreamHeader {
 
     public VideoStreamOutputHeader(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing VideoStreamOutputHeader");
+        Timber.d("Parsing VideoStreamOutputHeader");
         if (descriptor.length < MIN_HEADER_LENGTH) throw new IllegalArgumentException("The provided descriptor is not long enough to be a valid VideoStreamOutputHeader.");
         terminalLink = (0xFF & descriptor[bTerminalLink]);
         final int sizeControls = (0xFF & descriptor[bControlSize]);

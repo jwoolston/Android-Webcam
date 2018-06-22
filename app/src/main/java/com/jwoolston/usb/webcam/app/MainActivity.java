@@ -8,15 +8,15 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
+
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
 
-public class MainActivity extends AppCompatActivity {
+import timber.log.Timber;
 
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity {
 
     private Webcam webcam;
     private BroadcastReceiver deviceDisconnectedReceiver;
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
                 final UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (usbDevice.equals(webcam.getUsbDevice())) {
-                    Log.d(TAG, "Active Webcam detached. Terminating connection.");
+                    Timber.d("Active Webcam detached. Terminating connection.");
                     stopStreaming();
                 }
             }

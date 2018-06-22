@@ -8,8 +8,6 @@ import com.jwoolston.android.uvc.interfaces.Descriptor.Type;
  */
 public class VideoUnit {
 
-    private static final String TAG = "VideoUnit";
-
     protected static final int bLength = 0;
     protected static final int bDescriptorType = 1;
     protected static final int bDescriptorSubtype = 2;

@@ -7,7 +7,6 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
-import android.util.Log;
 
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
@@ -22,6 +21,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Helper class for abstracting communication to a camera. This implementation directly handles
  * configuration, state, and data transfer. The USB layer is constructed at instantiation and if
@@ -30,8 +31,6 @@ import java.util.List;
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 class WebcamConnection {
-
-    private static final String TAG = "WebcamConnection";
 
     private static final int INTERFACE_CONTROL = 0;
 
@@ -62,10 +61,9 @@ class WebcamConnection {
 
         parseAssiociationDescriptors();
 
-        Log.d(TAG, "Initializing native layer.");
-        final IsochronousConnection util = new IsochronousConnection(context, usbDeviceConnection.getFileDescriptor());
+        Timber.d("Initializing native layer.");
 
-        Log.d(TAG, "Attempting to select zero bandwidth stream interface.");
+        Timber.d("Attempting to select zero bandwidth stream interface.");
         //iads.get(0).getInterface(1).selectAlternateSetting(usbDeviceConnection, 0);
         VideoStreamingInterface streamingInterface = (VideoStreamingInterface) iads.get(0).getInterface(1);
         streamingInterface.selectAlternateSetting(usbDeviceConnection, 0);
@@ -73,10 +71,10 @@ class WebcamConnection {
 
         //clearStall(usbInterfaceControl.getEndpoint(0));
 
-        Log.d(TAG, "Attempting to set current power mode.");
+        Timber.d("Attempting to set current power mode.");
         final PowerModeControl control = PowerModeControl.getInfoPowerMode(
                 (VideoControlInterface) iads.get(0).getInterface(0));
-        Log.v(TAG, "Request: " + control);
+        Timber.v("Request: " + control);
         /*int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
                 .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);*/
         /*int retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
@@ -97,10 +95,10 @@ class WebcamConnection {
     }
 
     private void parseAssiociationDescriptors() {
-        Log.d(TAG, "Parsing raw association descriptors.");
+        Timber.d("Parsing raw association descriptors.");
         final byte[] raw = usbDeviceConnection.getRawDescriptors();
-        iads = Descriptor.parseDescriptors(usbDevice, raw);
-        Log.i(TAG, "Determined IADs: " + iads);
+        final List<InterfaceAssociationDescriptor> iads =  Descriptor.parseDescriptors(usbDevice, raw);
+        Timber.i("Determined IADs: %s", iads);
     }
 
     boolean isConnected() {

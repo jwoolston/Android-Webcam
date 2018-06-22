@@ -1,42 +1,34 @@
 apply plugin: 'maven'
-apply plugin: 'maven-publish'
 apply plugin: 'signing'
-/*apply plugin: 'jacoco'
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled true
-    }
-}
-check.dependsOn jacocoTestReport*/
+static String getTagName() { return System.getenv('CIRCLE_TAG') ?: "" }
 
-/*task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+boolean isSnapshot() { return version.contains("SNAPSHOT") }
 
-task javaSources(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}*/
+static boolean isTag() { return !getTagName().isEmpty() }
 
-/*publishing {
-    publications {
-        core(MavenPublication) {
-            from components.java
-            artifact javadocJar
-            artifact javaSources
-        }
-    }
-}*/
+static boolean isCircle() { return System.getenv('CIRCLECI') ? true : false }
 
-signing {
-    required false
-    sign configurations.archives
-}
+static String buildNumber() { return System.getenv('CIRCLE_BUILD_NUM') ?: "0" }
+
+static String getRepositoryUsername() { return System.getenv('SONATYPE_USERNAME') ?: "" }
+
+static String getRepositoryPassword() { return System.getenv('SONATYPE_PASSWORD') ?: "" }
+
+static String getBranchName() { return System.getenv('CIRCLE_BRANCH') }
+
+boolean isRelease() { return isTag() && !isSnapshot() }
 
 afterEvaluate { project ->
+
+    println "Tag ${getTagName()}"
+    println "Branch ${getBranchName()}"
+    println "Is Release ${isRelease()}"
+    println "Is Circle ${isCircle()}"
+    println "Has Username ${!getRepositoryUsername().empty}"
+    println "Has Password ${!getRepositoryPassword().empty}"
+    println "Version ${version}"
+
     uploadArchives {
         repositories {
             mavenDeployer {
@@ -44,15 +36,12 @@ afterEvaluate { project ->
 
                 pom.artifactId = POM_ARTIFACT_ID
 
-                def username = System.getenv('SONATYPE_USERNAME') ?: ""
-                def password = System.getenv('SONATYPE_PASSWORD') ?: ""
-
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: username, password: password)
+                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
                 }
 
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-                    authentication(userName: username, password: password)
+                snapshotRepository(url: isCircle() ? "https://oss.sonatype.org/content/repositories/snapshots" : mavenLocal().url) {
+                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
                 }
 
                 pom.project {
@@ -89,8 +78,24 @@ afterEvaluate { project ->
         }
     }
 
-    /*artifacts {
-        archives javadocJar
-        archives javaSources
+    signing {
+        required false
+        sign configurations.archives
+    }
+
+    /*task androidJavadocs(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+        classifier = 'javadoc'
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.sourceFiles
     }*/
+
 }

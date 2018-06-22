@@ -1,10 +1,10 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import android.util.Log;
-
 import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * The Processing Unit (PU) controls image attributes of the video being streamed through it. It has a single input
@@ -43,8 +43,6 @@ import java.util.Set;
  */
 public class VideoProcessingUnit extends VideoUnit {
 
-    private static final String TAG = "VideoProcessingUnit";
-
     private static final int LENGTH = 11; //TODO: Spec says 13?
 
     private static final int bSourceID        = 4;
@@ -71,7 +69,7 @@ public class VideoProcessingUnit extends VideoUnit {
 
     public VideoProcessingUnit(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        Log.d(TAG, "Parsing video processing unit.");
+        Timber.d("Parsing video processing unit.");
         if (!isVideoProcessingUnit(descriptor)) {
             throw new IllegalArgumentException(
                     "The provided descriptor is not a valid Video Processing Unit descriptor.");

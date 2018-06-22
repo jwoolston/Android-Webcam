@@ -40,8 +40,6 @@ import java.util.Set;
  */
 public class CameraTerminal extends VideoInputTerminal {
 
-    private static final String TAG = "CameraTerminal";
-
     private static final int LENGTH_DESCRIPTOR = 18;
 
     private static final int wObjectiveFocalLengthMin = 8;

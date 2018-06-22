@@ -3,16 +3,15 @@ package com.jwoolston.android.uvc.libusb;
 import android.content.Context;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import java.nio.ByteBuffer;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class IsochronousConnection {
-
-    private static final String TAG = "UsbDeviceIsoConnection";
 
     static {
         System.loadLibrary("usb-runtime");
@@ -39,7 +38,7 @@ public class IsochronousConnection {
         sContext = context.getApplicationContext();
         sUsbManager = (UsbManager) sContext.getSystemService(Context.USB_SERVICE);
         final int retval = initialize(fd);
-        Log.v(TAG, "Initialization result: " + retval);
+        Timber.v("Initialization result: %s", retval);
     }
 
     private native int initialize(int fd);

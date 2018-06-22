@@ -1,14 +1,15 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.util.SparseArray;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
-
-    private static final String TAG = "VideoIAD";
 
     private SparseArray<VideoClassInterface> interfaces;
 

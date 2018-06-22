@@ -2,6 +2,7 @@ buildscript {
     ext.kotlin_version = '1.2.41'
     ext.support_lib_version = '27.1.1'
     ext.dokka_version = '0.9.16'
+    ext.timber_version='4.7.0'
 
     repositories {
         mavenCentral()
@@ -21,21 +22,18 @@ repositories {
 }
 
 allprojects {
+    String tagName = System.getenv('CIRCLE_TAG')
+    boolean isTag = tagName != null && !tagName.isEmpty()
+    String buildNumber = System.getenv('CIRCLE_BUILD_NUM') ?: "0"
 
-    group 'com.jwoolston.android.uvc'
-    version VERSION_NAME + ".${buildNumber()}" + (isTag() ? "" : "-SNAPSHOT")
+    group 'com.jwoolston.android'
+    version "$VERSION_NAME.${buildNumber}" + (isTag ? "" : "-SNAPSHOT")
 
     repositories {
         mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
         google()
     }
 }
 
-static boolean isTag() {
-    return !System.getenv('TRAVIS_TAG')?.isEmpty() ?: false
-}
-
-static String buildNumber() {
-    return System.getenv('TRAVIS_BUILD_NUMBER') ?: "0"
-}

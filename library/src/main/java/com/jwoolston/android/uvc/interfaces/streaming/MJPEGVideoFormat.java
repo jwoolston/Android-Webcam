@@ -1,16 +1,15 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.android.uvc.util.Hexdump;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class MJPEGVideoFormat extends AVideoFormat {
-
-    private static final String TAG = "MJPEGVideoFormat";
 
     private static final int LENGTH = 11;
 
@@ -41,7 +40,7 @@ public class MJPEGVideoFormat extends AVideoFormat {
     }
 
     public void addMJPEGVideoFrame(MJPEGVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
+        Timber.d("Adding video frame: %s", frame);
         mVideoFrames.put(frame.getFrameIndex(), frame);
     }
 

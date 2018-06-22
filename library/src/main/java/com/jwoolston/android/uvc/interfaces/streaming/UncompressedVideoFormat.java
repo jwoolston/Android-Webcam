@@ -1,8 +1,9 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
 import com.jwoolston.android.uvc.util.Hexdump;
+
+import timber.log.Timber;
 
 /**
  * The Uncompressed Video Format descriptor defines the characteristics of a specific video stream. It is used for
@@ -23,8 +24,6 @@ import com.jwoolston.android.uvc.util.Hexdump;
  * Uncompressed 1.5 Specification §2.2 Table 2-1</a>
  */
 public class UncompressedVideoFormat extends AVideoFormat {
-
-    private static final String TAG = "UncompressedVideoFormat";
 
     private static final int LENGTH = 27;
 
@@ -56,6 +55,11 @@ public class UncompressedVideoFormat extends AVideoFormat {
     private final int     bitsPerPixel;
 
     private final SparseArray<UncompressedVideoFrame> videoFrames;
+
+    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
+        Timber.d("Adding video frame: %s", frame);
+        videoFrames.put(frame.getFrameIndex(), frame);
+    }
 
     public UncompressedVideoFormat(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
@@ -90,11 +94,6 @@ public class UncompressedVideoFormat extends AVideoFormat {
             builder.append(Hexdump.toHexString(GUIDBytes[i]));
         }
         guid = builder.toString();
-    }
-
-    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
-        videoFrames.put(frame.getFrameIndex(), frame);
     }
 
     @Override

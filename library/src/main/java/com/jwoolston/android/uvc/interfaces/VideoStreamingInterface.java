@@ -3,7 +3,6 @@ package com.jwoolston.android.uvc.interfaces;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
@@ -19,12 +18,12 @@ import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoStreamingInterface extends VideoClassInterface {
-
-    private static final String TAG = "VideoStreamingInterface";
 
     private static final int bLength = 0;
     private static final int bDescriptorType = 1;
@@ -88,17 +87,17 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
-                Log.d(TAG, "VideoStream Still Image Frame Descriptor");
-                Log.d(TAG, "" + Hexdump.dumpHexString(descriptor));
+                Timber.d("VideoStream Still Image Frame Descriptor");
+                Timber.d("%s", Hexdump.dumpHexString(descriptor));
                 //TODO: Handle STILL IMAGE FRAME descriptor section 3.9.2.5 Pg. 81
                 break;
             case VS_COLORFORMAT:
                 colorMatchingDescriptor = new VideoColorMatchingDescriptor(descriptor);
                 lastFormat.setColorMatchingDescriptor(colorMatchingDescriptor);
-                Log.d(TAG, "" + colorMatchingDescriptor);
+                Timber.d("%s", colorMatchingDescriptor);
                 break;
             default:
-                Log.d(TAG, "Unknown streaming interface descriptor: " + Hexdump.dumpHexString(descriptor));
+                Timber.d("Unknown streaming interface descriptor: %s", Hexdump.dumpHexString(descriptor));
         }
     }
 

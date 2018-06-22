@@ -1,18 +1,19 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.hardware.usb.UsbDevice;
-import android.util.Log;
+
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class Descriptor {
-
-    private static final String TAG = "Descriptor";
 
     static final byte VIDEO_CLASS_CODE = ((byte) 0x0E);
     static final byte AUDIO_CLASS_CODE = ((byte) 0x01);
@@ -47,7 +48,7 @@ public class Descriptor {
                     state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     iads.add(iad);
-                    Log.d(TAG, "" + iad);
+                    Timber.d("%s", iad);
                     break;
                 case INTERFACE:
                     if (state != State.IAD && state != State.CLASS_INTERFACE && state != State.STANDARD_ENDPOINT
@@ -92,7 +93,7 @@ public class Descriptor {
                     aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
                     uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
-                    Log.d(TAG, "" + aEndpoint);
+                    Timber.d("%s", aEndpoint);
                     break;
                 case CS_ENDPOINT:
                     if (aEndpoint == null) {
@@ -111,7 +112,7 @@ public class Descriptor {
                 case CONFIGURATION:
                     break;
                 default:
-                    Log.d(TAG, "Descriptor: " + Hexdump.dumpHexString(desc));
+                    Timber.d("Descriptor: %s", Hexdump.dumpHexString(desc));
             }
             i += length;
         }
