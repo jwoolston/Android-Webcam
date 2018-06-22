@@ -14,11 +14,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Git Submodules
-          command: |
-            git submodule sync
-            git submodule update --init
-      - run:
           name: Execute Gradle
           command: |
             if [ "master" = "$CIRCLE_BRANCH" ] || [ ! -z "$CIRCLE_TAG" ]; then
