@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.terminals.CameraTerminal;
 import com.jwoolston.android.uvc.interfaces.terminals.VideoInputTerminal;
@@ -12,31 +12,31 @@ import com.jwoolston.android.uvc.interfaces.units.VideoProcessingUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoSelectorUnit;
 import com.jwoolston.android.uvc.interfaces.units.VideoUnit;
 import java.util.Arrays;
-
 import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoControlInterface extends AVideoClassInterface {
+public class VideoControlInterface extends VideoClassInterface {
 
     private static final int VIDEO_CLASS_HEADER_LENGTH = 12;
 
     private static final int bDescriptorSubType = 2;
-    private static final int bcdUVC           = 3;
-    private static final int wTotalLength     = 5;
-    private static final int dwClockFrequency = 7;
-    private static final int bInCollection    = 11;
-    private static final int baInterfaceNr_1  = 12;
+    private static final int bcdUVC             = 3;
+    private static final int wTotalLength       = 5;
+    private static final int dwClockFrequency   = 7;
+    private static final int bInCollection      = 11;
+    private static final int baInterfaceNr_1    = 12;
 
     private int   uvc;
     private int   numberStreamingInterfaces;
     private int[] streamingInterfaces;
 
-    public static VideoControlInterface parseVideoControlInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
+    public static VideoControlInterface parseVideoControlInterface(UsbDeviceConnection connection, byte[] descriptor)
+            throws IllegalArgumentException {
         Timber.d("Parsing Video Class Interface header.");
 
-        final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
+        final UsbInterface usbInterface = UvcInterface.getUsbInterface(connection, descriptor);
         return new VideoControlInterface(usbInterface, descriptor);
     }
 
@@ -83,7 +83,8 @@ public class VideoControlInterface extends AVideoClassInterface {
     }
 
     public boolean isClassInterfaceHeader(byte[] descriptor) {
-        return (descriptor.length >= VIDEO_CLASS_HEADER_LENGTH && (descriptor[bDescriptorSubType] == VC_INF_SUBTYPE.VC_HEADER.subtype));
+        return (descriptor.length >= VIDEO_CLASS_HEADER_LENGTH && (descriptor[bDescriptorSubType]
+                                                                   == VC_INF_SUBTYPE.VC_HEADER.subtype));
     }
 
     public boolean isTerminal(byte[] descriptor) {
@@ -96,7 +97,9 @@ public class VideoControlInterface extends AVideoClassInterface {
 
     public void parseClassInterfaceHeader(byte[] descriptor) throws IllegalArgumentException {
         Timber.d("Parsing Video Class Interface header.");
-        if (descriptor.length < VIDEO_CLASS_HEADER_LENGTH) throw new IllegalArgumentException("The provided descriptor is not a valid Video Class Interface.");
+        if (descriptor.length < VIDEO_CLASS_HEADER_LENGTH) {
+            throw new IllegalArgumentException("The provided descriptor is not a valid Video Class Interface.");
+        }
         uvc = ((0xFF & descriptor[bcdUVC]) << 8) | (0xFF & descriptor[bcdUVC + 1]);
         numberStreamingInterfaces = descriptor[bInCollection];
         streamingInterfaces = new int[numberStreamingInterfaces];

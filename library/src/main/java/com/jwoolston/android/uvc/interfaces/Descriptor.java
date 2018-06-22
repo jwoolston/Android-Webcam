@@ -1,12 +1,10 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import timber.log.Timber;
 
 /**
@@ -19,7 +17,8 @@ public class Descriptor {
 
     private static final int INDEX_DESCRIPTOR_TYPE = 1;
 
-    public static List<InterfaceAssociationDescriptor> parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
+    public static List<InterfaceAssociationDescriptor> parseDescriptors(UsbDeviceConnection connection,
+                                                                        byte[] rawDescriptor) {
         int length;
         byte[] desc;
         Type type;
@@ -27,7 +26,7 @@ public class Descriptor {
         State state = null;
         InterfaceAssociationDescriptor iad = null;
         ArrayList<InterfaceAssociationDescriptor> iads = new ArrayList<>();
-        AInterface aInterface = null;
+        UvcInterface uvcInterface = null;
         Endpoint aEndpoint = null;
         int endpointIndex = 1;
         while (i < rawDescriptor.length) {
@@ -59,20 +58,20 @@ public class Descriptor {
                     }
                     state = State.STANDARD_INTERFACE;
                     endpointIndex = 1;
-                    aInterface = AInterface.parseDescriptor(device, desc);
-                    if (iad != null && aInterface != null) {
-                        final AInterface existing = iad.getInterface(aInterface.getInterfaceNumber());
+                    uvcInterface = UvcInterface.parseDescriptor(connection, desc);
+                    if (iad != null && uvcInterface != null) {
+                        final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
                             existing.parseAlternateFunction(desc);
                         } else {
                             // We need to save the old one
-                            iad.addInterface(aInterface);
+                            iad.addInterface(uvcInterface);
                         }
                     }
-                    Timber.d("%s", aInterface);
+                    Timber.d("%s", uvcInterface);
                     break;
                 case CS_INTERFACE:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a class interface when no standard interface has been parsed.");
                     }
@@ -80,10 +79,10 @@ public class Descriptor {
                         throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
                     }
                     state = State.CLASS_INTERFACE;
-                    aInterface.parseClassDescriptor(desc);
+                    uvcInterface.parseClassDescriptor(desc);
                     break;
                 case ENDPOINT:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a standard endpoint when no standard interface has been parsed.");
                     }
@@ -92,8 +91,8 @@ public class Descriptor {
                                 "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     }
                     state = State.STANDARD_ENDPOINT;
-                    aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
-                    aInterface.addEndpoint(endpointIndex, aEndpoint);
+                    aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
+                    uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
                     Timber.d("%s", aEndpoint);
                     break;

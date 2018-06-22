@@ -1,9 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.units;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
-
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 import java.util.Set;
-
 import timber.log.Timber;
 
 /**
@@ -13,10 +11,10 @@ public class VideoProcessingUnit extends VideoUnit {
 
     private static final int LENGTH = 11; //TODO: Spec says 13?
 
-    private static final int bSourceID      = 4;
-    private static final int wMaxMultiplier = 5;
-    private static final int bmControls     = 8;
-    private static final int iProcessing = 11;
+    private static final int bSourceID        = 4;
+    private static final int wMaxMultiplier   = 5;
+    private static final int bmControls       = 8;
+    private static final int iProcessing      = 11;
     private static final int bmVideoStandards = 12;
 
     private final int mSourceID;
@@ -27,17 +25,21 @@ public class VideoProcessingUnit extends VideoUnit {
     private final int mMaxMultiplier;
     private final int mIndexProcessing = 0;
 
-    private final Set<CONTROL>  mControlSet = null;
+    private final Set<CONTROL>  mControlSet  = null;
     private final Set<STANDARD> mStandardSet = null;
 
     public static boolean isVideoProcessingUnit(byte[] descriptor) {
-        return (descriptor.length >= LENGTH & descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype);
+        return (descriptor.length >= LENGTH
+                & descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_PROCESSING_UNIT.subtype);
     }
 
     public VideoProcessingUnit(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
         Timber.d("Parsing video processing unit.");
-        if (!isVideoProcessingUnit(descriptor)) { throw new IllegalArgumentException("The provided descriptor is not a valid Video Processing Unit descriptor."); }
+        if (!isVideoProcessingUnit(descriptor)) {
+            throw new IllegalArgumentException(
+                    "The provided descriptor is not a valid Video Processing Unit descriptor.");
+        }
         mSourceID = descriptor[bSourceID];
         mMaxMultiplier = descriptor[wMaxMultiplier] | (descriptor[wMaxMultiplier + 1] << 8);
 
@@ -45,13 +47,15 @@ public class VideoProcessingUnit extends VideoUnit {
 
         /*mIndexProcessing = descriptor[iProcessing];
 
-        final int controlBitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls + 2] << 8);
+        final int controlBitMap = descriptor[bmControls] | (descriptor[bmControls + 1] << 8) | (descriptor[bmControls
+         + 2] << 8);
         final Set<Control> controlSet = new HashSet<>();
         for (int i = 0; i < 24; ++i) {
             if ((controlBitMap & (0x01 << i)) != 0) {
                 // The specified flag is present
                 final Control control = Control.controlFromIndex(i);
-                if (control == null) { throw new IllegalArgumentException("Unknown processing unit control from index: " + i); }
+                if (control == null) { throw new IllegalArgumentException("Unknown processing unit control from
+                index: " + i); }
                 controlSet.add(control);
             }
         }
@@ -95,11 +99,11 @@ public class VideoProcessingUnit extends VideoUnit {
     @Override
     public String toString() {
         final String base = "VideoProcessingUnit{" +
-                ", Unit ID: " + getUnitID() +
-                ", Source ID: " + getSourceID() +
-                ", Max Multiplier: " + getMaxMultiplier() +
-                ", Index Processing: " + getIndexProcessing() +
-                ", Available Controls: ";
+                            ", Unit ID: " + getUnitID() +
+                            ", Source ID: " + getSourceID() +
+                            ", Max Multiplier: " + getMaxMultiplier() +
+                            ", Index Processing: " + getIndexProcessing() +
+                            ", Available Controls: ";
         StringBuilder builder = new StringBuilder(base);
         /*for (Control control : mControlSet) {
             builder.append(control).append(',');

@@ -11,7 +11,7 @@ import timber.log.Timber;
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
 
-    private SparseArray<AVideoClassInterface> interfaces;
+    private SparseArray<VideoClassInterface> interfaces;
 
     VideoIAD(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
@@ -24,10 +24,10 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
     }
 
     @Override
-    public void addInterface(AInterface aInterface) throws IllegalArgumentException {
+    public void addInterface(UvcInterface aInterface) throws IllegalArgumentException {
         Timber.d("Adding Interface: %s", aInterface);
         try {
-            final AVideoClassInterface videoClassInterface = (AVideoClassInterface) aInterface;
+            final VideoClassInterface videoClassInterface = (VideoClassInterface) aInterface;
             if (interfaces.get(videoClassInterface.getInterfaceNumber()) != null) {
                 throw new IllegalArgumentException(
                         "An interface with the same index as the provided interface already exists!");
@@ -40,7 +40,7 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
     }
 
     @Override
-    public AVideoClassInterface getInterface(int index) {
+    public VideoClassInterface getInterface(int index) {
         return interfaces.get(index);
     }
 

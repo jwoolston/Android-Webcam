@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
-import com.jwoolston.android.libusb.UsbDevice;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbManager;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
@@ -47,7 +46,7 @@ class WebcamConnection {
     private void parseAssiociationDescriptors() {
         Timber.d("Parsing raw association descriptors.");
         final byte[] raw = usbDeviceConnection.getRawDescriptors();
-        final List<InterfaceAssociationDescriptor> iads = Descriptor.parseDescriptors(usbDevice, raw);
+        final List<InterfaceAssociationDescriptor> iads = Descriptor.parseDescriptors(usbDeviceConnection, raw);
         Timber.i("Determined IADs: %s", iads);
     }
 

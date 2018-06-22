@@ -4,6 +4,7 @@ import static com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
 
 import android.util.SparseArray;
 import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
@@ -13,7 +14,7 @@ import timber.log.Timber;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public abstract class AInterface {
+public abstract class UvcInterface {
 
     private static final int LENGTH_STANDARD_DESCRIPTOR = 9;
 
@@ -35,42 +36,49 @@ public abstract class AInterface {
 
     protected int currentSetting = 0;
 
-    protected static UsbInterface getUsbInterface(UsbDevice device, byte[] descriptor) {
+    protected static UsbInterface getUsbInterface(UsbDeviceConnection connection, byte[] descriptor) {
         final int index = (0xFF & descriptor[bInterfaceNumber]);
-        return device.getInterface(index);
+        return connection.getDevice().getInterface(index);
     }
 
-    public static AInterface parseDescriptor(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
+    public static UvcInterface parseDescriptor(UsbDeviceConnection connection, byte[] descriptor) throws
+                                                                                                IllegalArgumentException {
         // Check the length
-        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) throw new IllegalArgumentException("Descriptor is not long enough to be a standard interface descriptor.");
+        if (descriptor.length < LENGTH_STANDARD_DESCRIPTOR) {
+            throw new IllegalArgumentException("Descriptor is not long enough to be a standard interface descriptor.");
+        }
         // Check the class
         if (descriptor[bInterfaceClass] == Descriptor.VIDEO_CLASS_CODE) {
             // For video class, only PC_PROTOCOL_15 is permitted
             if (descriptor[bInterfaceProtocol] != Protocol.PC_PROTOCOL_15.protocol) {
                 switch (VideoSubclass.getVideoSubclass(descriptor[bInterfaceSubClass])) {
-                    // We could handle Interface Association Descriptors here, but they don't correspond to an accessable interface, so we
+                    // We could handle Interface Association Descriptors here, but they don't correspond to an
+                    // accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
                         Timber.d("Parsing VideoControlInterface.");
-                        return VideoControlInterface.parseVideoControlInterface(device, descriptor);
+                        return VideoControlInterface.parseVideoControlInterface(connection, descriptor);
                     case SC_VIDEOSTREAMING:
                         Timber.d("Parsing VideoStreamingInterface: %s", Hexdump.dumpHexString(descriptor));
-                        return VideoStreamingInterface.parseVideoStreamingInterface(device, descriptor);
+                        return VideoStreamingInterface.parseVideoStreamingInterface(connection, descriptor);
                     default:
-                        throw new IllegalArgumentException("The provided descriptor has an invalid video interface subclass.");
+                        throw new IllegalArgumentException(
+                                "The provided descriptor has an invalid video interface subclass.");
                 }
             } else {
-                throw new IllegalArgumentException("The provided descriptor has an invalid protocol: " + descriptor[bInterfaceProtocol]);
+                throw new IllegalArgumentException(
+                        "The provided descriptor has an invalid protocol: " + descriptor[bInterfaceProtocol]);
             }
         } else if (descriptor[bInterfaceClass] == Descriptor.AUDIO_CLASS_CODE) {
             // TODO: Something with the audio class
             return null;
         } else {
-            throw new IllegalArgumentException("The provided descriptor has an invalid interface class: " + descriptor[bInterfaceClass]);
+            throw new IllegalArgumentException(
+                    "The provided descriptor has an invalid interface class: " + descriptor[bInterfaceClass]);
         }
     }
 
-    protected AInterface(UsbInterface usbInterface, byte[] descriptor) {
+    protected UvcInterface(UsbInterface usbInterface, byte[] descriptor) {
         this.usbInterface = usbInterface;
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints = new SparseArray<>();

@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.terminals;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -13,7 +13,7 @@ public class VideoInputTerminal extends VideoTerminal {
 
     public static boolean isInputTerminal(byte[] descriptor) {
         return (descriptor.length >= MIN_LENGTH
-                && descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
+                && descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype);
     }
 
     public VideoInputTerminal(byte[] descriptor) throws IllegalArgumentException {

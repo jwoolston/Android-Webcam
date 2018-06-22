@@ -5,9 +5,9 @@ import com.jwoolston.android.libusb.UsbInterface;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public abstract class AVideoClassInterface extends AInterface {
+public abstract class VideoClassInterface extends UvcInterface {
 
-    AVideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
+    VideoClassInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
     }
 

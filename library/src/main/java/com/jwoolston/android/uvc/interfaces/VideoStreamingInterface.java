@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import com.jwoolston.android.libusb.UsbDevice;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
@@ -14,16 +14,15 @@ import com.jwoolston.android.uvc.interfaces.streaming.VideoStreamOutputHeader;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
-
 import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoStreamingInterface extends AVideoClassInterface {
+public class VideoStreamingInterface extends VideoClassInterface {
 
-    private static final int bLength = 0;
-    private static final int bDescriptorType = 1;
+    private static final int bLength            = 0;
+    private static final int bDescriptorType    = 1;
     private static final int bDescriptorSubtype = 2;
 
     private VideoStreamInputHeader  inputHeader;
@@ -35,10 +34,12 @@ public class VideoStreamingInterface extends AVideoClassInterface {
 
     private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
-    public static VideoStreamingInterface parseVideoStreamingInterface(UsbDevice device, byte[] descriptor) throws IllegalArgumentException {
+    public static VideoStreamingInterface parseVideoStreamingInterface(UsbDeviceConnection connection,
+                                                                       byte[] descriptor) throws
+                                                                                          IllegalArgumentException {
         Timber.d("Parsing Video Class Interface header.");
 
-        final UsbInterface usbInterface = AInterface.getUsbInterface(device, descriptor);
+        final UsbInterface usbInterface = UvcInterface.getUsbInterface(connection, descriptor);
         return new VideoStreamingInterface(usbInterface, descriptor);
     }
 
@@ -79,9 +80,11 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 try {
                     ((UncompressedVideoFormat) lastFormat).addUncompressedVideoFrame(uncompressedVideoFrame);
                 } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("The parsed uncompressed frame descriptor is not valid for the previously parsed Format: " + lastFormat
+                    throw new IllegalArgumentException(
+                            "The parsed uncompressed frame descriptor is not valid for the previously parsed Format: "
+                            + lastFormat
 
-                            .getClass().getName());
+                                    .getClass().getName());
                 }
                 break;
             case VS_FORMAT_MJPEG:
@@ -95,8 +98,10 @@ public class VideoStreamingInterface extends AVideoClassInterface {
                 try {
                     ((MJPEGVideoFormat) lastFormat).addMJPEGVideoFrame(mjpegVideoFrame);
                 } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("The parsed MJPEG frame descriptor is not valid for the previously parsed Format: " + lastFormat
-                            .getClass().getName());
+                    throw new IllegalArgumentException(
+                            "The parsed MJPEG frame descriptor is not valid for the previously parsed Format: "
+                            + lastFormat
+                                    .getClass().getName());
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
