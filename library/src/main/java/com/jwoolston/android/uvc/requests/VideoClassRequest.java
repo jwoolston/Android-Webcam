@@ -1,6 +1,7 @@
 package com.jwoolston.android.uvc.requests;
 
 import android.support.annotation.NonNull;
+import java.util.Locale;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -58,9 +59,9 @@ public abstract class VideoClassRequest {
     @Override public String toString() {
         final StringBuffer sb = new StringBuffer(getClass().getSimpleName());
         sb.append("{");
-        sb.append("requestType=").append(requestType);
+        sb.append("requestType=0x").append(Integer.toHexString(0xFF & requestType).toUpperCase(Locale.US));
         sb.append(", request=").append(request);
-        sb.append(", wValue=").append(wValue);
+        sb.append(", wValue=0x").append(Integer.toHexString(wValue).toUpperCase(Locale.US));
         sb.append(", wIndex=").append(wIndex);
         sb.append(", data=");
         if (data == null) {

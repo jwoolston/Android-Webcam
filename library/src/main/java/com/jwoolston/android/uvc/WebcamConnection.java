@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
+import com.jwoolston.android.libusb.LibusbError;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbManager;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
@@ -11,12 +12,10 @@ import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.requests.PowerModeControl;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.jwoolston.android.uvc.requests.RequestErrorCode;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Locale;
 import timber.log.Timber;
 
 /**
@@ -51,40 +50,38 @@ class WebcamConnection {
         parseAssiociationDescriptors();
 
         Timber.d("Attempting to select zero bandwidth stream interface.");
-        //iads.get(0).getInterface(1).selectAlternateSetting(usbDeviceConnection, 0);
+        Timber.v("Interface count: %d", iads.get(0).getInterfaceCount());
         VideoStreamingInterface streamingInterface = (VideoStreamingInterface) iads.get(0).getInterface(1);
         streamingInterface.selectAlternateSetting(usbDeviceConnection, 0);
-        //util.selectAlternateSetting(streamingInterface.getInterfaceNumber(), 0);
 
         //clearStall(usbInterfaceControl.getEndpoint(0));
 
-        Timber.d("Attempting to set current power mode.");
-        final PowerModeControl control = PowerModeControl.getInfoPowerMode(
+        PowerModeControl control = PowerModeControl.getCurrentPowerMode(
                 (VideoControlInterface) iads.get(0).getInterface(0));
-        Timber.v("Request: " + control);
-        /*int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
-                .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);*/
-        /*int retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
-                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        retval = util.controlTransfer(control.getRequestType(), control.getRequest(), control
-                .getValue(), control.getIndex(), control.getData(), control.getLength(), 1000);*/
+        Timber.v("Request: %s", control);
 
-        /*Log.v(TAG, "Control transfer length: " + retval);
-        clearStall(usbInterfaceControl.getEndpoint(0));
-        retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
+        int retval = usbDeviceConnection.controlTransfer(control.getRequestType(), control.getRequest(), control
                 .getValue(), control.getIndex(), control.getData(), control.getLength(), 500);
-        Log.v(TAG, "Control transfer length: " + retval);*/
+        Timber.d("Request Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
+
+        Timber.d("Response data: 0x%s", Integer.toHexString(0xFF & control.getData()[0]).toUpperCase(Locale.US));
+
+        Timber.d("Attempting to get current error code.");
+        RequestErrorCode control2 = RequestErrorCode.getCurrentErrorCode(
+                (VideoControlInterface) iads.get(0).getInterface(0));
+        Timber.v("Request: %s", control2);
+
+        retval = usbDeviceConnection.controlTransfer(control2.getRequestType(), control2.getRequest(), control2
+                .getValue(), control2.getIndex(), control2.getData(), control2.getLength(), 500);
+        Timber.d("Request Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
+
+        Timber.d("Response data: 0x%s", Integer.toHexString(0xFF & control2.getData()[0]).toUpperCase(Locale.US));
     }
 
     private void parseAssiociationDescriptors() {
         Timber.d("Parsing raw association descriptors.");
         final byte[] raw = usbDeviceConnection.getRawDescriptors();
-        final List<InterfaceAssociationDescriptor> iads = Descriptor.parseDescriptors(usbDeviceConnection, raw);
+        iads = Descriptor.parseDescriptors(usbDeviceConnection, raw);
         Timber.i("Determined IADs: %s", iads);
     }
 
