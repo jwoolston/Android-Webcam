@@ -1,9 +1,10 @@
-package com.jwoolston.android.uvc.requests;
+package com.jwoolston.android.uvc.requests.control;
 
-import static com.jwoolston.android.uvc.requests.InterfaceControlRequest.ControlSelector.VC_REQUEST_ERROR_CODE_CONTROL;
+import static com.jwoolston.android.uvc.requests.control.VCInterfaceControlRequest.ControlSelector.VC_REQUEST_ERROR_CODE_CONTROL;
 
 import android.support.annotation.NonNull;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
+import com.jwoolston.android.uvc.requests.Request;
 
 /**
  * This read-only control indicates the status of each host-initiated request to a Terminal, Unit, interface or
@@ -45,7 +46,7 @@ import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
  * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC 1.5 Class
  * Specification §4.2.1.2</a>
  */
-public class RequestErrorCode extends InterfaceControlRequest {
+public class RequestErrorCode extends VCInterfaceControlRequest {
 
     @NonNull
     public static RequestErrorCode getCurrentErrorCode(@NonNull VideoControlInterface controlInterface) {
