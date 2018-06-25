@@ -1,25 +1,24 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.hardware.usb.UsbDevice;
-import android.util.Log;
+import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.util.ArrayList;
 import java.util.List;
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class Descriptor {
 
-    private static final String TAG = "Descriptor";
-
     static final byte VIDEO_CLASS_CODE = ((byte) 0x0E);
     static final byte AUDIO_CLASS_CODE = ((byte) 0x01);
 
     private static final int INDEX_DESCRIPTOR_TYPE = 1;
 
-    public static List<InterfaceAssociationDescriptor> parseDescriptors(UsbDevice device, byte[] rawDescriptor) {
+    public static List<InterfaceAssociationDescriptor> parseDescriptors(UsbDeviceConnection connection,
+                                                                        byte[] rawDescriptor) {
         int length;
         byte[] desc;
         Type type;
@@ -27,7 +26,7 @@ public class Descriptor {
         State state = null;
         InterfaceAssociationDescriptor iad = null;
         ArrayList<InterfaceAssociationDescriptor> iads = new ArrayList<>();
-        AInterface aInterface = null;
+        UvcInterface uvcInterface = null;
         Endpoint aEndpoint = null;
         int endpointIndex = 1;
         while (i < rawDescriptor.length) {
@@ -35,8 +34,6 @@ public class Descriptor {
             desc = new byte[length];
             System.arraycopy(rawDescriptor, i, desc, 0, length);
             type = Type.getType(desc);
-            Log.v(TAG, "Current state: " + state);
-
             switch (type) {
                 case INTERFACE_ASSOCIATION:
                     if (state == State.STANDARD_ENDPOINT) {
@@ -49,7 +46,7 @@ public class Descriptor {
                     state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     iads.add(iad);
-                    Log.d(TAG, "" + iad);
+                    Timber.d("%s", iad);
                     break;
                 case INTERFACE:
                     if (state != State.IAD && state != State.CLASS_INTERFACE && state != State.STANDARD_ENDPOINT
@@ -59,20 +56,19 @@ public class Descriptor {
                     }
                     state = State.STANDARD_INTERFACE;
                     endpointIndex = 1;
-                    aInterface = AInterface.parseDescriptor(device, desc);
-                    if (iad != null && aInterface != null) {
-                        final AInterface existing = iad.getInterface(aInterface.getInterfaceNumber());
+                    uvcInterface = UvcInterface.parseDescriptor(connection, desc);
+                    if (iad != null && uvcInterface != null) {
+                        final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
-                            existing.parseAlternateFunction(desc);
+                            existing.parseAlternateFunction(connection, desc);
                         } else {
                             // We need to save the old one
-                            iad.addInterface(aInterface);
+                            iad.addInterface(uvcInterface);
                         }
                     }
-                    Log.d(TAG, "" + aInterface);
                     break;
                 case CS_INTERFACE:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a class interface when no standard interface has been parsed.");
                     }
@@ -80,10 +76,10 @@ public class Descriptor {
                         throw new IllegalStateException("Tried parsing a CLASS INTERFACE at an invalid time: " + state);
                     }
                     state = State.CLASS_INTERFACE;
-                    aInterface.parseClassDescriptor(desc);
+                    uvcInterface.parseClassDescriptor(desc);
                     break;
                 case ENDPOINT:
-                    if (aInterface == null) {
+                    if (uvcInterface == null) {
                         throw new IllegalStateException(
                                 "Tried parsing a standard endpoint when no standard interface has been parsed.");
                     }
@@ -92,10 +88,10 @@ public class Descriptor {
                                 "Tried parsing a STANDARD ENDPOINT at an invalid time: " + state);
                     }
                     state = State.STANDARD_ENDPOINT;
-                    aEndpoint = Endpoint.parseDescriptor(aInterface.getUsbInterface(), desc);
-                    aInterface.addEndpoint(endpointIndex, aEndpoint);
+                    aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
+                    uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
-                    Log.d(TAG, "" + aEndpoint);
+                    Timber.d("%s", aEndpoint);
                     break;
                 case CS_ENDPOINT:
                     if (aEndpoint == null) {
@@ -114,7 +110,7 @@ public class Descriptor {
                 case CONFIGURATION:
                     break;
                 default:
-                    Log.d(TAG, "Descriptor: " + Hexdump.dumpHexString(desc));
+                    Timber.d("Descriptor: %s", Hexdump.dumpHexString(desc));
             }
             i += length;
         }
@@ -124,7 +120,6 @@ public class Descriptor {
     private static enum State {
         IAD, STANDARD_INTERFACE, CLASS_INTERFACE, STANDARD_ENDPOINT, CLASS_ENDPOINT
     }
-
 
     public static enum VideoSubclass {
         SC_UNDEFINED(0x00),

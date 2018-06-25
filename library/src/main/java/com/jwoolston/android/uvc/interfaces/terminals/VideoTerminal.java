@@ -1,6 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.terminals;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -19,8 +19,8 @@ public abstract class VideoTerminal {
     private final int          associatedTerminalID;
 
     public static boolean isVideoTerminal(byte[] descriptor) {
-        return (descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype ||
-                descriptor[bDescriptorSubtype] == AVideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
+        return (descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype ||
+                descriptor[bDescriptorSubtype] == VideoClassInterface.VC_INF_SUBTYPE.VC_OUTPUT_TERMINAL.subtype);
     }
 
     protected VideoTerminal(byte[] descriptor) {

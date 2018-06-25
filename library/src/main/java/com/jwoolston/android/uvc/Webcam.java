@@ -11,13 +11,13 @@ import android.support.annotation.NonNull;
 public interface Webcam {
 
     /**
-     * The {@link android.hardware.usb.UsbDevice} interface to this camera.
+     * The {@link UsbDevice} interface to this camera.
      *
-     * @return camera {@link android.hardware.usb.UsbDevice}
+     * @return camera {@link UsbDevice}
      */
     public
     @NonNull
-    UsbDevice getUsbDevice();
+    UsbDevice getDevice();
 
     /**
      * Determine if an active connection to the camera exists.

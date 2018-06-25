@@ -1,16 +1,15 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.jwoolston.android.uvc.util.Hexdump;
 
+import timber.log.Timber;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class MJPEGVideoFormat extends AVideoFormat {
-
-    private static final String TAG = "MJPEGVideoFormat";
+public class MJPEGVideoFormat extends VideoFormat {
 
     private static final int LENGTH = 11;
 
@@ -30,18 +29,18 @@ public class MJPEGVideoFormat extends AVideoFormat {
         super(descriptor);
         if (descriptor.length < LENGTH) throw new IllegalArgumentException("The provided discriptor is not long enough for an MJPEG Video Format.");
         mVideoFrames = new SparseArray<>();
-        mFormatIndex = (0xFF & descriptor[bFormatIndex]);
-        mNumberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
+        formatIndex = (0xFF & descriptor[bFormatIndex]);
+        numberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
         mFixedSampleSize = descriptor[bmFlags] != 0;
-        mDefaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
-        mAspectRatioX = (0xFF & descriptor[bAspectRatioX]);
-        mAspectRatioY = (0xFF & descriptor[bAspectRatioY]);
-        mInterlaceFlags = descriptor[bmInterlaceFlags];
-        mCopyProtect = descriptor[bCopyProtect] != 0;
+        defaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
+        aspectRatioX = (0xFF & descriptor[bAspectRatioX]);
+        aspectRatioY = (0xFF & descriptor[bAspectRatioY]);
+        interlaceFlags = descriptor[bmInterlaceFlags];
+        copyProtect = descriptor[bCopyProtect] != 0;
     }
 
     public void addMJPEGVideoFrame(MJPEGVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
+        Timber.d("Adding video frame: %s", frame);
         mVideoFrames.put(frame.getFrameIndex(), frame);
     }
 
@@ -52,13 +51,13 @@ public class MJPEGVideoFormat extends AVideoFormat {
     @Override
     public String toString() {
         return "MJPEGVideoFormat{" +
-                "mFormatIndex=" + mFormatIndex +
-                ", mNumberFrames=" + mNumberFrames +
-                ", mFixedSampleSize=" + mFixedSampleSize +
-                ", mDefaultFrameIndex=" + mDefaultFrameIndex +
-                ", AspectRatio=" + mAspectRatioX + ":" + mAspectRatioY +
-                ", mInterlaceFlags=0x" + Hexdump.toHexString(mInterlaceFlags) +
-                ", mCopyProtect=" + mCopyProtect +
-                '}';
+               "formatIndex=" + formatIndex +
+               ", numberFrames=" + numberFrames +
+               ", mFixedSampleSize=" + mFixedSampleSize +
+               ", defaultFrameIndex=" + defaultFrameIndex +
+               ", AspectRatio=" + aspectRatioX + ":" + aspectRatioY +
+               ", interlaceFlags=0x" + Hexdump.toHexString(interlaceFlags) +
+               ", copyProtect=" + copyProtect +
+               '}';
     }
 }

@@ -2,31 +2,30 @@ package com.jwoolston.android.uvc;
 
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import com.jwoolston.android.libusb.DevicePermissionDenied;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 class WebcamImpl implements Webcam {
 
-    private final Context context;
-    private final UsbDevice usbDevice;
+    private final Context          context;
+    private final UsbDevice        device;
     private final WebcamConnection webcamConnection;
 
-    WebcamImpl(Context context, UsbDevice usbDevice) throws UnknownDeviceException {
+    WebcamImpl(Context context, UsbDevice device) throws UnknownDeviceException, DevicePermissionDenied {
         this.context = context;
-        this.usbDevice = usbDevice;
+        this.device = device;
 
-        final UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-        webcamConnection = new WebcamConnection(context.getApplicationContext(), usbManager, usbDevice);
+        webcamConnection = new WebcamConnection(context.getApplicationContext(), device);
     }
 
     @NonNull
     @Override
-    public UsbDevice getUsbDevice() {
-        return usbDevice;
+    public UsbDevice getDevice() {
+        return device;
     }
 
     @Override

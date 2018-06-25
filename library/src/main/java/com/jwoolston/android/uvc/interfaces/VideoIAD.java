@@ -1,17 +1,17 @@
 package com.jwoolston.android.uvc.interfaces;
 
-import android.util.Log;
 import android.util.SparseArray;
+
 import com.jwoolston.android.uvc.interfaces.Descriptor.VideoSubclass;
+
+import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
 public class VideoIAD extends InterfaceAssociationDescriptor {
 
-    private static final String TAG = "VideoIAD";
-
-    private SparseArray<AVideoClassInterface> interfaces;
+    private SparseArray<VideoClassInterface> interfaces;
 
     VideoIAD(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
@@ -24,10 +24,9 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
     }
 
     @Override
-    public void addInterface(AInterface aInterface) throws IllegalArgumentException {
-        Log.d(TAG, "Adding Interface: " + aInterface);
+    public void addInterface(UvcInterface uvcInterface) throws IllegalArgumentException {
         try {
-            final AVideoClassInterface videoClassInterface = (AVideoClassInterface) aInterface;
+            final VideoClassInterface videoClassInterface = (VideoClassInterface) uvcInterface;
             if (interfaces.get(videoClassInterface.getInterfaceNumber()) != null) {
                 throw new IllegalArgumentException(
                         "An interface with the same index as the provided interface already exists!");
@@ -40,7 +39,7 @@ public class VideoIAD extends InterfaceAssociationDescriptor {
     }
 
     @Override
-    public AVideoClassInterface getInterface(int index) {
+    public VideoClassInterface getInterface(int index) {
         return interfaces.get(index);
     }
 

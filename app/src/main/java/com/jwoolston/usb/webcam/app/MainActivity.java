@@ -8,15 +8,16 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
+
+import com.jwoolston.android.libusb.DevicePermissionDenied;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
 
-public class MainActivity extends AppCompatActivity {
+import timber.log.Timber;
 
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity {
 
     private Webcam webcam;
     private BroadcastReceiver deviceDisconnectedReceiver;
@@ -33,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
 
                 final UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (usbDevice.equals(webcam.getUsbDevice())) {
-                    Log.d(TAG, "Active Webcam detached. Terminating connection.");
+                if (usbDevice.equals(webcam.getDevice())) {
+                    Timber.d("Active Webcam detached. Terminating connection.");
                     stopStreaming();
                 }
             }
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             final UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             try {
                 webcam = WebcamManager.getOrCreateWebcam(this, usbDevice);
-            } catch (UnknownDeviceException e) {
+            } catch (UnknownDeviceException | DevicePermissionDenied e) {
                 e.printStackTrace();
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }

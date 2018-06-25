@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-class AVideoFrame {
+public class VideoFrame {
 
     private static final int LENGTH_INTERVAL_TYPE_0         = 38;
     private static final int MIN_LENGTH_INTERVAL_TYPE_NOT_0 = 26; //26+4*n
@@ -45,7 +45,7 @@ class AVideoFrame {
     // Discrete frame intervals
     private final int[] mFrameIntervals;
 
-    AVideoFrame(byte[] descriptor) throws IllegalArgumentException {
+    VideoFrame(byte[] descriptor) throws IllegalArgumentException {
         mFrameIntervalType = (0xFF & descriptor[bFrameIntervalType]);
         if (mFrameIntervalType == 0 && descriptor.length < LENGTH_INTERVAL_TYPE_0) throw new IllegalArgumentException("The provided descriptor is not long enough to be an Uncompressed Video Frame.");
         if (mFrameIntervalType != 0 && descriptor.length < (MIN_LENGTH_INTERVAL_TYPE_NOT_0 + 4 * mFrameIntervalType))

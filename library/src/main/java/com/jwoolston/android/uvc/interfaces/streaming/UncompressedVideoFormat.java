@@ -1,19 +1,29 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.Log;
 import android.util.SparseArray;
-
 import com.jwoolston.android.uvc.util.Hexdump;
 
-import java.util.Arrays;
+import timber.log.Timber;
 
 /**
+ * The Uncompressed Video Format descriptor defines the characteristics of a specific video stream. It is used for
+ * formats that carry uncompressed video information, including all YUV variants.
+ * A Terminal corresponding to a USB IN or OUT endpoint, and the interface it belongs to, supports one or more format
+ * definitions. To select a particular format, host software sends control requests to the corresponding interface.
+ *
+ * This specification defines uncompressed streams in YUV color spaces. Each frame is independently sent by the
+ * device to the host.
+ *
+ * The vertical and horizontal dimensions of the image are constrained by the color component subsampling; image size
+ * must be a multiple of macropixel block size. No padding is allowed. This Uncompressed video payload specification
+ * supports any YUV format. The recommended YUV formats are one packed 4:2:2 YUV format (YUY2), one packed 4:2:0 YUV
+ * format (M420), and two planar 4:2:0 YUV formats (NV12, I420).
+ *
  * @author Jared Woolston (Jared.Woolston@gmail.com)
- * @see UVC USB_Video_Payload_Uncompressed.pdf v1.5 Table 3-1
+ * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>USB Video Payload
+ * Uncompressed 1.5 Specification §2.2 Table 2-1</a>
  */
-public class UncompressedVideoFormat extends AVideoFormat {
-
-    private static final String TAG = "UncompressedVideoFormat";
+public class UncompressedVideoFormat extends VideoFormat {
 
     private static final int LENGTH = 27;
 
@@ -41,36 +51,38 @@ public class UncompressedVideoFormat extends AVideoFormat {
     private static final int bmInterlaceFlags     = 25;
     private static final int bCopyProtect         = 26;
 
-    private final int     mFormatIndex;
-    private final int     mNumberFrames;
-    private final String  mGUID;
-    private final int     mBitsPerPixel;
-    private final int     mDefaultFrameIndex;
-    private final int     mAspectRatioX;
-    private final int     mAspectRatioY;
-    private final byte    mInterlaceFlags;
-    private final boolean mCopyProtect;
+    private final String  guid;
+    private final int     bitsPerPixel;
 
-    private final SparseArray<UncompressedVideoFrame> mVideoFrames;
+    private final SparseArray<UncompressedVideoFrame> videoFrames;
+
+    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
+        Timber.d("Adding video frame: %s", frame);
+        videoFrames.put(frame.getFrameIndex(), frame);
+    }
 
     public UncompressedVideoFormat(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        if (descriptor.length < LENGTH) throw new IllegalArgumentException("The provided discriptor is not long enough for an Uncompressed Video Format.");
-        mVideoFrames = new SparseArray<>();
-        mFormatIndex = (0xFF & descriptor[bFormatIndex]);
-        mNumberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
+        if (descriptor.length < LENGTH) {
+            throw new IllegalArgumentException(
+                    "The provided discriptor is not long enough for an Uncompressed Video Format.");
+        }
+        videoFrames = new SparseArray<>();
+        formatIndex = (0xFF & descriptor[bFormatIndex]);
+        numberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
         byte[] GUIDBytes = new byte[16];
         System.arraycopy(descriptor, guidFormat, GUIDBytes, 0, GUIDBytes.length);
-        mBitsPerPixel = (0xFF & descriptor[bBitsPerPixel]);
-        mDefaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
-        mAspectRatioX = (0xFF & descriptor[bAspectRatioX]);
-        mAspectRatioY = (0xFF & descriptor[bAspectRatioY]);
-        mInterlaceFlags = descriptor[bmInterlaceFlags];
-        mCopyProtect = descriptor[bCopyProtect] != 0;
+        bitsPerPixel = (0xFF & descriptor[bBitsPerPixel]);
+        defaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
+        aspectRatioX = (0xFF & descriptor[bAspectRatioX]);
+        aspectRatioY = (0xFF & descriptor[bAspectRatioY]);
+        interlaceFlags = descriptor[bmInterlaceFlags];
+        copyProtect = descriptor[bCopyProtect] != 0;
 
         // Parse the GUID bytes to String
         final StringBuilder builder = new StringBuilder();
-        builder.append(Hexdump.toHexString(GUIDBytes[3])).append(Hexdump.toHexString(GUIDBytes[2])).append(Hexdump.toHexString(GUIDBytes[1])).append(Hexdump.toHexString(GUIDBytes[0]));
+        builder.append(Hexdump.toHexString(GUIDBytes[3])).append(Hexdump.toHexString(GUIDBytes[2]))
+                .append(Hexdump.toHexString(GUIDBytes[1])).append(Hexdump.toHexString(GUIDBytes[0]));
         builder.append('-').append(Hexdump.toHexString(GUIDBytes[5])).append(Hexdump.toHexString(GUIDBytes[4]));
         builder.append('-').append(Hexdump.toHexString(GUIDBytes[7])).append(Hexdump.toHexString(GUIDBytes[6]));
         builder.append('-');
@@ -81,33 +93,28 @@ public class UncompressedVideoFormat extends AVideoFormat {
         for (int i = 10; i < 16; ++i) {
             builder.append(Hexdump.toHexString(GUIDBytes[i]));
         }
-        mGUID = builder.toString();
-    }
-
-    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
-        Log.d(TAG, "Adding video frame: " + frame);
-        mVideoFrames.put(frame.getFrameIndex(), frame);
+        guid = builder.toString();
     }
 
     @Override
     public String toString() {
         return "UncompressedVideoFormat{" +
-                "mFormatIndex=" + mFormatIndex +
-                ", mNumberFrames=" + mNumberFrames +
-                ", GUID=" + mGUID +
-                ", mBitsPerPixel=" + mBitsPerPixel +
-                ", mDefaultFrameIndex=" + mDefaultFrameIndex +
-                ", AspectRatio=" + mAspectRatioX + ":" + mAspectRatioY +
-                ", mInterlaceFlags=0x" + Hexdump.toHexString(mInterlaceFlags) +
-                ", mCopyProtect=" + mCopyProtect +
-                '}';
+               "formatIndex=" + formatIndex +
+               ", numberFrames=" + numberFrames +
+               ", GUID=" + guid +
+               ", bitsPerPixel=" + bitsPerPixel +
+               ", defaultFrameIndex=" + defaultFrameIndex +
+               ", AspectRatio=" + aspectRatioX + ":" + aspectRatioY +
+               ", interlaceFlags=0x" + Hexdump.toHexString(interlaceFlags) +
+               ", copyProtect=" + copyProtect +
+               '}';
     }
 
     public String getGUID() {
-        return mGUID;
+        return guid;
     }
 
     public int getBitsPerPixel() {
-        return mBitsPerPixel;
+        return bitsPerPixel;
     }
 }

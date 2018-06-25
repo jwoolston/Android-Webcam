@@ -1,17 +1,43 @@
 package com.jwoolston.android.uvc.interfaces.terminals;
 
-import com.jwoolston.android.uvc.interfaces.AVideoClassInterface;
-
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * The Camera Terminal (CT) controls mechanical (or equivalent digital) features of the device component that
+ * transmits the video stream. As such, it is only applicable to video capture devices with controllable lens or
+ * sensor characteristics. A Camera Terminal is always represented as an Input Terminal with a single output pin. It
+ * provides support for the following features.
+ *
+ * <br>-Scanning Mode (Progressive or Interlaced)
+ * <br>-Auto-Exposure Mode
+ * <br>-Auto-Exposure Priority
+ * <br>-Exposure Time
+ * <br>-Focus
+ * <br>-Auto-Focus
+ * <br>-Simple Focus
+ * <br>-Iris
+ * <br>-Zoom
+ * <br>-Pan
+ * <br>-Roll
+ * <br>-Tilt
+ * <br>-Digital Windowing
+ * <br>-Region of Interest
+ *
+ * Support for any particular control is optional. The Focus control can optionally provide support for an auto
+ * setting (with an on/off state). If the auto setting is supported and set to the on state, the device will provide
+ * automatic focus adjustment, and read requests will reflect the automatically set value. Attempts to
+ * programmatically set the Focus control when in auto mode shall result in protocol STALL with an error code of
+ * <b>bRequestErrorCode</b> = “Wrong State”. When leaving Auto-Focus mode (entering manual focus mode), the control
+ * shall remain at the value that was in effect just before the transition.
+ *
  * @author Jared Woolston (Jared.Woolston@gmail.com)
+ * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC 1.5 Class
+ * Specification §2.3.3</a>
  */
 public class CameraTerminal extends VideoInputTerminal {
-
-    private static final String TAG = "CameraTerminal";
 
     private static final int LENGTH_DESCRIPTOR = 18;
 
@@ -32,7 +58,7 @@ public class CameraTerminal extends VideoInputTerminal {
         if (descriptor.length != LENGTH_DESCRIPTOR) {
             return false;
         }
-        if (descriptor[bDescriptorSubtype] != AVideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) {
+        if (descriptor[bDescriptorSubtype] != VideoClassInterface.VC_INF_SUBTYPE.VC_INPUT_TERMINAL.subtype) {
             return false;
         }
         final TerminalType type = TerminalType.toTerminalType(descriptor[wTerminalType], descriptor[wTerminalType + 1]);
@@ -90,7 +116,9 @@ public class CameraTerminal extends VideoInputTerminal {
     @Override
     public String toString() {
         final String base = "CameraTerminal{" +
-                            "Terminal Type=" + getTerminalType() +
+                            "terminalType=" + getTerminalType() +
+                            ", terminalID=" + getTerminalID() +
+                            ", associatedTerminalID=" + getAssociatedTerminalID() +
                             ", Min Objective Focal Length: " + getObjectiveFocalLengthMin() +
                             ", Max Objective Focal Length: " + getObjectiveFocalLengthMax() +
                             ", Objective Focal Length: " + getObjectiveFocalLength() +

@@ -3,19 +3,19 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class AVideoFormat {
+public class VideoFormat {
 
-    protected int     mFormatIndex;
-    protected int     mNumberFrames;
-    protected int     mDefaultFrameIndex;
-    protected int     mAspectRatioX;
-    protected int     mAspectRatioY;
-    protected byte    mInterlaceFlags;
-    protected boolean mCopyProtect;
+    protected int     formatIndex;
+    protected int     numberFrames;
+    protected int     defaultFrameIndex;
+    protected int     aspectRatioX;
+    protected int     aspectRatioY;
+    protected byte    interlaceFlags;
+    protected boolean copyProtect;
 
     private VideoColorMatchingDescriptor mColorMatchingDescriptor;
 
-    AVideoFormat(byte[] descriptor) throws IllegalArgumentException {
+    VideoFormat(byte[] descriptor) throws IllegalArgumentException {
 
     }
 
@@ -28,30 +28,30 @@ public class AVideoFormat {
     }
 
     public int getFormatIndex() {
-        return mFormatIndex;
+        return formatIndex;
     }
 
     public int getNumberFrames() {
-        return mNumberFrames;
+        return numberFrames;
     }
 
     public int getDefaultFrameIndex() {
-        return mDefaultFrameIndex;
+        return defaultFrameIndex;
     }
 
     public int getAspectRatioX() {
-        return mAspectRatioX;
+        return aspectRatioX;
     }
 
     public int getAspectRatioY() {
-        return mAspectRatioY;
+        return aspectRatioY;
     }
 
     public byte getInterlaceFlags() {
-        return mInterlaceFlags;
+        return interlaceFlags;
     }
 
     public boolean isCopyProtect() {
-        return mCopyProtect;
+        return copyProtect;
     }
 }
