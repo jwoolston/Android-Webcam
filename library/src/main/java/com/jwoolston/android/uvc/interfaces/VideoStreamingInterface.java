@@ -1,11 +1,11 @@
 package com.jwoolston.android.uvc.interfaces;
 
 import android.support.annotation.NonNull;
-import com.jwoolston.android.libusb.UsbDevice;
+
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
-import com.jwoolston.android.uvc.interfaces.streaming.AVideoFormat;
+import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.MJPEGVideoFrame;
 import com.jwoolston.android.uvc.interfaces.streaming.UncompressedVideoFormat;
@@ -30,9 +30,10 @@ public class VideoStreamingInterface extends VideoClassInterface {
     private VideoStreamInputHeader  inputHeader;
     private VideoStreamOutputHeader outputHeader;
 
-    private final List<AVideoFormat> videoFormats;
+    private final List<VideoFormat> videoFormats;
 
-    private AVideoFormat lastFormat;
+    // Only used during descriptor parsing
+    private VideoFormat lastFormat;
 
     private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
@@ -46,6 +47,10 @@ public class VideoStreamingInterface extends VideoClassInterface {
     VideoStreamingInterface(UsbInterface usbInterface, byte[] descriptor) {
         super(usbInterface, descriptor);
         videoFormats = new ArrayList<>();
+    }
+
+    public List<VideoFormat> getAvailableFormats() {
+        return videoFormats;
     }
 
     @Override

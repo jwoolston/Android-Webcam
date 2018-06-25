@@ -54,6 +54,48 @@ public class ProbeControl extends VSInterfaceControlRequest {
                                 new byte[LENGTH_PROBE_DATA]);
     }
 
+    @NonNull
+    public static ProbeControl getMinProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_MIN, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl getMaxProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_MAX, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl getResolutionProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_RES, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl getDefaultProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_DEF, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl getLengthProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_LEN, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl getInfoProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.GET_INFO, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
+    @NonNull
+    public static ProbeControl setCurrentProbe(@NonNull VideoStreamingInterface streamingInterface) {
+        return new ProbeControl(Request.SET_CUR, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+            new byte[LENGTH_PROBE_DATA]);
+    }
+
     private ProbeControl(@NonNull Request request, short index, @NonNull @Size(value = LENGTH_PROBE_DATA) byte[] data) {
         super(request, VS_PROBE_CONTROL, index, data);
         wrapper = ByteBuffer.wrap(data);

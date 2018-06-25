@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class MJPEGVideoFrame extends AVideoFrame {
+public class MJPEGVideoFrame extends VideoFrame {
 
     public MJPEGVideoFrame(byte[] descriptor) {
         super(descriptor);

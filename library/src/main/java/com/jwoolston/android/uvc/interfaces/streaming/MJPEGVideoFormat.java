@@ -9,7 +9,7 @@ import timber.log.Timber;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class MJPEGVideoFormat extends AVideoFormat {
+public class MJPEGVideoFormat extends VideoFormat {
 
     private static final int LENGTH = 11;
 

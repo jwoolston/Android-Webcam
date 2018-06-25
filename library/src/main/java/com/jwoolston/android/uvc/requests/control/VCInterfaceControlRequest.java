@@ -2,6 +2,9 @@ package com.jwoolston.android.uvc.requests.control;
 
 import android.support.annotation.NonNull;
 
+import com.jwoolston.android.uvc.requests.Request;
+import com.jwoolston.android.uvc.requests.VideoClassRequest;
+
 /**
  * These requests are used to set or read an attribute of an interface Control inside the VideoControl interface of
  * the video function.
