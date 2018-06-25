@@ -14,7 +14,7 @@ import java.util.Arrays;
  * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>USB Video Payload
  * Uncompressed 1.5 Specification §2.2 Table 2-1</a>
  */
-public class UncompressedVideoFrame extends AVideoFrame {
+public class UncompressedVideoFrame extends VideoFrame {
 
     public UncompressedVideoFrame(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);

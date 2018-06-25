@@ -1,9 +1,10 @@
-package com.jwoolston.android.uvc.requests;
+package com.jwoolston.android.uvc.requests.control;
 
-import static com.jwoolston.android.uvc.requests.InterfaceControlRequest.ControlSelector.VC_VIDEO_POWER_MODE_CONTROL;
+import static com.jwoolston.android.uvc.requests.control.VCInterfaceControlRequest.ControlSelector.VC_VIDEO_POWER_MODE_CONTROL;
 
 import android.support.annotation.NonNull;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
+import com.jwoolston.android.uvc.requests.Request;
 
 /**
  * This control sets the device power mode. Power modes are defined in the following table.
@@ -51,7 +52,7 @@ import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
  * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>UVC 1.5 Class
  * Specification §4.2.1.1</a>
  */
-public class PowerModeControl extends InterfaceControlRequest {
+public class PowerModeControl extends VCInterfaceControlRequest {
 
     private static final byte SET_MASK = 0x0F;
     private static final byte GET_MASK = (byte) 0xF0;

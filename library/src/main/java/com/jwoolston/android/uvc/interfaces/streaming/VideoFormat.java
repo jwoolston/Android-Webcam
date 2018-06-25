@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class AVideoFormat {
+public class VideoFormat {
 
     protected int     formatIndex;
     protected int     numberFrames;
@@ -15,7 +15,7 @@ public class AVideoFormat {
 
     private VideoColorMatchingDescriptor mColorMatchingDescriptor;
 
-    AVideoFormat(byte[] descriptor) throws IllegalArgumentException {
+    VideoFormat(byte[] descriptor) throws IllegalArgumentException {
 
     }
 

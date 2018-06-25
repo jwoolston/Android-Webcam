@@ -1,6 +1,7 @@
 package com.jwoolston.android.uvc.requests;
 
 import android.support.annotation.NonNull;
+import java.util.Locale;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -9,11 +10,10 @@ import android.support.annotation.NonNull;
  */
 public abstract class VideoClassRequest {
 
-    protected static final byte VC_SET_REQUEST_TYPE = 0x21; // Set Request type targeting VideoControl Interface
-    protected static final byte VS_SET_REQUEST_TYPE = 0x22; // Set Request type targeting VideoStreaming Interface
-    protected static final byte VC_GET_REQUEST_TYPE = (byte) 0xA1; // Get Request type targeting VideoControl Interface
-    protected static final byte VS_GET_REQUEST_TYPE = (byte) 0xA2; // Get Request type targeting VideoStreaming
-                                                             // Interface
+    protected static final byte SET_REQUEST_INF_ENTITY = 0x21; // Set Request type targeting entity or interface
+    protected static final byte SET_REQUEST_ENDPOINT   = 0x22; // Set Request type targeting endpoint
+    protected static final byte GET_REQUEST_INF_ENTITY = (byte) 0xA1; // Get Request type targeting entity or interface
+    protected static final byte GET_REQUEST_ENDPOINT   = (byte) 0xA2; // Get Request type targeting endpoint
 
     private final byte    requestType;
     private final Request request;
@@ -58,9 +58,9 @@ public abstract class VideoClassRequest {
     @Override public String toString() {
         final StringBuffer sb = new StringBuffer(getClass().getSimpleName());
         sb.append("{");
-        sb.append("requestType=").append(requestType);
+        sb.append("requestType=0x").append(Integer.toHexString(0xFF & requestType).toUpperCase(Locale.US));
         sb.append(", request=").append(request);
-        sb.append(", wValue=").append(wValue);
+        sb.append(", wValue=0x").append(Integer.toHexString(wValue).toUpperCase(Locale.US));
         sb.append(", wIndex=").append(wIndex);
         sb.append(", data=");
         if (data == null) {

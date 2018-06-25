@@ -28,4 +28,9 @@ public enum Request {
     Request(byte code) {
         this.code = code;
     }
+
+    @Override
+    public String toString() {
+        return (name() + "(0x" + Integer.toHexString(0xFF & code) + ')');
+    }
 }
