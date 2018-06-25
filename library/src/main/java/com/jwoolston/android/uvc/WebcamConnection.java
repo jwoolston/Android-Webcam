@@ -55,7 +55,7 @@ class WebcamConnection {
         VideoStreamingInterface streamingInterface = (VideoStreamingInterface) activeIAD.getInterface(1);
 
         streamManager = new StreamManager(usbDeviceConnection, streamingInterface);
-        streamManager.establishStreaming();
+        streamManager.establishStreaming(null, null);
     }
 
     private void parseAssiociationDescriptors() {
