@@ -10,6 +10,7 @@ import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbInterface;
 import com.jwoolston.android.uvc.interfaces.Descriptor.Protocol;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import timber.log.Timber;
@@ -96,10 +97,16 @@ public abstract class UvcInterface {
         connection.claimInterface(usbInterface, true);
         final LibusbError result = connection.setInterface(usbInterface);
         Timber.d("Interface selection result: %s", result);
+        Timber.d("Available Endpoints: %s", Arrays.toString(getCurrentEndpoints()));
     }
 
-    public void addEndpoint(int index, Endpoint endpoint) {
-        endpoints.get(currentSetting)[index - 1] = endpoint;
+    public void addEndpoint(int index, @NonNull Endpoint endpoint) {
+        Timber.d("Adding endpoint for current setting: %d/%d = %s", currentSetting, index, endpoint);
+        Endpoint[] array = endpoints.get(currentSetting);
+        Timber.v("Array: %s, %d", array, array.length);
+        array[index - 1] = endpoint;
+        Timber.w("Array after: %s", Arrays.toString(array));
+        endpoints.put(currentSetting, array);
     }
 
     public Endpoint getEndpoint(int index) {
@@ -108,6 +115,13 @@ public abstract class UvcInterface {
 
     public Endpoint[] getCurrentEndpoints() {
         return endpoints.get(currentSetting);
+    }
+
+    public void printEndpoints() {
+        for (int i = 0; i < endpoints.size(); ++i) {
+            Timber.v("Alternate Function %d: %s", endpoints.keyAt(i),
+                     Arrays.toString(endpoints.get(endpoints.keyAt(i))));
+        }
     }
 
     public int getInterfaceNumber() {

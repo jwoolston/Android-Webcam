@@ -91,7 +91,7 @@ public class Descriptor {
                     aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
                     uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
-                    Timber.d("%s", aEndpoint);
+                    //Timber.d("%s", aEndpoint);
                     break;
                 case CS_ENDPOINT:
                     if (aEndpoint == null) {

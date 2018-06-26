@@ -51,9 +51,9 @@ class WebcamConnection {
         usbDeviceConnection = usbManager.registerDevice(usbDevice);
         parseAssiociationDescriptors();
 
-        Timber.d("Attempting to select zero bandwidth stream interface.");
         VideoStreamingInterface streamingInterface = (VideoStreamingInterface) activeIAD.getInterface(1);
 
+        Timber.d("Establishing streaming parameters.");
         streamManager = new StreamManager(usbDeviceConnection, streamingInterface);
         streamManager.establishStreaming(null, null);
     }

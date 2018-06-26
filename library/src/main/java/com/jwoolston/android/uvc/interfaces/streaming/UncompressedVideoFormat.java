@@ -23,7 +23,7 @@ import timber.log.Timber;
  * @see <a href=http://www.usb.org/developers/docs/devclass_docs/USB_Video_Class_1_5.zip>USB Video Payload
  * Uncompressed 1.5 Specification §2.2 Table 2-1</a>
  */
-public class UncompressedVideoFormat extends VideoFormat {
+public class UncompressedVideoFormat extends VideoFormat<UncompressedVideoFrame> {
 
     private static final int LENGTH = 27;
 
@@ -53,8 +53,6 @@ public class UncompressedVideoFormat extends VideoFormat {
 
     private final String  guid;
     private final int     bitsPerPixel;
-
-    private final SparseArray<UncompressedVideoFrame> videoFrames;
 
     public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
         Timber.d("Adding video frame: %s", frame);

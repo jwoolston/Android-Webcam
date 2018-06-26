@@ -1,9 +1,11 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
+import android.util.SparseArray;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoFormat {
+public class VideoFormat<T extends VideoFrame> {
 
     protected int     formatIndex;
     protected int     numberFrames;
@@ -14,6 +16,8 @@ public class VideoFormat {
     protected boolean copyProtect;
 
     private VideoColorMatchingDescriptor mColorMatchingDescriptor;
+
+    protected SparseArray<T> videoFrames = new SparseArray<>();
 
     VideoFormat(byte[] descriptor) throws IllegalArgumentException {
 
@@ -37,6 +41,10 @@ public class VideoFormat {
 
     public int getDefaultFrameIndex() {
         return defaultFrameIndex;
+    }
+
+    public T getVideoFrame(int index) {
+        return videoFrames.get(index);
     }
 
     public int getAspectRatioX() {

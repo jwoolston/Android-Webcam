@@ -112,9 +112,11 @@ public class VideoStreamingInterface extends VideoClassInterface {
     @Override
     public void parseAlternateFunction(@NonNull UsbDeviceConnection connection, byte[] descriptor) {
         currentSetting = 0xFF & descriptor[bAlternateSetting];
+        Timber.d("Parsing alternate setting %d", currentSetting);
         usbInterfaces.put(currentSetting, getUsbInterface(connection, descriptor));
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
+        printEndpoints();
     }
 
     @Override
