@@ -1,5 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
+import android.support.annotation.NonNull;
 import com.jwoolston.android.uvc.util.Hexdump;
 
 import timber.log.Timber;
@@ -7,7 +8,7 @@ import timber.log.Timber;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class MJPEGVideoFormat extends VideoFormat {
+public class MJPEGVideoFormat extends VideoFormat<MJPEGVideoFrame> {
 
     private static final int LENGTH = 11;
 
@@ -37,7 +38,7 @@ public class MJPEGVideoFormat extends VideoFormat {
         copyProtect = descriptor[bCopyProtect] != 0;
     }
 
-    public void addMJPEGVideoFrame(MJPEGVideoFrame frame) {
+    public void addMJPEGVideoFrame(@NonNull MJPEGVideoFrame frame) {
         Timber.d("Adding video frame: %s", frame);
         videoFrames.add(frame);
     }

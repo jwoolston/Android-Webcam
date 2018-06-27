@@ -108,7 +108,7 @@ public class StreamManager implements IsochronousTransferCallback {
         Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, buffer, 20);
+                                                                             connection, 20);
             transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,9 +118,19 @@ public class StreamManager implements IsochronousTransferCallback {
     @Override
     public void onIsochronousTransferComplete(@Nullable ByteBuffer data, int result) {
         Timber.d("Callback result: %s", result > 0 ? result : LibusbError.fromNative(result));
-        final byte[] raw = new byte[data.capacity()];
+        Timber.d("Buffer limit: " + data.limit());
+        final byte[] raw = new byte[data.limit()];
         data.rewind();
         data.get(raw);
-        Timber.d("\n%s", Hexdump.dumpHexString(raw));
+        Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+        Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
+        data.rewind();
+        try {
+            IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
+                                                                             connection, 20);
+            transfer.submit(data, 500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
