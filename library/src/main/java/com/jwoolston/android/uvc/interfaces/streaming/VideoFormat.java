@@ -1,6 +1,9 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.SparseArray;
+import android.support.annotation.NonNull;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -15,20 +18,20 @@ public class VideoFormat<T extends VideoFrame> {
     protected byte    interlaceFlags;
     protected boolean copyProtect;
 
-    private VideoColorMatchingDescriptor mColorMatchingDescriptor;
+    private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
-    protected SparseArray<T> videoFrames = new SparseArray<>();
+    protected final Set<T> videoFrames = new HashSet<>();
 
-    VideoFormat(byte[] descriptor) throws IllegalArgumentException {
+    VideoFormat(@NonNull byte[] descriptor) throws IllegalArgumentException {
 
     }
 
     public void setColorMatchingDescriptor(VideoColorMatchingDescriptor descriptor) {
-        mColorMatchingDescriptor = descriptor;
+        colorMatchingDescriptor = descriptor;
     }
 
     public VideoColorMatchingDescriptor getColorMatchingDescriptor() {
-        return mColorMatchingDescriptor;
+        return colorMatchingDescriptor;
     }
 
     public int getFormatIndex() {
@@ -43,8 +46,9 @@ public class VideoFormat<T extends VideoFrame> {
         return defaultFrameIndex;
     }
 
-    public T getVideoFrame(int index) {
-        return videoFrames.get(index);
+    @NonNull
+    public Set<T> getVideoFrames() {
+        return videoFrames;
     }
 
     public int getAspectRatioX() {
