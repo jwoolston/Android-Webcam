@@ -1,6 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.SparseArray;
+import android.support.annotation.NonNull;
+
 import com.jwoolston.android.uvc.util.Hexdump;
 
 import timber.log.Timber;
@@ -54,18 +55,17 @@ public class UncompressedVideoFormat extends VideoFormat<UncompressedVideoFrame>
     private final String  guid;
     private final int     bitsPerPixel;
 
-    public void addUncompressedVideoFrame(UncompressedVideoFrame frame) {
+    public void addUncompressedVideoFrame(@NonNull UncompressedVideoFrame frame) {
         Timber.d("Adding video frame: %s", frame);
-        videoFrames.put(frame.getFrameIndex(), frame);
+        videoFrames.add(frame);
     }
 
-    public UncompressedVideoFormat(byte[] descriptor) throws IllegalArgumentException {
+    public UncompressedVideoFormat(@NonNull byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
         if (descriptor.length < LENGTH) {
             throw new IllegalArgumentException(
                     "The provided discriptor is not long enough for an Uncompressed Video Format.");
         }
-        videoFrames = new SparseArray<>();
         formatIndex = (0xFF & descriptor[bFormatIndex]);
         numberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
         byte[] GUIDBytes = new byte[16];
