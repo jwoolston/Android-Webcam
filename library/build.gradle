@@ -15,9 +15,9 @@ android {
     defaultConfig {
         versionName version
 
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion Integer.parseInt(TARGET_VERSION)
-        resourcePrefix 'webc_'
+        resourcePrefix 'uvc_'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -43,7 +43,7 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$timber_version"
 
     //api 'com.jwoolston.android:libusb:1.0.0-SNAPSHOT'
-    api 'com.jwoolston.android:libusb:1.0.68-SNAPSHOT'
+    api 'com.jwoolston.android:libusb:1.0.73-SNAPSHOT'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

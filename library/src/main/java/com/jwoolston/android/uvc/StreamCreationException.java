@@ -8,4 +8,8 @@ public final class StreamCreationException extends Exception {
     public StreamCreationException() {
         super("Failed to create the requested stream.");
     }
+
+    public StreamCreationException(Throwable throwable) {
+        super("Failed to create the requested stream.", throwable);
+    }
 }

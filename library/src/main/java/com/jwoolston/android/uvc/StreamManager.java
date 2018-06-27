@@ -14,6 +14,7 @@ import com.jwoolston.android.uvc.interfaces.streaming.VideoFrame;
 import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
 import com.jwoolston.android.uvc.requests.streaming.ProbeControl;
 import com.jwoolston.android.uvc.util.Hexdump;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import timber.log.Timber;
 
@@ -51,8 +52,8 @@ import timber.log.Timber;
  */
 public class StreamManager implements IsochronousTransferCallback {
 
-    private final UsbDeviceConnection connection;
-    private final VideoControlInterface controlInterface;
+    private final UsbDeviceConnection     connection;
+    private final VideoControlInterface   controlInterface;
     private final VideoStreamingInterface streamingInterface;
 
     public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
@@ -66,15 +67,16 @@ public class StreamManager implements IsochronousTransferCallback {
         final ProbeControl current = ProbeControl.getCurrentProbe(streamingInterface);
 
         int retval = connection.controlTransfer(current.getRequestType(), current.getRequest(),
-            current.getValue(), current.getIndex(), current.getData(), current.getLength(), 500);
+                                                current.getValue(), current.getIndex(), current.getData(),
+                                                current.getLength(), 500);
         Timber.d("Get Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
         Timber.d("Response data: %s\n", Hexdump.dumpHexString(current.getData()));
 
         final ProbeControl request = ProbeControl.setCurrentProbe(streamingInterface);
         /*final VideoFormat requestedFormat = format != null ? format : streamingInterface.getAvailableFormats().get(0);
-
-        Timber.v("Format: %s", requestedFormat);
-        final VideoFrame requestedFrame = frame != null ? frame : requestedFormat.getVideoFrame(requestedFormat
+*/
+        Timber.v("Format: %s", format);
+        /*final VideoFrame requestedFrame = frame != null ? frame : requestedFormat.getVideoFrame(requestedFormat
                                                                                                         .getDefaultFrameIndex());
         request.setFormatIndex(requestedFormat.getFormatIndex());
         request.setFrameIndex(requestedFrame.getFrameIndex());
@@ -90,7 +92,8 @@ public class StreamManager implements IsochronousTransferCallback {
         final ProbeControl commit = request.getCommit();
 
         retval = connection.controlTransfer(commit.getRequestType(), commit.getRequest(),
-                                            commit.getValue(), commit.getIndex(), commit.getData(), commit.getLength(), 500);
+                                            commit.getValue(), commit.getIndex(), commit.getData(), commit.getLength(),
+                                            500);
         Timber.d("Commit Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
 
         final RequestErrorCode requestErrorCode = RequestErrorCode.getCurrentErrorCode(controlInterface);
@@ -99,7 +102,7 @@ public class StreamManager implements IsochronousTransferCallback {
                                             requestErrorCode.getData(), requestErrorCode.getLength(), 500);
         Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
 
-        initiateStream();
+        //initiateStream();
     }
 
     public void initiateStream() {
@@ -116,21 +119,19 @@ public class StreamManager implements IsochronousTransferCallback {
     }
 
     @Override
-    public void onIsochronousTransferComplete(@Nullable ByteBuffer data, int result) {
-        Timber.d("Callback result: %s", result > 0 ? result : LibusbError.fromNative(result));
-        Timber.d("Buffer limit: " + data.limit());
-        final byte[] raw = new byte[data.limit()];
-        data.rewind();
-        data.get(raw);
-        Timber.d(" \n%s", Hexdump.dumpHexString(raw));
-        Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
-        data.rewind();
-        try {
+    public void onIsochronousTransferComplete(@Nullable ByteBuffer data, int result) throws IOException {
+        if (result < 0) {
+            throw new IOException("Failure in isochronous callback:" + LibusbError.fromNative(result));
+        } else {
+            final byte[] raw = new byte[data.limit()];
+            data.rewind();
+            data.get(raw);
+            Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
+            data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
                                                                              connection, 20);
             transfer.submit(data, 500);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

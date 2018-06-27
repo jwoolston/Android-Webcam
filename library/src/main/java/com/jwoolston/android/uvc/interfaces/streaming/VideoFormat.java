@@ -66,4 +66,13 @@ public class VideoFormat<T extends VideoFrame> {
     public boolean isCopyProtect() {
         return copyProtect;
     }
+
+    public VideoFrame getDefaultFrame() throws IllegalStateException {
+        for (VideoFrame frame : videoFrames) {
+            if (frame.getFrameIndex() == getDefaultFrameIndex()) {
+                return frame;
+            }
+        }
+        throw new IllegalStateException("No default frame was found!");
+    }
 }
