@@ -9,6 +9,7 @@ import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbManager;
 import com.jwoolston.android.uvc.interfaces.Descriptor;
 import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
+import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 
 import java.io.OutputStream;
@@ -51,10 +52,11 @@ class WebcamConnection {
         usbDeviceConnection = usbManager.registerDevice(usbDevice);
         parseAssiociationDescriptors();
 
+        VideoControlInterface controlInterface = (VideoControlInterface) activeIAD.getInterface(0);
         VideoStreamingInterface streamingInterface = (VideoStreamingInterface) activeIAD.getInterface(1);
 
         Timber.d("Establishing streaming parameters.");
-        streamManager = new StreamManager(usbDeviceConnection, streamingInterface);
+        streamManager = new StreamManager(usbDeviceConnection, controlInterface, streamingInterface);
         streamManager.establishStreaming(null, null);
     }
 

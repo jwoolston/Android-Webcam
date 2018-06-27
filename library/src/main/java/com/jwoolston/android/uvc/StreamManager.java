@@ -4,13 +4,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.jwoolston.android.libusb.LibusbError;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
-import com.jwoolston.android.libusb.UsbEndpoint;
 import com.jwoolston.android.libusb.async.IsochronousAsyncTransfer;
 import com.jwoolston.android.libusb.async.IsochronousTransferCallback;
+import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFrame;
+import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
 import com.jwoolston.android.uvc.requests.streaming.ProbeControl;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.nio.ByteBuffer;
@@ -51,10 +52,13 @@ import timber.log.Timber;
 public class StreamManager implements IsochronousTransferCallback {
 
     private final UsbDeviceConnection connection;
+    private final VideoControlInterface controlInterface;
     private final VideoStreamingInterface streamingInterface;
 
-    public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoStreamingInterface streamingInterface) {
+    public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
+                         @NonNull VideoStreamingInterface streamingInterface) {
         this.connection = connection;
+        this.controlInterface = controlInterface;
         this.streamingInterface = streamingInterface;
     }
 
@@ -89,6 +93,12 @@ public class StreamManager implements IsochronousTransferCallback {
                                             commit.getValue(), commit.getIndex(), commit.getData(), commit.getLength(), 500);
         Timber.d("Commit Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
 
+        final RequestErrorCode requestErrorCode = RequestErrorCode.getCurrentErrorCode(controlInterface);
+        retval = connection.controlTransfer(requestErrorCode.getRequestType(), requestErrorCode.getRequest(),
+                                            requestErrorCode.getValue(), requestErrorCode.getIndex(),
+                                            requestErrorCode.getData(), requestErrorCode.getLength(), 500);
+        Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
+
         initiateStream();
     }
 
@@ -96,13 +106,10 @@ public class StreamManager implements IsochronousTransferCallback {
         streamingInterface.selectAlternateSetting(connection, 6);
         ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
         Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
-        UsbEndpoint usbEndpoint = streamingInterface.getUsbInterface().getEndpoint(0);
-        streamingInterface.printEndpoints();
         try {
-            IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, usbEndpoint,
+            IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
                                                                              connection, buffer, 20);
-            int result = connection.isochronousTransfer(this, transfer, usbEndpoint, buffer, 500);
-            Timber.d("Submit result: %s", result > 0 ? result : LibusbError.fromNative(result));
+            transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
         }

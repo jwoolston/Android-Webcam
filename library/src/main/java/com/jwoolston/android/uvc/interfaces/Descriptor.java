@@ -46,7 +46,6 @@ public class Descriptor {
                     state = State.IAD;
                     iad = InterfaceAssociationDescriptor.parseIAD(desc);
                     iads.add(iad);
-                    Timber.d("%s", iad);
                     break;
                 case INTERFACE:
                     if (state != State.IAD && state != State.CLASS_INTERFACE && state != State.STANDARD_ENDPOINT
@@ -60,6 +59,7 @@ public class Descriptor {
                     if (iad != null && uvcInterface != null) {
                         final UvcInterface existing = iad.getInterface(uvcInterface.getInterfaceNumber());
                         if (existing != null) {
+                            uvcInterface = existing;
                             existing.parseAlternateFunction(connection, desc);
                         } else {
                             // We need to save the old one
@@ -91,7 +91,6 @@ public class Descriptor {
                     aEndpoint = Endpoint.parseDescriptor(uvcInterface.getUsbInterface(), desc);
                     uvcInterface.addEndpoint(endpointIndex, aEndpoint);
                     ++endpointIndex;
-                    //Timber.d("%s", aEndpoint);
                     break;
                 case CS_ENDPOINT:
                     if (aEndpoint == null) {

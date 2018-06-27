@@ -90,8 +90,7 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 } catch (ClassCastException e) {
                     throw new IllegalArgumentException(
                             "The parsed MJPEG frame descriptor is not valid for the previously parsed Format: "
-                            + lastFormat
-                                    .getClass().getName());
+                            + lastFormat.getClass().getName());
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
@@ -112,11 +111,9 @@ public class VideoStreamingInterface extends VideoClassInterface {
     @Override
     public void parseAlternateFunction(@NonNull UsbDeviceConnection connection, byte[] descriptor) {
         currentSetting = 0xFF & descriptor[bAlternateSetting];
-        Timber.d("Parsing alternate setting %d", currentSetting);
         usbInterfaces.put(currentSetting, getUsbInterface(connection, descriptor));
         final int endpointCount = (0xFF & descriptor[bNumEndpoints]);
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
-        printEndpoints();
     }
 
     @Override
@@ -160,7 +157,7 @@ public class VideoStreamingInterface extends VideoClassInterface {
 
         public final byte code;
 
-        private VS_INTERFACE_SUBTYPE(int code) {
+        VS_INTERFACE_SUBTYPE(int code) {
             this.code = (byte) (0xFF & code);
         }
 
