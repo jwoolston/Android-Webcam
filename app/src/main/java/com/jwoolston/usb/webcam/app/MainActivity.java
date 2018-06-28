@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private UsbDevice openDevice;
 
     private Webcam            webcam;
-    private List<VideoFormat> formats;
+    private List<VideoFormat<?>> formats;
     private BroadcastReceiver deviceDisconnectedReceiver;
 
     @Override
