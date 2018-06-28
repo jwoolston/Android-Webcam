@@ -8,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Size;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.requests.Request;
+import com.jwoolston.android.uvc.util.Hexdump;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * The Probe control allows retrieval and negotiation of streaming parameters.
@@ -102,11 +104,12 @@ public class ProbeControl extends VSInterfaceControlRequest {
                          @NonNull @Size(value = LENGTH_PROBE_DATA) byte[] data) {
         super(request, commit ? VS_COMMIT_CONTROL : VS_PROBE_CONTROL, index, data);
         wrapper = ByteBuffer.wrap(data);
+        wrapper.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
      * Retrieves a copy of the current Probe parameters configured for submission as a Commit.
-     * 
+     *
      * @return A new {@link ProbeControl} message structure with the control selector specified as
      * {@link ControlSelector#VS_COMMIT_CONTROL} and the request type being {@link Request#SET_CUR}.
      */
@@ -872,5 +875,13 @@ public class ProbeControl extends VSInterfaceControlRequest {
      */
     public void setLayoutPerStream(long layout) {
         wrapper.putLong(Index_bmLayoutPerStream, layout);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ProbeControl{");
+        sb.append("wrapper=\n").append(Hexdump.dumpHexString(wrapper.array())).append('\n');
+        sb.append('}');
+        return sb.toString();
     }
 }

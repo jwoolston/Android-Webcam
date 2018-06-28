@@ -34,7 +34,7 @@ class WebcamConnection {
 
     private VideoControlInterface   controlInterface;
     private VideoStreamingInterface streamingInterface;
-    private StreamManager streamManager;
+    private StreamManager           streamManager;
 
     WebcamConnection(@NonNull Context context, @NonNull android.hardware.usb.UsbDevice usbDevice)
             throws UnknownDeviceException, DevicePermissionDenied {
@@ -83,12 +83,8 @@ class WebcamConnection {
     Uri beginConnectionStreaming(@NonNull Context context, @NonNull VideoFormat format) throws StreamCreationException {
         Timber.d("Establishing streaming parameters.");
         streamManager = new StreamManager(usbDeviceConnection, controlInterface, streamingInterface);
-        try {
-            streamManager.establishStreaming(format, format.getDefaultFrame());
-            return null;
-        } catch (IllegalStateException e) {
-            throw new StreamCreationException(e);
-        }
+        streamManager.establishStreaming(format, format.getDefaultFrame());
+        return null;
     }
 
     /**

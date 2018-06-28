@@ -12,6 +12,7 @@ import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFrame;
 import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
+import com.jwoolston.android.uvc.requests.streaming.FramingInfo;
 import com.jwoolston.android.uvc.requests.streaming.ProbeControl;
 import com.jwoolston.android.uvc.util.Hexdump;
 import java.io.IOException;
@@ -63,51 +64,65 @@ public class StreamManager implements IsochronousTransferCallback {
         this.streamingInterface = streamingInterface;
     }
 
-    public void establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) {
-        final ProbeControl current = ProbeControl.getCurrentProbe(streamingInterface);
-
-        int retval = connection.controlTransfer(current.getRequestType(), current.getRequest(),
-                                                current.getValue(), current.getIndex(), current.getData(),
-                                                current.getLength(), 500);
-        Timber.d("Get Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
-        Timber.d("Response data: %s\n", Hexdump.dumpHexString(current.getData()));
-
+    public void establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) throws
+                                                                                             StreamCreationException {
         final ProbeControl request = ProbeControl.setCurrentProbe(streamingInterface);
-        /*final VideoFormat requestedFormat = format != null ? format : streamingInterface.getAvailableFormats().get(0);
-*/
-        Timber.v("Format: %s", format);
-        /*final VideoFrame requestedFrame = frame != null ? frame : requestedFormat.getVideoFrame(requestedFormat
-                                                                                                        .getDefaultFrameIndex());
+        final VideoFormat requestedFormat = format != null ? format : streamingInterface.getAvailableFormats().get(0);
+        final VideoFrame requestedFrame = frame != null ? frame : requestedFormat.getDefaultFrame();
+
+        Timber.v("Using video format: %s", format);
+        Timber.v("Using video frame: %s", frame);
         request.setFormatIndex(requestedFormat.getFormatIndex());
         request.setFrameIndex(requestedFrame.getFrameIndex());
         request.setFrameInterval(requestedFrame.getDefaultFrameInterval());
-        request.setMaxVideoFrameSize(614400);*/
+        FramingInfo info = new FramingInfo();
+        info.setFrameIdRequired(true);
+        info.setEndOfFrameAllowed(true);
+        request.setFramingInfo(info);
 
-        request.setFormatIndex(2);
-        request.setFrameIndex(2);
-        request.setFrameInterval(333333);
-        request.setMaxVideoFrameSize(1843200);
-        request.setMaxPayloadTransferSize(3072);
+        int retval = connection.controlTransfer(request.getRequestType(), request.getRequest(), request.getValue(),
+                                                request.getIndex(), request.getData(), request.getLength(), 500);
 
-        final ProbeControl commit = request.getCommit();
+        if (retval < 0) {
+            throw new StreamCreationException("Probe set request failed: " + LibusbError.fromNative(retval));
+        }
+
+        final ProbeControl current = ProbeControl.getCurrentProbe(streamingInterface);
+        retval = connection.controlTransfer(current.getRequestType(), current.getRequest(), current.getValue(),
+                                            current.getIndex(), current.getData(), current.getLength(), 500);
+        if (retval < 0) {
+            throw new StreamCreationException("Probe get request failed: " + LibusbError.fromNative(retval));
+        }
+
+        int maxPayload = current.getMaxPayloadTransferSize();
+        int maxFrameSize = current.getMaxVideoFrameSize();
+
+        final ProbeControl commit = current.getCommit();
 
         retval = connection.controlTransfer(commit.getRequestType(), commit.getRequest(),
                                             commit.getValue(), commit.getIndex(), commit.getData(), commit.getLength(),
                                             500);
-        Timber.d("Commit Result: %s", (retval > 0 ? retval : LibusbError.fromNative(retval)));
+        if (retval < 0) {
+            throw new StreamCreationException("Commit request failed: " + LibusbError.fromNative(retval));
+        }
 
         final RequestErrorCode requestErrorCode = RequestErrorCode.getCurrentErrorCode(controlInterface);
         retval = connection.controlTransfer(requestErrorCode.getRequestType(), requestErrorCode.getRequest(),
                                             requestErrorCode.getValue(), requestErrorCode.getIndex(),
                                             requestErrorCode.getData(), requestErrorCode.getLength(), 500);
+        if (retval < 0 || requestErrorCode.getData()[0] != 0) {
+            throw new StreamCreationException("Error state failed: " + (retval < 0 ? LibusbError.fromNative(retval)
+            : "Current error code: 0x" + Hexdump.toHexString(requestErrorCode.getData()[0])));
+        }
+
         Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
 
-        //initiateStream();
+        initiateStream(maxPayload, maxFrameSize);
     }
 
-    public void initiateStream() {
+    public void initiateStream(int maxPayload, int maxFrameSize) {
         streamingInterface.selectAlternateSetting(connection, 6);
-        ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(maxPayload);
         Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
