@@ -1,5 +1,7 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
+import com.jwoolston.android.uvc.util.ArrayTools;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
@@ -8,12 +10,12 @@ public class VideoFrame {
     private static final int LENGTH_INTERVAL_TYPE_0         = 38;
     private static final int MIN_LENGTH_INTERVAL_TYPE_NOT_0 = 26; //26+4*n
 
-    private static final int bFrameIndex                    = 3;
-    private static final int bmCapabilites                  = 4;
-    private static final int wWidth                         = 5;
-    private static final int wHeight                        = 7;
-    private static final int dwMinBitRate                   = 9;
-    private static final int dwMaxBitRate                   = 13;
+    private static final int bFrameIndex   = 3;
+    private static final int bmCapabilites = 4;
+    private static final int wWidth        = 5;
+    private static final int wHeight       = 7;
+    private static final int dwMinBitRate  = 9;
+    private static final int dwMaxBitRate  = 13;
 
     private static final int dwMaxVideoFrameBufferSize = 17;
     private static final int dwDefaultFrameInterval    = 21;
@@ -27,125 +29,126 @@ public class VideoFrame {
     // Discrete frame intervals
     private static final int dwFrameInterval = 26;
 
-    private final int     mFrameIndex;
-    private final boolean mStillImageSupported;
-    private final boolean mFixedFrameRateEnabled;
-    private final int     mWidth;
-    private final int     mHeight;
-    private final int     mMinBitRate;
-    private final int     mMaxBitRate;
-    private final int     mDefaultFrameInterval;
-    private final int     mFrameIntervalType;
+    private final int     frameIndex;
+    private final boolean stillImageSupported;
+    private final boolean fixedFrameRateEnabled;
+    private final int     width;
+    private final int     height;
+    private final int     minBitRate;
+    private final int     maxBitRate;
+    private final int     defaultFrameInterval;
+    private final int     frameIntervalType;
 
     // Continuous frame intervals
-    private final int mMinFrameInterval; // Shortest frame interval supported in 100 ns units.
-    private final int mMaxFrameInterval; // Longest frame interval supported in 100 ns units.
-    private final int mFrameIntervalStep; // Frame interval step in 100 ns units.
+    private final int minFrameInterval; // Shortest frame interval supported in 100 ns units.
+    private final int maxFrameInterval; // Longest frame interval supported in 100 ns units.
+    private final int frameIntervalStep; // Frame interval step in 100 ns units.
 
     // Discrete frame intervals
-    private final int[] mFrameIntervals;
+    private final int[] frameIntervals;
 
     VideoFrame(byte[] descriptor) throws IllegalArgumentException {
-        mFrameIntervalType = (0xFF & descriptor[bFrameIntervalType]);
-        if (mFrameIntervalType == 0 && descriptor.length < LENGTH_INTERVAL_TYPE_0) throw new IllegalArgumentException("The provided descriptor is not long enough to be an Uncompressed Video Frame.");
-        if (mFrameIntervalType != 0 && descriptor.length < (MIN_LENGTH_INTERVAL_TYPE_NOT_0 + 4 * mFrameIntervalType))
-            throw new IllegalArgumentException("The provided descriptor is not long enough to be an Uncompressed Video Frame.");
-        mFrameIndex = (0xFF & descriptor[bFrameIndex]);
-        mStillImageSupported = (descriptor[bmCapabilites] & 0x01) != 0;
-        mFixedFrameRateEnabled = (descriptor[bmCapabilites] & 0x02) != 0;
+        frameIntervalType = (0xFF & descriptor[bFrameIntervalType]);
+        if (frameIntervalType == 0 && descriptor.length < LENGTH_INTERVAL_TYPE_0) {
+            throw new IllegalArgumentException(
+                    "The provided descriptor is not long enough to be an Uncompressed Video Frame.");
+        }
+        if (frameIntervalType != 0 && descriptor.length < (MIN_LENGTH_INTERVAL_TYPE_NOT_0 + 4 * frameIntervalType)) {
+            throw new IllegalArgumentException(
+                    "The provided descriptor is not long enough to be an Uncompressed Video Frame.");
+        }
+        frameIndex = (0xFF & descriptor[bFrameIndex]);
+        stillImageSupported = (descriptor[bmCapabilites] & 0x01) != 0;
+        fixedFrameRateEnabled = (descriptor[bmCapabilites] & 0x02) != 0;
 
-        mWidth = ((0xFF & descriptor[wWidth]) << 8) | (0xFF & descriptor[wWidth + 1]);
-        mHeight = ((0xFF & descriptor[wHeight]) << 8) | (0xFF & descriptor[wHeight + 1]);
+        width = ArrayTools.extractShort(descriptor, wWidth);
+        height = ArrayTools.extractShort(descriptor, wHeight);
 
-        mMinBitRate = ((0xFF & descriptor[dwMinBitRate]) << 24) | ((0xFF & descriptor[dwMinBitRate + 1]) << 16)
-                | ((0xFF & descriptor[dwMinBitRate + 2]) << 8) | (0xFF & descriptor[dwMinBitRate + 3]);
-        mMaxBitRate = ((0xFF & descriptor[dwMaxBitRate]) << 24) | ((0xFF & descriptor[dwMaxBitRate + 1]) << 16)
-                | ((0xFF & descriptor[dwMaxBitRate + 2]) << 8) | (0xFF & descriptor[dwMaxBitRate + 3]);
-        mDefaultFrameInterval = ((0xFF & descriptor[dwDefaultFrameInterval]) << 24) | ((0xFF & descriptor[dwDefaultFrameInterval + 1]) << 16)
-                | ((0xFF & descriptor[dwDefaultFrameInterval + 2]) << 8) | (0xFF & descriptor[dwDefaultFrameInterval + 3]);
+        minBitRate = ArrayTools.extractInteger(descriptor , dwMinBitRate);
+        maxBitRate = ArrayTools.extractInteger(descriptor, dwMaxBitRate);
+        defaultFrameInterval = ((0xFF & descriptor[dwDefaultFrameInterval + 3]) << 24)
+                               | ((0xFF & descriptor[dwDefaultFrameInterval + 2]) << 16)
+                               | ((0xFF & descriptor[dwDefaultFrameInterval + 1]) << 8)
+                               | (0xFF & descriptor[dwDefaultFrameInterval]);
 
-        if (mFrameIntervalType == 0) {
-            mMinFrameInterval = ((0xFF & descriptor[dwMinFrameInterval]) << 24) | ((0xFF & descriptor[dwMinFrameInterval + 1]) << 16)
-                    | ((0xFF & descriptor[dwMinFrameInterval + 2]) << 8) | (0xFF & descriptor[dwMinFrameInterval + 3]);
-            mMaxFrameInterval = ((0xFF & descriptor[dwMaxFrameInterval]) << 24) | ((0xFF & descriptor[dwMaxFrameInterval + 1]) << 16)
-                    | ((0xFF & descriptor[dwMaxFrameInterval + 2]) << 8) | (0xFF & descriptor[dwMaxFrameInterval + 3]);
-            mFrameIntervalStep = ((0xFF & descriptor[dwFrameIntervalStep]) << 24) | ((0xFF & descriptor[dwFrameIntervalStep + 1]) << 16)
-                    | ((0xFF & descriptor[dwFrameIntervalStep + 2]) << 8) | (0xFF & descriptor[dwFrameIntervalStep + 3]);
-            mFrameIntervals = null;
+        if (frameIntervalType == 0) {
+            minFrameInterval = ArrayTools.extractInteger(descriptor, dwMinFrameInterval);
+            maxFrameInterval = ArrayTools.extractInteger(descriptor, dwMaxFrameInterval);
+            frameIntervalStep = ArrayTools.extractInteger(descriptor, dwFrameIntervalStep);
+            frameIntervals = null;
         } else {
-            mFrameIntervals = new int[mFrameIntervalType];
-            mMinFrameInterval = 0;
-            mMaxFrameInterval = 0;
-            mFrameIntervalStep = 0;
-            for (int i = 0; i < mFrameIntervalType; ++i) {
+            frameIntervals = new int[frameIntervalType];
+            minFrameInterval = 0;
+            maxFrameInterval = 0;
+            frameIntervalStep = 0;
+            for (int i = 0; i < frameIntervalType; ++i) {
                 final int index = dwFrameInterval + 4 * i - 4;
-                mFrameIntervals[i] = ((0xFF & descriptor[index]) << 24) | ((0xFF & descriptor[index + 1]) << 16)
-                        | ((0xFF & descriptor[index + 2]) << 8) | (0xFF & descriptor[index + 3]);
+                frameIntervals[i] = ArrayTools.extractInteger(descriptor, index);
             }
         }
     }
 
     protected int[] getFrameIntervals() {
-        return mFrameIntervals;
+        return frameIntervals;
     }
 
     public boolean getStillImageSupported() {
-        return mStillImageSupported;
+        return stillImageSupported;
     }
 
     public boolean getFixedFrameRateEnabled() {
-        return mFixedFrameRateEnabled;
+        return fixedFrameRateEnabled;
     }
 
     public int getFrameIndex() {
-        return mFrameIndex;
+        return frameIndex;
     }
 
     public boolean isStillImageSupported() {
-        return mStillImageSupported;
+        return stillImageSupported;
     }
 
     public boolean isFixedFrameRateEnabled() {
-        return mFixedFrameRateEnabled;
+        return fixedFrameRateEnabled;
     }
 
     public int getWidth() {
-        return mWidth;
+        return width;
     }
 
     public int getHeight() {
-        return mHeight;
+        return height;
     }
 
     public int getMinBitRate() {
-        return mMinBitRate;
+        return minBitRate;
     }
 
     public int getMaxBitRate() {
-        return mMaxBitRate;
+        return maxBitRate;
     }
 
     public int getDefaultFrameInterval() {
-        return mDefaultFrameInterval;
+        return defaultFrameInterval;
     }
 
     public int getFrameIntervalType() {
-        return mFrameIntervalType;
+        return frameIntervalType;
     }
 
     public int getMinFrameInterval() {
-        return mMinFrameInterval;
+        return minFrameInterval;
     }
 
     public int getMaxFrameInterval() {
-        return mMaxFrameInterval;
+        return maxFrameInterval;
     }
 
     public int getFrameIntervalStep() {
-        return mFrameIntervalStep;
+        return frameIntervalStep;
     }
 
     public int getFrameInterval(int index) {
-        return mFrameIntervals[index];
+        return frameIntervals[index];
     }
 }

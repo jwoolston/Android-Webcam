@@ -90,8 +90,7 @@ public class VideoStreamingInterface extends VideoClassInterface {
                 } catch (ClassCastException e) {
                     throw new IllegalArgumentException(
                             "The parsed MJPEG frame descriptor is not valid for the previously parsed Format: "
-                            + lastFormat
-                                    .getClass().getName());
+                            + lastFormat.getClass().getName());
                 }
                 break;
             case VS_STILL_IMAGE_FRAME:
@@ -158,7 +157,7 @@ public class VideoStreamingInterface extends VideoClassInterface {
 
         public final byte code;
 
-        private VS_INTERFACE_SUBTYPE(int code) {
+        VS_INTERFACE_SUBTYPE(int code) {
             this.code = (byte) (0xFF & code);
         }
 

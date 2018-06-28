@@ -5,6 +5,8 @@ import android.hardware.usb.UsbDevice;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
+import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
+import java.util.List;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -33,11 +35,19 @@ class WebcamImpl implements Webcam {
         return webcamConnection.isConnected();
     }
 
-    @Override
-    public
+    /**
+     * Retrieves the list of available {@link VideoFormat}s.
+     *
+     * @return The available {@link VideoFormat}s on the device.
+     */
+    public List<VideoFormat> getAvailableFormats() {
+        return webcamConnection.getAvailableFormats();
+    }
+
     @NonNull
-    Uri beginStreaming(@NonNull Context context) throws StreamCreationException {
-        return webcamConnection.beginConnectionStreaming(context);
+    @Override
+    public Uri beginStreaming(@NonNull Context context, @NonNull VideoFormat format) throws StreamCreationException {
+        return webcamConnection.beginConnectionStreaming(context, format);
     }
 
     public void terminateStreaming(@NonNull Context context) {

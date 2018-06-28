@@ -1,6 +1,10 @@
 package com.jwoolston.android.uvc.requests;
 
 import android.support.annotation.NonNull;
+
+import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
+import com.jwoolston.android.uvc.interfaces.terminals.VideoTerminal;
+
 import java.util.Locale;
 
 /**
@@ -21,6 +25,10 @@ public abstract class VideoClassRequest {
     private short wValue;
     private short wIndex;
     private byte[] data;
+
+    protected static short getIndex(VideoTerminal terminal, VideoClassInterface classInterface) {
+        return (short) (((0xFF & terminal.getTerminalID()) << 8) | (0xFF & classInterface.getUsbInterface().getId()));
+    }
 
     protected VideoClassRequest(byte requestType, @NonNull Request request, short value, short index,
                                 @NonNull byte[] data) {

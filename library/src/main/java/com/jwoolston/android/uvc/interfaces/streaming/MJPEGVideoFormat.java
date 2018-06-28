@@ -1,7 +1,6 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
-import android.util.SparseArray;
-
+import android.support.annotation.NonNull;
 import com.jwoolston.android.uvc.util.Hexdump;
 
 import timber.log.Timber;
@@ -9,7 +8,7 @@ import timber.log.Timber;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class MJPEGVideoFormat extends VideoFormat {
+public class MJPEGVideoFormat extends VideoFormat<MJPEGVideoFrame> {
 
     private static final int LENGTH = 11;
 
@@ -22,16 +21,16 @@ public class MJPEGVideoFormat extends VideoFormat {
     private static final int bmInterlaceFlags = 9;
     private static final int bCopyProtect = 10;
 
-    private final boolean mFixedSampleSize;
-    private final SparseArray<MJPEGVideoFrame> mVideoFrames;
+    private final boolean fixedSampleSize;
 
     public MJPEGVideoFormat(byte[] descriptor) throws IllegalArgumentException {
         super(descriptor);
-        if (descriptor.length < LENGTH) throw new IllegalArgumentException("The provided discriptor is not long enough for an MJPEG Video Format.");
-        mVideoFrames = new SparseArray<>();
+        if (descriptor.length < LENGTH) {
+            throw new IllegalArgumentException("The provided descriptor is not long enough for an MJPEG Video Format.");
+        }
         formatIndex = (0xFF & descriptor[bFormatIndex]);
         numberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
-        mFixedSampleSize = descriptor[bmFlags] != 0;
+        fixedSampleSize = descriptor[bmFlags] != 0;
         defaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
         aspectRatioX = (0xFF & descriptor[bAspectRatioX]);
         aspectRatioY = (0xFF & descriptor[bAspectRatioY]);
@@ -39,13 +38,13 @@ public class MJPEGVideoFormat extends VideoFormat {
         copyProtect = descriptor[bCopyProtect] != 0;
     }
 
-    public void addMJPEGVideoFrame(MJPEGVideoFrame frame) {
+    public void addMJPEGVideoFrame(@NonNull MJPEGVideoFrame frame) {
         Timber.d("Adding video frame: %s", frame);
-        mVideoFrames.put(frame.getFrameIndex(), frame);
+        videoFrames.add(frame);
     }
 
     public boolean getFixedSampleSize() {
-        return mFixedSampleSize;
+        return fixedSampleSize;
     }
 
     @Override
@@ -53,7 +52,7 @@ public class MJPEGVideoFormat extends VideoFormat {
         return "MJPEGVideoFormat{" +
                "formatIndex=" + formatIndex +
                ", numberFrames=" + numberFrames +
-               ", mFixedSampleSize=" + mFixedSampleSize +
+               ", fixedSampleSize=" + fixedSampleSize +
                ", defaultFrameIndex=" + defaultFrameIndex +
                ", AspectRatio=" + aspectRatioX + ":" + aspectRatioY +
                ", interlaceFlags=0x" + Hexdump.toHexString(interlaceFlags) +
