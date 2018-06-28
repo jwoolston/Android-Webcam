@@ -1,6 +1,9 @@
 package com.jwoolston.android.uvc.interfaces.terminals;
 
+import android.support.annotation.NonNull;
+
 import com.jwoolston.android.uvc.interfaces.VideoClassInterface;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -109,8 +112,13 @@ public class CameraTerminal extends VideoInputTerminal {
         return ocularFocalLength;
     }
 
-    public boolean hasControl(Control control) {
+    public boolean hasControl(@NonNull Control control) {
         return controlSet.contains(control);
+    }
+
+    @NonNull
+    public Set<Control> getControlSet() {
+        return controlSet;
     }
 
     @Override
@@ -134,30 +142,32 @@ public class CameraTerminal extends VideoInputTerminal {
     }
 
     public static enum Control {
-        SCANNING_MODE,
-        AUTO_EXPOSURE_MODE,
-        AUTO_EXPOSURE_PRIORITY,
-        EXPOSURE_TIME_ABSOLUTE,
-        EXPOSURE_TIME_RELATIVE,
-        FOCUS_ABSOLUTE,
-        FOCUS_RELATIVE,
-        IRIS_ABSOLUTE,
-        IRIS_RELATIVE,
-        ZOOM_ABSOLUTE,
-        ZOOM_RELATIVE,
-        PAN_TILT_ABSOLUTE,
-        PAN_TILT_RELATIVE,
-        ROLL_ABSOLUTE,
-        ROLL_RELATIVE,
-        RESERVED_0,
-        RESERVED_1,
-        FOCUS_AUTO,
-        PRIVACY,
-        FOCUS_SIMPLE,
-        WINDOW,
-        REGION_OF_INTEREST,
-        RESERVED_2,
-        RESERVED_3;
+        SCANNING_MODE((byte) 0x01),
+        AUTO_EXPOSURE_MODE((byte) 0x02),
+        AUTO_EXPOSURE_PRIORITY((byte) 0x03),
+        EXPOSURE_TIME_ABSOLUTE((byte) 0x04),
+        EXPOSURE_TIME_RELATIVE((byte) 0x05),
+        FOCUS_ABSOLUTE((byte) 0x06),
+        FOCUS_RELATIVE((byte) 0x07),
+        FOCUS_AUTO((byte) 0x08),
+        IRIS_ABSOLUTE((byte) 0x09),
+        IRIS_RELATIVE((byte) 0x0A),
+        ZOOM_ABSOLUTE((byte) 0x0B),
+        ZOOM_RELATIVE((byte) 0x0C),
+        PAN_TILT_ABSOLUTE((byte) 0x0D),
+        PAN_TILT_RELATIVE((byte) 0x0E),
+        ROLL_ABSOLUTE((byte) 0x0F),
+        ROLL_RELATIVE((byte) 0x10),
+        PRIVACY((byte) 0x11),
+        FOCUS_SIMPLE((byte) 0x12),
+        WINDOW((byte) 0x13),
+        REGION_OF_INTEREST((byte) 0x14);
+
+        public final byte code;
+
+        Control(byte code) {
+            this.code = code;
+        }
 
         public static Control controlFromIndex(int i) {
             final Control[] values = Control.values();
@@ -171,5 +181,10 @@ public class CameraTerminal extends VideoInputTerminal {
             }
             return null;
         }
+
+        public short valueFromControl() {
+            return ((short) (0xFFFF & (code << 8)));
+        }
     }
+
 }

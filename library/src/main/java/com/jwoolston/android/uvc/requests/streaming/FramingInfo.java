@@ -54,27 +54,27 @@ public final class FramingInfo {
         return bitSet.get(Index_frameIdRequired);
     }
 
-    public boolean getKeyFrameRate() {
+    public boolean getEndOfFrameAllowed() {
         return bitSet.get(Index_endOfFrameAllowed);
     }
 
-    public boolean getPFrameRate() {
+    public boolean getEndOfSliceAllowed() {
         return bitSet.get(Index_endOfSliceAllowed);
     }
 
 
-    public void setFrameInterval(boolean state) {
+    public void setFrameIdRequired(boolean state) {
         bitSet.set(Index_frameIdRequired, state);
     }
 
-    public void setKeyFrameRate(boolean state) {
+    public void setEndOfFrameAllowed(boolean state) {
         if (state) {
             bitSet.set(Index_frameIdRequired, true);
         }
         bitSet.set(Index_endOfFrameAllowed, state);
     }
 
-    public void setPFrameRate(boolean state) {
+    public void setEndOfSliceAllowed(boolean state) {
         if (state) {
             bitSet.set(Index_frameIdRequired, true);
         }

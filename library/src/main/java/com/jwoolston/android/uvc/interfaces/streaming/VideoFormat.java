@@ -1,9 +1,14 @@
 package com.jwoolston.android.uvc.interfaces.streaming;
 
+import android.support.annotation.NonNull;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class VideoFormat {
+public class VideoFormat<T extends VideoFrame> {
 
     protected int     formatIndex;
     protected int     numberFrames;
@@ -13,18 +18,20 @@ public class VideoFormat {
     protected byte    interlaceFlags;
     protected boolean copyProtect;
 
-    private VideoColorMatchingDescriptor mColorMatchingDescriptor;
+    private VideoColorMatchingDescriptor colorMatchingDescriptor;
 
-    VideoFormat(byte[] descriptor) throws IllegalArgumentException {
+    protected final Set<T> videoFrames = new HashSet<>();
+
+    VideoFormat(@NonNull byte[] descriptor) throws IllegalArgumentException {
 
     }
 
     public void setColorMatchingDescriptor(VideoColorMatchingDescriptor descriptor) {
-        mColorMatchingDescriptor = descriptor;
+        colorMatchingDescriptor = descriptor;
     }
 
     public VideoColorMatchingDescriptor getColorMatchingDescriptor() {
-        return mColorMatchingDescriptor;
+        return colorMatchingDescriptor;
     }
 
     public int getFormatIndex() {
@@ -37,6 +44,11 @@ public class VideoFormat {
 
     public int getDefaultFrameIndex() {
         return defaultFrameIndex;
+    }
+
+    @NonNull
+    public Set<T> getVideoFrames() {
+        return videoFrames;
     }
 
     public int getAspectRatioX() {
@@ -53,5 +65,14 @@ public class VideoFormat {
 
     public boolean isCopyProtect() {
         return copyProtect;
+    }
+
+    public VideoFrame getDefaultFrame() throws IllegalStateException {
+        for (VideoFrame frame : videoFrames) {
+            if (frame.getFrameIndex() == getDefaultFrameIndex()) {
+                return frame;
+            }
+        }
+        throw new IllegalStateException("No default frame was found!");
     }
 }

@@ -57,8 +57,10 @@ public abstract class UvcInterface {
                     // accessable interface, so we
                     // treat them separately
                     case SC_VIDEOCONTROL:
+                        Timber.i("Creating control interface");
                         return VideoControlInterface.parseVideoControlInterface(connection, descriptor);
                     case SC_VIDEOSTREAMING:
+                        Timber.i("Creating streaming interface.");
                         return VideoStreamingInterface.parseVideoStreamingInterface(connection, descriptor);
                     default:
                         throw new IllegalArgumentException(
@@ -86,19 +88,18 @@ public abstract class UvcInterface {
         endpoints.put(currentSetting, new Endpoint[endpointCount]);
     }
 
-    public void selectAlternateSetting(@NonNull UsbDeviceConnection connection, int alternateSetting) throws
-                                                                                                      UnsupportedOperationException {
+    public LibusbError selectAlternateSetting(@NonNull UsbDeviceConnection connection, int alternateSetting)
+            throws UnsupportedOperationException {
         currentSetting = alternateSetting;
         final UsbInterface usbInterface = getUsbInterface();
         if (usbInterface == null) {
             throw new UnsupportedOperationException("There is not alternate setting: " + alternateSetting);
         }
         connection.claimInterface(usbInterface, true);
-        final LibusbError result = connection.setInterface(usbInterface);
-        Timber.d("Interface selection result: %s", result);
+        return connection.setInterface(usbInterface);
     }
 
-    public void addEndpoint(int index, Endpoint endpoint) {
+    public void addEndpoint(int index, @NonNull Endpoint endpoint) {
         endpoints.get(currentSetting)[index - 1] = endpoint;
     }
 

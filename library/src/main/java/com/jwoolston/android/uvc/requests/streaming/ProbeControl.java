@@ -1,5 +1,6 @@
 package com.jwoolston.android.uvc.requests.streaming;
 
+import static com.jwoolston.android.uvc.requests.streaming.VSInterfaceControlRequest.ControlSelector.VS_COMMIT_CONTROL;
 import static com.jwoolston.android.uvc.requests.streaming.VSInterfaceControlRequest.ControlSelector.VS_PROBE_CONTROL;
 
 import android.support.annotation.IntRange;
@@ -7,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Size;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.requests.Request;
+import com.jwoolston.android.uvc.util.Hexdump;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * The Probe control allows retrieval and negotiation of streaming parameters.
@@ -50,55 +53,69 @@ public class ProbeControl extends VSInterfaceControlRequest {
 
     @NonNull
     public static ProbeControl getCurrentProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_CUR, (short) (0xFF & streamingInterface.getInterfaceNumber()),
+        return new ProbeControl(Request.GET_CUR, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
                                 new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getMinProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_MIN, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_MIN, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getMaxProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_MAX, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_MAX, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getResolutionProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_RES, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_RES, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getDefaultProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_DEF, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_DEF, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getLengthProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_LEN, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_LEN, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl getInfoProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.GET_INFO, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.GET_INFO, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
     @NonNull
     public static ProbeControl setCurrentProbe(@NonNull VideoStreamingInterface streamingInterface) {
-        return new ProbeControl(Request.SET_CUR, (short) (0xFF & streamingInterface.getInterfaceNumber()),
-            new byte[LENGTH_PROBE_DATA]);
+        return new ProbeControl(Request.SET_CUR, (short) (0xFF & streamingInterface.getInterfaceNumber()), false,
+                                new byte[LENGTH_PROBE_DATA]);
     }
 
-    private ProbeControl(@NonNull Request request, short index, @NonNull @Size(value = LENGTH_PROBE_DATA) byte[] data) {
-        super(request, VS_PROBE_CONTROL, index, data);
+
+    private ProbeControl(@NonNull Request request, short index, boolean commit,
+                         @NonNull @Size(value = LENGTH_PROBE_DATA) byte[] data) {
+        super(request, commit ? VS_COMMIT_CONTROL : VS_PROBE_CONTROL, index, data);
         wrapper = ByteBuffer.wrap(data);
+        wrapper.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * Retrieves a copy of the current Probe parameters configured for submission as a Commit.
+     *
+     * @return A new {@link ProbeControl} message structure with the control selector specified as
+     * {@link ControlSelector#VS_COMMIT_CONTROL} and the request type being {@link Request#SET_CUR}.
+     */
+    @NonNull
+    public ProbeControl getCommit() {
+        return new ProbeControl(Request.SET_CUR, getIndex(), true, wrapper.array());
     }
 
     /**
@@ -689,7 +706,7 @@ public class ProbeControl extends VSInterfaceControlRequest {
      *
      * @param size
      */
-    public void setMaxPayloadTransferSize(@IntRange(from =0) long size) {
+    public void setMaxPayloadTransferSize(@IntRange(from = 0) long size) {
         wrapper.putInt(Index_dwMaxPayloadTransferSize, (int) size);
     }
 
@@ -858,5 +875,13 @@ public class ProbeControl extends VSInterfaceControlRequest {
      */
     public void setLayoutPerStream(long layout) {
         wrapper.putLong(Index_bmLayoutPerStream, layout);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ProbeControl{");
+        sb.append("wrapper=\n").append(Hexdump.dumpHexString(wrapper.array())).append('\n');
+        sb.append('}');
+        return sb.toString();
     }
 }
