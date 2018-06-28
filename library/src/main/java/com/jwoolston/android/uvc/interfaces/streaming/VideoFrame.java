@@ -61,20 +61,20 @@ public class VideoFrame {
         stillImageSupported = (descriptor[bmCapabilites] & 0x01) != 0;
         fixedFrameRateEnabled = (descriptor[bmCapabilites] & 0x02) != 0;
 
-        width = ArrayTools.INSTANCE.extractShort(descriptor, wWidth);
-        height = ArrayTools.INSTANCE.extractShort(descriptor, wHeight);
+        width = ArrayTools.extractShort(descriptor, wWidth);
+        height = ArrayTools.extractShort(descriptor, wHeight);
 
-        minBitRate = ArrayTools.INSTANCE.extractInteger(descriptor , dwMinBitRate);
-        maxBitRate = ArrayTools.INSTANCE.extractInteger(descriptor, dwMaxBitRate);
+        minBitRate = ArrayTools.extractInteger(descriptor , dwMinBitRate);
+        maxBitRate = ArrayTools.extractInteger(descriptor, dwMaxBitRate);
         defaultFrameInterval = ((0xFF & descriptor[dwDefaultFrameInterval + 3]) << 24)
                                | ((0xFF & descriptor[dwDefaultFrameInterval + 2]) << 16)
                                | ((0xFF & descriptor[dwDefaultFrameInterval + 1]) << 8)
                                | (0xFF & descriptor[dwDefaultFrameInterval]);
 
         if (frameIntervalType == 0) {
-            minFrameInterval = ArrayTools.INSTANCE.extractInteger(descriptor, dwMinFrameInterval);
-            maxFrameInterval = ArrayTools.INSTANCE.extractInteger(descriptor, dwMaxFrameInterval);
-            frameIntervalStep = ArrayTools.INSTANCE.extractInteger(descriptor, dwFrameIntervalStep);
+            minFrameInterval = ArrayTools.extractInteger(descriptor, dwMinFrameInterval);
+            maxFrameInterval = ArrayTools.extractInteger(descriptor, dwMaxFrameInterval);
+            frameIntervalStep = ArrayTools.extractInteger(descriptor, dwFrameIntervalStep);
             frameIntervals = null;
         } else {
             frameIntervals = new int[frameIntervalType];
@@ -83,7 +83,7 @@ public class VideoFrame {
             frameIntervalStep = 0;
             for (int i = 0; i < frameIntervalType; ++i) {
                 final int index = dwFrameInterval + 4 * i - 4;
-                frameIntervals[i] = ArrayTools.INSTANCE.extractInteger(descriptor, index);
+                frameIntervals[i] = ArrayTools.extractInteger(descriptor, index);
             }
         }
     }
