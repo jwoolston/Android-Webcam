@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
-import com.jwoolston.android.uvc.StreamCreationException;
+import com.jwoolston.android.uvc.streaming.StreamCreationException;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;

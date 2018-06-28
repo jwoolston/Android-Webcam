@@ -11,6 +11,8 @@ import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
+import com.jwoolston.android.uvc.streaming.StreamCreationException;
+import com.jwoolston.android.uvc.streaming.StreamManager;
 import java.util.List;
 import timber.log.Timber;
 

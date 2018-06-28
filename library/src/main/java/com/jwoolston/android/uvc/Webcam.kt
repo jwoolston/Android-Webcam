@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.usb.UsbDevice
 import android.net.Uri
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat
+import com.jwoolston.android.uvc.streaming.StreamCreationException
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)

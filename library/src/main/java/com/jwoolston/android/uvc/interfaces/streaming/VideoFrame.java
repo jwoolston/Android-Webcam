@@ -19,7 +19,7 @@ public class VideoFrame {
 
     private static final int dwMaxVideoFrameBufferSize = 17;
     private static final int dwDefaultFrameInterval    = 21;
-    private static final int bFrameIntervalType        = 25; //n
+    private static final int bFrameIntervalType        = 25;
 
     // Continuous frame intervals
     private static final int dwMinFrameInterval  = 26;
@@ -61,20 +61,20 @@ public class VideoFrame {
         stillImageSupported = (descriptor[bmCapabilites] & 0x01) != 0;
         fixedFrameRateEnabled = (descriptor[bmCapabilites] & 0x02) != 0;
 
-        width = ArrayTools.extractShort(descriptor, wWidth);
-        height = ArrayTools.extractShort(descriptor, wHeight);
+        width = ArrayTools.shortLE(descriptor, wWidth);
+        height = ArrayTools.shortLE(descriptor, wHeight);
 
-        minBitRate = ArrayTools.extractInteger(descriptor , dwMinBitRate);
-        maxBitRate = ArrayTools.extractInteger(descriptor, dwMaxBitRate);
+        minBitRate = ArrayTools.integerLE(descriptor , dwMinBitRate);
+        maxBitRate = ArrayTools.integerLE(descriptor, dwMaxBitRate);
         defaultFrameInterval = ((0xFF & descriptor[dwDefaultFrameInterval + 3]) << 24)
                                | ((0xFF & descriptor[dwDefaultFrameInterval + 2]) << 16)
                                | ((0xFF & descriptor[dwDefaultFrameInterval + 1]) << 8)
                                | (0xFF & descriptor[dwDefaultFrameInterval]);
 
         if (frameIntervalType == 0) {
-            minFrameInterval = ArrayTools.extractInteger(descriptor, dwMinFrameInterval);
-            maxFrameInterval = ArrayTools.extractInteger(descriptor, dwMaxFrameInterval);
-            frameIntervalStep = ArrayTools.extractInteger(descriptor, dwFrameIntervalStep);
+            minFrameInterval = ArrayTools.integerLE(descriptor, dwMinFrameInterval);
+            maxFrameInterval = ArrayTools.integerLE(descriptor, dwMaxFrameInterval);
+            frameIntervalStep = ArrayTools.integerLE(descriptor, dwFrameIntervalStep);
             frameIntervals = null;
         } else {
             frameIntervals = new int[frameIntervalType];
@@ -83,7 +83,7 @@ public class VideoFrame {
             frameIntervalStep = 0;
             for (int i = 0; i < frameIntervalType; ++i) {
                 final int index = dwFrameInterval + 4 * i - 4;
-                frameIntervals[i] = ArrayTools.extractInteger(descriptor, index);
+                frameIntervals[i] = ArrayTools.integerLE(descriptor, index);
             }
         }
     }

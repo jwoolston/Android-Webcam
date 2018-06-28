@@ -1,4 +1,4 @@
-package com.jwoolston.android.uvc;
+package com.jwoolston.android.uvc.streaming;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +9,7 @@ import com.jwoolston.android.libusb.async.IsochronousTransferCallback;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.IsochronousEndpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFrame;
 import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
@@ -123,10 +124,12 @@ public class StreamManager implements IsochronousTransferCallback {
     public void initiateStream(int maxPayload, int maxFrameSize) {
         streamingInterface.selectAlternateSetting(connection, 6);
         ByteBuffer buffer = ByteBuffer.allocateDirect(maxPayload);
-        Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
+        IsochronousEndpoint endpoint = (IsochronousEndpoint) streamingInterface.getCurrentEndpoints()[0];
+        int packetCount = maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        Timber.v("Packet count: %d", packetCount);
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, 20);
+                                                                             connection, packetCount);
             transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,12 +144,16 @@ public class StreamManager implements IsochronousTransferCallback {
             final byte[] raw = new byte[data.limit()];
             data.rewind();
             data.get(raw);
+            Timber.d("Transfer Length: %d", raw.length);
             Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            PayloadHeader header = new PayloadHeader(raw);
+            Timber.d("Payload Header: %s", header);
+
             Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
             data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
                                                                              connection, 20);
-            transfer.submit(data, 500);
+            //transfer.submit(data, 500);
         }
     }
 }
