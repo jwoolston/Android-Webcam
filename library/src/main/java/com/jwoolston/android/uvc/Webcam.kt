@@ -43,7 +43,7 @@ interface Webcam {
      * @throws StreamCreationException Thrown if there is a problem establishing the stream buffer.
      */
     @Throws(StreamCreationException::class)
-    fun beginStreaming(context: Context, format: VideoFormat<*>): Uri
+    fun beginStreaming(context: Context, format: VideoFormat<*>?): Uri
 
     /**
      * Terminates streaming from the device.

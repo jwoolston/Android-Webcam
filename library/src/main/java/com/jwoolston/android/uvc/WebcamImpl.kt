@@ -31,7 +31,7 @@ constructor(private val context: Context, override val device: UsbDevice) : Webc
     }
 
     @Throws(StreamCreationException::class)
-    override fun beginStreaming(context: Context, format: VideoFormat<*>): Uri {
+    override fun beginStreaming(context: Context, format: VideoFormat<*>?): Uri {
         return webcamConnection.beginConnectionStreaming(context, format)
     }
 

@@ -66,6 +66,7 @@ public class StreamManager implements IsochronousTransferCallback {
     private final VideoStreamingInterface streamingInterface;
 
     private VideoSampleInputStream videoStream;
+    private int isoPacketCount;
 
     public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
                          @NonNull VideoStreamingInterface streamingInterface) {
@@ -138,19 +139,26 @@ public class StreamManager implements IsochronousTransferCallback {
         streamingInterface.selectAlternateSetting(connection, 6);
         ByteBuffer buffer = ByteBuffer.allocateDirect(maxPayload);
         IsochronousEndpoint endpoint = (IsochronousEndpoint) streamingInterface.getCurrentEndpoints()[0];
-        int packetCount = maxPayload/endpoint.getEndpoint().getMaxPacketSize();
-        Timber.v("Packet count: %d", packetCount);
+        int maxPacketSize = endpoint.getEndpoint().getMaxPacketSize();
+        Timber.v("Payload Size: %d", maxPayload);
+        Timber.v("Max Packet Size: %d", maxPacketSize);
+        isoPacketCount = (maxPacketSize > maxPayload) ? 1 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        Timber.v("Packet count: %d", isoPacketCount);
+        isoPacketCount = 24;
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, packetCount);
+                                                                             connection, isoPacketCount);
             transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    int count = 0;
+
     @Override
     public void onIsochronousTransferComplete(@Nullable ByteBuffer data, int result) throws IOException {
+        ++count;
         if (result < 0) {
             throw new IOException("Failure in isochronous callback:" + LibusbError.fromNative(result));
         } else {
@@ -165,8 +173,10 @@ public class StreamManager implements IsochronousTransferCallback {
             Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
             data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, 20);
-            //transfer.submit(data, 500);
+                                                                             connection, isoPacketCount);
+            if (count < 4) {
+                transfer.submit(data, 500);
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import timber.log.Timber;
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  * @see UVC 1.5 Class Specification Table 3-14
  */
-public class VideoStreamInputHeader extends AVideoStreamHeader {
+public class VideoStreamInputHeader extends VideoStreamHeader {
 
     private static final int MIN_HEADER_LENGTH = 13;
 

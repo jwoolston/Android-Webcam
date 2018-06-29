@@ -42,6 +42,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.jakewharton.timber:timber:$timber_version"
 
+    api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
+    api "com.google.android.exoplayer:extension-cast:$exoplayer_version"
+
     //api 'com.jwoolston.android:libusb:1.0.0-SNAPSHOT'
     api 'com.jwoolston.android:libusb:1.0.73-SNAPSHOT'
 
