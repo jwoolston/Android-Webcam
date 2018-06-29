@@ -1,7 +1,9 @@
 package com.jwoolston.android.uvc.streaming;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import com.jwoolston.android.libusb.LibusbError;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.async.IsochronousAsyncTransfer;
@@ -16,8 +18,13 @@ import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
 import com.jwoolston.android.uvc.requests.streaming.FramingInfo;
 import com.jwoolston.android.uvc.requests.streaming.ProbeControl;
 import com.jwoolston.android.uvc.util.Hexdump;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
+
 import timber.log.Timber;
 
 /**
@@ -58,6 +65,8 @@ public class StreamManager implements IsochronousTransferCallback {
     private final VideoControlInterface   controlInterface;
     private final VideoStreamingInterface streamingInterface;
 
+    private VideoSampleInputStream videoStream;
+
     public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
                          @NonNull VideoStreamingInterface streamingInterface) {
         this.connection = connection;
@@ -65,7 +74,8 @@ public class StreamManager implements IsochronousTransferCallback {
         this.streamingInterface = streamingInterface;
     }
 
-    public void establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) throws
+    @NonNull
+    public Uri establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) throws
                                                                                              StreamCreationException {
         final ProbeControl request = ProbeControl.setCurrentProbe(streamingInterface);
         final VideoFormat requestedFormat = format != null ? format : streamingInterface.getAvailableFormats().get(0);
@@ -118,7 +128,10 @@ public class StreamManager implements IsochronousTransferCallback {
 
         Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
 
+        videoStream = new VideoSampleInputStream();
         initiateStream(maxPayload, maxFrameSize);
+
+        return createStreamUri();
     }
 
     public void initiateStream(int maxPayload, int maxFrameSize) {
@@ -154,6 +167,19 @@ public class StreamManager implements IsochronousTransferCallback {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
                                                                              connection, 20);
             //transfer.submit(data, 500);
+        }
+    }
+
+    @NonNull
+    private Uri createStreamUri() throws StreamCreationException {
+        try {
+            URL url = new URL(null, "bytes://" + "video%20sample",
+                new VideoSampleUrlHandler(videoStream));
+            return Uri.parse(url.toURI().toString());
+        } catch (MalformedURLException e) {
+            throw new StreamCreationException(e);
+        } catch (URISyntaxException e) {
+            throw new StreamCreationException(e);
         }
     }
 }
