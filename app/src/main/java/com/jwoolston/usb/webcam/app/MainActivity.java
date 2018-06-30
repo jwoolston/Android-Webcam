@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         final String[] names = new String[formats.size()];
         final int[] indices = new int[formats.size()];
         for (int i = 0; i < formats.size(); ++i) {
-            names[i] = formats.get(i).getClass().getSimpleName();
+            names[i] = formats.get(i).getDisplayName();
             indices[i] = formats.get(i).getFormatIndex();
         }
         args.putStringArray(FormatPickerDialog.ARGUMENT_VALUES, names);

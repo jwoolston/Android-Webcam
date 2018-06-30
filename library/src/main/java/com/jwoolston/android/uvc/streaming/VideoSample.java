@@ -1,5 +1,6 @@
 package com.jwoolston.android.uvc.streaming;
 
+import android.support.annotation.NonNull;
 import java.nio.ByteBuffer;
 
 /**
@@ -7,8 +8,14 @@ import java.nio.ByteBuffer;
  */
 public class VideoSample {
 
+    private final ByteBuffer buffer;
 
+    VideoSample(int maxSize) {
+        buffer = ByteBuffer.wrap(new byte[maxSize]);
+    }
+
+    @NonNull
     public ByteBuffer getBuffer() {
-        return null;
+        return buffer;
     }
 }

@@ -66,6 +66,8 @@ public class StreamManager implements IsochronousTransferCallback {
     private final VideoStreamingInterface streamingInterface;
 
     private VideoSampleInputStream videoStream;
+    private VideoSampleFactory sampleFactory;
+    private int isoPacketSize;
     private int isoPacketCount;
 
     public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
@@ -92,6 +94,7 @@ public class StreamManager implements IsochronousTransferCallback {
         info.setEndOfFrameAllowed(true);
         request.setFramingInfo(info);
 
+        //TODO: If we have to change the frame index, make sure we update the local variable
         int retval = connection.controlTransfer(request.getRequestType(), request.getRequest(), request.getValue(),
                                                 request.getIndex(), request.getData(), request.getLength(), 500);
 
@@ -130,6 +133,7 @@ public class StreamManager implements IsochronousTransferCallback {
         Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
 
         videoStream = new VideoSampleInputStream();
+        sampleFactory = requestedFormat.getSampleFactory(maxPayload, maxFrameSize);
         initiateStream(maxPayload, maxFrameSize);
 
         return createStreamUri();
@@ -137,17 +141,18 @@ public class StreamManager implements IsochronousTransferCallback {
 
     public void initiateStream(int maxPayload, int maxFrameSize) {
         streamingInterface.selectAlternateSetting(connection, 6);
-        ByteBuffer buffer = ByteBuffer.allocateDirect(maxPayload);
         IsochronousEndpoint endpoint = (IsochronousEndpoint) streamingInterface.getCurrentEndpoints()[0];
         int maxPacketSize = endpoint.getEndpoint().getMaxPacketSize();
         Timber.v("Payload Size: %d", maxPayload);
         Timber.v("Max Packet Size: %d", maxPacketSize);
-        isoPacketCount = (maxPacketSize > maxPayload) ? 1 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        isoPacketSize = 128; //maxPacketSize > maxPayload ? maxPayload : maxPacketSize;
+        isoPacketCount = 24; //(maxPacketSize > maxPayload) ? 2 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        ByteBuffer buffer = ByteBuffer.allocateDirect(isoPacketCount * isoPacketSize);
+        Timber.v("Packet size: %d", isoPacketSize);
         Timber.v("Packet count: %d", isoPacketCount);
-        isoPacketCount = 24;
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, isoPacketCount);
+                                                                             connection, isoPacketSize, isoPacketCount);
             transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,16 +170,17 @@ public class StreamManager implements IsochronousTransferCallback {
             final byte[] raw = new byte[data.limit()];
             data.rewind();
             data.get(raw);
+            data.rewind();
             Timber.d("Transfer Length: %d", raw.length);
             Timber.d(" \n%s", Hexdump.dumpHexString(raw));
-            PayloadHeader header = new PayloadHeader(raw);
+            Payload header = new Payload(data, isoPacketSize);
             Timber.d("Payload Header: %s", header);
 
             Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
             data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, isoPacketCount);
-            if (count < 4) {
+                                                                             connection, isoPacketSize, isoPacketCount);
+            if (count < 8) {
                 transfer.submit(data, 500);
             }
         }

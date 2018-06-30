@@ -28,19 +28,19 @@ public class MJPEGVideoFormat extends VideoFormat<MJPEGVideoFrame> {
         if (descriptor.length < LENGTH) {
             throw new IllegalArgumentException("The provided descriptor is not long enough for an MJPEG Video Format.");
         }
-        formatIndex = (0xFF & descriptor[bFormatIndex]);
-        numberFrames = (0xFF & descriptor[bNumFrameDescriptors]);
+        setFormatIndex((0xFF & descriptor[bFormatIndex]));
+        setNumberFrames((0xFF & descriptor[bNumFrameDescriptors]));
         fixedSampleSize = descriptor[bmFlags] != 0;
-        defaultFrameIndex = (0xFF & descriptor[bDefaultFrameIndex]);
-        aspectRatioX = (0xFF & descriptor[bAspectRatioX]);
-        aspectRatioY = (0xFF & descriptor[bAspectRatioY]);
-        interlaceFlags = descriptor[bmInterlaceFlags];
-        copyProtect = descriptor[bCopyProtect] != 0;
+        setDefaultFrameIndex((0xFF & descriptor[bDefaultFrameIndex]));
+        setAspectRatioX((0xFF & descriptor[bAspectRatioX]));
+        setAspectRatioY((0xFF & descriptor[bAspectRatioY]));
+        setInterlaceFlags(descriptor[bmInterlaceFlags]);
+        setIsCopyProtect(descriptor[bCopyProtect] != 0);
     }
 
     public void addMJPEGVideoFrame(@NonNull MJPEGVideoFrame frame) {
         Timber.d("Adding video frame: %s", frame);
-        videoFrames.add(frame);
+        getVideoFrames().add(frame);
     }
 
     public boolean getFixedSampleSize() {
@@ -50,13 +50,13 @@ public class MJPEGVideoFormat extends VideoFormat<MJPEGVideoFrame> {
     @Override
     public String toString() {
         return "MJPEGVideoFormat{" +
-               "formatIndex=" + formatIndex +
-               ", numberFrames=" + numberFrames +
+               "formatIndex=" + getFormatIndex() +
+               ", numberFrames=" + getNumberFrames() +
                ", fixedSampleSize=" + fixedSampleSize +
-               ", defaultFrameIndex=" + defaultFrameIndex +
-               ", AspectRatio=" + aspectRatioX + ":" + aspectRatioY +
-               ", interlaceFlags=0x" + Hexdump.toHexString(interlaceFlags) +
-               ", copyProtect=" + copyProtect +
+               ", defaultFrameIndex=" + getDefaultFrameIndex() +
+               ", AspectRatio=" + getAspectRatioX() + ":" + getAspectRatioY() +
+               ", interlaceFlags=0x" + Hexdump.toHexString(getInterlaceFlags()) +
+               ", copyProtect=" + getIsCopyProtect() +
                '}';
     }
 }

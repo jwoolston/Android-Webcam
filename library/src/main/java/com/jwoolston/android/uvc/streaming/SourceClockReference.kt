@@ -1,18 +1,18 @@
 package com.jwoolston.android.uvc.streaming
 
-import com.jwoolston.android.uvc.util.ArrayTools
+import java.nio.ByteBuffer
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-class SourceClockReference internal constructor(data: ByteArray, offset: Int) {
+class SourceClockReference internal constructor(data: ByteBuffer) {
 
     val sourceTime: Int
     val tokenCounter: Int
 
     init {
-        tokenCounter = ArrayTools.shortLE(data, offset).toInt()
-        sourceTime = ArrayTools.integerLE(data, offset + 2)
+        tokenCounter = data.int
+        sourceTime = data.int
     }
 
     override fun toString(): String {

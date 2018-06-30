@@ -66,10 +66,7 @@ public class VideoFrame {
 
         minBitRate = ArrayTools.integerLE(descriptor , dwMinBitRate);
         maxBitRate = ArrayTools.integerLE(descriptor, dwMaxBitRate);
-        defaultFrameInterval = ((0xFF & descriptor[dwDefaultFrameInterval + 3]) << 24)
-                               | ((0xFF & descriptor[dwDefaultFrameInterval + 2]) << 16)
-                               | ((0xFF & descriptor[dwDefaultFrameInterval + 1]) << 8)
-                               | (0xFF & descriptor[dwDefaultFrameInterval]);
+        defaultFrameInterval = ArrayTools.integerLE(descriptor, dwDefaultFrameInterval);
 
         if (frameIntervalType == 0) {
             minFrameInterval = ArrayTools.integerLE(descriptor, dwMinFrameInterval);

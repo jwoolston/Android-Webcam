@@ -89,8 +89,7 @@ class WebcamConnection {
     Uri beginConnectionStreaming(@NonNull Context context, @Nullable VideoFormat format) throws StreamCreationException {
         Timber.d("Establishing streaming parameters.");
         streamManager = new StreamManager(usbDeviceConnection, controlInterface, streamingInterface);
-        streamManager.establishStreaming(format, format != null ? format.getDefaultFrame() : null);
-        return null;
+        return streamManager.establishStreaming(format, format != null ? format.getDefaultFrame() : null);
     }
 
     /**

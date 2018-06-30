@@ -1,13 +1,13 @@
 package com.jwoolston.android.uvc.streaming;
 
 import android.support.annotation.NonNull;
-import com.jwoolston.android.uvc.util.ArrayTools;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-public class PayloadHeader {
+public class Payload {
 
     private static final int Index_bHeaderLength = 0; // 1 byte
     private static final int Index_bmHeaderInfo  = 1; // 1 byte
@@ -36,32 +36,36 @@ public class PayloadHeader {
 
     private final ByteBuffer payload;
 
-    public PayloadHeader(@NonNull byte[] payload) {
-        length = payload[Index_bHeaderLength];
-        frameId = (Mask_FrameID & payload[Index_bmHeaderInfo]) != 0;
-        endOfFrame = (Mask_EndOfFrame & payload[Index_bmHeaderInfo]) != 0;
-        hasPresentationTime = (Mask_PresentationTime & payload[Index_bmHeaderInfo]) != 0;
-        hasSourceClockReference = (Mask_SourceClockReference & payload[Index_bmHeaderInfo]) != 0;
-        payloadSpecificBit = (Mask_PayloadSpecificBit & payload[Index_bmHeaderInfo]) != 0;
-        isStillImage = (Mask_StillImage & payload[Index_bmHeaderInfo]) != 0;
-        hasError = (Mask_Error & payload[Index_bmHeaderInfo]) != 0;
-        endOfHeader = (Mask_EndOfHeader & payload[Index_bmHeaderInfo]) != 0;
-        this.payload = ByteBuffer.wrap(payload, length, payload.length - length);
+    public Payload(@NonNull ByteBuffer payload, int packetSize) {
+        payload.order(ByteOrder.LITTLE_ENDIAN);
+        int limit = payload.limit();
+        payload.limit(payload.position() + packetSize);
+        length = payload.get();
+        frameId = (Mask_FrameID & payload.get()) != 0;
+        endOfFrame = (Mask_EndOfFrame & payload.get()) != 0;
+        hasPresentationTime = (Mask_PresentationTime & payload.get()) != 0;
+        hasSourceClockReference = (Mask_SourceClockReference & payload.get()) != 0;
+        payloadSpecificBit = (Mask_PayloadSpecificBit & payload.get()) != 0;
+        isStillImage = (Mask_StillImage & payload.get()) != 0;
+        hasError = (Mask_Error & payload.get()) != 0;
+        endOfHeader = (Mask_EndOfHeader & payload.get()) != 0;
+        //this.payload = ByteBuffer.wrap(payload, length, payload.length - length);
 
         // Get the fields that exist
-        int offset = length;
         if (hasPresentationTime) {
-            presentationTime = ArrayTools.integerLE(payload, offset);
-            offset += 4;
+            presentationTime = payload.getInt();
         } else {
             presentationTime = 0;
         }
         if (hasSourceClockReference) {
-            sourceClockReference = new SourceClockReference(payload, offset);
-            offset += 6;
+            sourceClockReference = new SourceClockReference(payload);
         } else {
             sourceClockReference = null;
         }
+
+        this.payload = ByteBuffer.wrap(new byte[payload.remaining()]);
+        this.payload.put(payload);
+        payload.limit(limit);
     }
 
     public int getLength() {
@@ -210,7 +214,7 @@ public class PayloadHeader {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PayloadHeader{");
+        final StringBuilder sb = new StringBuilder("Payload{");
         sb.append("length=").append(length);
         sb.append(", frameId=").append(frameId);
         sb.append(", endOfFrame=").append(endOfFrame);
