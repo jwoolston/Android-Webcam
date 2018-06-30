@@ -45,7 +45,7 @@ public class VideoFrame {
     private final int frameIntervalStep; // Frame interval step in 100 ns units.
 
     // Discrete frame intervals
-    private final int[] frameIntervals;
+    private final int[] frameIntervals; //TODO: Bug with frame intervales 1333333
 
     VideoFrame(byte[] descriptor) throws IllegalArgumentException {
         frameIntervalType = (0xFF & descriptor[bFrameIntervalType]);

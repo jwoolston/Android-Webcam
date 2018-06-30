@@ -15,8 +15,6 @@ public class VideoSampleInputStream extends InputStream {
 
     public static final int DEFAULT_SAMPLE_BUFFER_SIZE = 8;
 
-    private final Object lock = new Object();
-
     private final CircularArray<VideoSample> sampleBuffer;
 
     private ByteBuffer currentData;
@@ -34,7 +32,7 @@ public class VideoSampleInputStream extends InputStream {
 
     private int verifyCurrentData() throws IOException {
         if (currentData == null || !currentData.hasRemaining()) {
-            synchronized (lock) {
+            synchronized (sampleBuffer) {
                 if (sampleBuffer.getSize() == 0) {
                     try {
                         sampleBuffer.wait();
@@ -49,7 +47,7 @@ public class VideoSampleInputStream extends InputStream {
     }
 
     void addNewSample(@NonNull VideoSample sample) {
-        synchronized (lock) {
+        synchronized (sampleBuffer) {
             sampleBuffer.add(sample);
             sampleBuffer.notifyAll();
         }

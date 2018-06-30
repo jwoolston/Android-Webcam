@@ -1,6 +1,8 @@
 package com.jwoolston.android.uvc.streaming;
 
 import android.support.annotation.NonNull;
+import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -36,7 +38,7 @@ public class Payload {
 
     private final ByteBuffer payload;
 
-    public Payload(@NonNull ByteBuffer payload, int packetSize) {
+    public Payload(@NonNull ByteBuffer payload, int packetSize) throws IOException {
         payload.order(ByteOrder.LITTLE_ENDIAN);
         int limit = payload.limit();
         payload.limit(payload.position() + packetSize);
@@ -49,7 +51,6 @@ public class Payload {
         isStillImage = (Mask_StillImage & payload.get()) != 0;
         hasError = (Mask_Error & payload.get()) != 0;
         endOfHeader = (Mask_EndOfHeader & payload.get()) != 0;
-        //this.payload = ByteBuffer.wrap(payload, length, payload.length - length);
 
         // Get the fields that exist
         if (hasPresentationTime) {
@@ -64,8 +65,17 @@ public class Payload {
         }
 
         this.payload = ByteBuffer.wrap(new byte[payload.remaining()]);
-        this.payload.put(payload);
+        try {
+            this.payload.put(payload);
+            this.payload.flip();
+        } catch (BufferUnderflowException e) {
+            throw new IOException(e);
+        }
         payload.limit(limit);
+    }
+
+    public void dumpToBuffer(@NonNull ByteBuffer target) {
+        target.put(payload);
     }
 
     public int getLength() {
@@ -230,6 +240,7 @@ public class Payload {
         if (hasSourceClockReference) {
             sb.append(", sourceClockReference=").append(sourceClockReference);
         }
+        sb.append(", payload=").append(payload);
         sb.append('}');
         return sb.toString();
     }

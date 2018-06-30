@@ -10,12 +10,19 @@ public class VideoSample {
 
     private final ByteBuffer buffer;
 
-    VideoSample(int maxSize) {
-        buffer = ByteBuffer.wrap(new byte[maxSize]);
+    VideoSample(@NonNull ByteBuffer buffer) {
+        this.buffer = buffer;
     }
 
     @NonNull
     public ByteBuffer getBuffer() {
         return buffer;
+    }
+
+    @Override public String toString() {
+        final StringBuilder sb = new StringBuilder("VideoSample{");
+        sb.append("buffer=").append(buffer);
+        sb.append('}');
+        return sb.toString();
     }
 }

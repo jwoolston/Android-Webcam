@@ -167,22 +167,28 @@ public class StreamManager implements IsochronousTransferCallback {
         if (result < 0) {
             throw new IOException("Failure in isochronous callback:" + LibusbError.fromNative(result));
         } else {
-            final byte[] raw = new byte[data.limit()];
+            /*final byte[] raw = new byte[data.limit()];
             data.rewind();
-            data.get(raw);
+            data.get(raw);*/
             data.rewind();
-            Timber.d("Transfer Length: %d", raw.length);
-            Timber.d(" \n%s", Hexdump.dumpHexString(raw));
-            Payload header = new Payload(data, isoPacketSize);
-            Timber.d("Payload Header: %s", header);
+            //Timber.d("Transfer Length: %d", data.limit());
+            //Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            while (data.hasRemaining()) {
+                Payload payload = new Payload(data, isoPacketSize);
+                VideoSample sample = sampleFactory.addPayload(payload);
+                if (sample != null) {
+                    Timber.d("Video Sample: %s", sample);
+                    videoStream.addNewSample(sample);
+                }
+            }
 
             Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
             data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
                                                                              connection, isoPacketSize, isoPacketCount);
-            if (count < 8) {
+            //if (count < 8) {
                 transfer.submit(data, 500);
-            }
+            //}
         }
     }
 

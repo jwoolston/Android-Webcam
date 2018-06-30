@@ -6,23 +6,32 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
-
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.streaming.StreamCreationException;
-
+import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
-
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -104,7 +113,24 @@ public class MainActivity extends AppCompatActivity {
             if (format.getFormatIndex() == selected.getIndex()) {
                 try {
                     Timber.d("Initating streaming with format: %s", format);
-                    webcam.beginStreaming(this, format);
+                    Uri uri = webcam.beginStreaming(this, format);
+
+                    TrackSelection.Factory videoTrackSelectionFactory =
+                            new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
+                    TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+                    ExoPlayer player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+
+                    PlayerView simpleExoPlayerView = (PlayerView) findViewById(R.id.videoView);
+                    simpleExoPlayerView.setPlayer(player);
+
+                    player.setPlayWhenReady(true);
+
+                    DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+                    MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory
+                                                                                    ("Exoplayer"))
+                                                                                   .createMediaSource(uri);
+                    player.prepare(mediaSource);
                 } catch (StreamCreationException e) {
                     e.printStackTrace();
                 }
