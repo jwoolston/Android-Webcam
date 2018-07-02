@@ -31,9 +31,9 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
 
-    implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
-    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
-    implementation "com.google.android.exoplayer:extension-cast:$exoplayer_version"
+    api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
+    api "com.google.android.exoplayer:extension-cast:$exoplayer_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
