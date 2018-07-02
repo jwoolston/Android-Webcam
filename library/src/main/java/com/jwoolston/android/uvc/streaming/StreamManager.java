@@ -1,7 +1,9 @@
-package com.jwoolston.android.uvc;
+package com.jwoolston.android.uvc.streaming;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import com.jwoolston.android.libusb.LibusbError;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.async.IsochronousAsyncTransfer;
@@ -9,14 +11,20 @@ import com.jwoolston.android.libusb.async.IsochronousTransferCallback;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.interfaces.endpoints.Endpoint;
+import com.jwoolston.android.uvc.interfaces.endpoints.IsochronousEndpoint;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFrame;
 import com.jwoolston.android.uvc.requests.control.RequestErrorCode;
 import com.jwoolston.android.uvc.requests.streaming.FramingInfo;
 import com.jwoolston.android.uvc.requests.streaming.ProbeControl;
 import com.jwoolston.android.uvc.util.Hexdump;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
+
 import timber.log.Timber;
 
 /**
@@ -57,6 +65,11 @@ public class StreamManager implements IsochronousTransferCallback {
     private final VideoControlInterface   controlInterface;
     private final VideoStreamingInterface streamingInterface;
 
+    private VideoSampleInputStream videoStream;
+    private VideoSampleFactory sampleFactory;
+    private int isoPacketSize;
+    private int isoPacketCount;
+
     public StreamManager(@NonNull UsbDeviceConnection connection, @NonNull VideoControlInterface controlInterface,
                          @NonNull VideoStreamingInterface streamingInterface) {
         this.connection = connection;
@@ -64,7 +77,8 @@ public class StreamManager implements IsochronousTransferCallback {
         this.streamingInterface = streamingInterface;
     }
 
-    public void establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) throws
+    @NonNull
+    public Uri establishStreaming(@Nullable VideoFormat format, @Nullable VideoFrame frame) throws
                                                                                              StreamCreationException {
         final ProbeControl request = ProbeControl.setCurrentProbe(streamingInterface);
         final VideoFormat requestedFormat = format != null ? format : streamingInterface.getAvailableFormats().get(0);
@@ -80,6 +94,7 @@ public class StreamManager implements IsochronousTransferCallback {
         info.setEndOfFrameAllowed(true);
         request.setFramingInfo(info);
 
+        //TODO: If we have to change the frame index, make sure we update the local variable
         int retval = connection.controlTransfer(request.getRequestType(), request.getRequest(), request.getValue(),
                                                 request.getIndex(), request.getData(), request.getLength(), 500);
 
@@ -117,36 +132,76 @@ public class StreamManager implements IsochronousTransferCallback {
 
         Timber.d("Current error code: 0x%s", Hexdump.toHexString(requestErrorCode.getData()[0]));
 
+        videoStream = new VideoSampleInputStream();
+        sampleFactory = requestedFormat.getSampleFactory(maxPayload, maxFrameSize);
         initiateStream(maxPayload, maxFrameSize);
+
+        return createStreamUri();
     }
 
     public void initiateStream(int maxPayload, int maxFrameSize) {
         streamingInterface.selectAlternateSetting(connection, 6);
-        ByteBuffer buffer = ByteBuffer.allocateDirect(maxPayload);
-        Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
+        IsochronousEndpoint endpoint = (IsochronousEndpoint) streamingInterface.getCurrentEndpoints()[0];
+        int maxPacketSize = endpoint.getEndpoint().getMaxPacketSize();
+        Timber.v("Payload Size: %d", maxPayload);
+        Timber.v("Max Packet Size: %d", maxPacketSize);
+        isoPacketSize = 128; //maxPacketSize > maxPayload ? maxPayload : maxPacketSize;
+        isoPacketCount = 24; //(maxPacketSize > maxPayload) ? 2 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        ByteBuffer buffer = ByteBuffer.allocateDirect(isoPacketCount * isoPacketSize);
+        Timber.v("Packet size: %d", isoPacketSize);
+        Timber.v("Packet count: %d", isoPacketCount);
         try {
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, 20);
+                                                                             connection, isoPacketSize, isoPacketCount);
             transfer.submit(buffer, 500);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    int count = 0;
+
     @Override
     public void onIsochronousTransferComplete(@Nullable ByteBuffer data, int result) throws IOException {
+        ++count;
         if (result < 0) {
             throw new IOException("Failure in isochronous callback:" + LibusbError.fromNative(result));
         } else {
-            final byte[] raw = new byte[data.limit()];
+            /*final byte[] raw = new byte[data.limit()];
             data.rewind();
-            data.get(raw);
-            Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            data.get(raw);*/
+            data.rewind();
+            //Timber.d("Transfer Length: %d", data.limit());
+            //Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            while (data.hasRemaining()) {
+                Payload payload = new Payload(data, isoPacketSize);
+                VideoSample sample = sampleFactory.addPayload(payload);
+                if (sample != null) {
+                    Timber.d("Video Sample: %s", sample);
+                    videoStream.addNewSample(sample);
+                }
+            }
+
             Endpoint endpoint = streamingInterface.getCurrentEndpoints()[0];
             data.rewind();
             IsochronousAsyncTransfer transfer = new IsochronousAsyncTransfer(this, endpoint.getEndpoint(),
-                                                                             connection, 20);
-            transfer.submit(data, 500);
+                                                                             connection, isoPacketSize, isoPacketCount);
+            //if (count < 8) {
+                transfer.submit(data, 500);
+            //}
+        }
+    }
+
+    @NonNull
+    private Uri createStreamUri() throws StreamCreationException {
+        try {
+            URL url = new URL(null, "bytes://" + "video%20sample",
+                new VideoSampleUrlHandler(videoStream));
+            return Uri.parse(url.toURI().toString());
+        } catch (MalformedURLException e) {
+            throw new StreamCreationException(e);
+        } catch (URISyntaxException e) {
+            throw new StreamCreationException(e);
         }
     }
 }

@@ -6,15 +6,28 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
-import com.jwoolston.android.uvc.StreamCreationException;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
+import com.jwoolston.android.uvc.streaming.StreamCreationException;
 import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private UsbDevice openDevice;
 
     private Webcam            webcam;
-    private List<VideoFormat> formats;
+    private List<VideoFormat<?>> formats;
     private BroadcastReceiver deviceDisconnectedReceiver;
 
     @Override
@@ -72,23 +85,52 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         registerReceiver(deviceDisconnectedReceiver, new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED));
-
-        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(deviceDisconnectedReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNewVideoFormatSelected(VideoFormatSelected selected) {
+        Timber.v("Video format selected: %s", selected);
         for (VideoFormat format : formats) {
-            if (format.getFormatIndex() == selected.index) {
+            if (format.getFormatIndex() == selected.getIndex()) {
                 try {
-                    webcam.beginStreaming(this, format);
+                    Timber.d("Initating streaming with format: %s", format);
+                    Uri uri = webcam.beginStreaming(this, format);
+
+                    TrackSelection.Factory videoTrackSelectionFactory =
+                            new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
+                    TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+                    ExoPlayer player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+
+                    PlayerView simpleExoPlayerView = (PlayerView) findViewById(R.id.videoView);
+                    simpleExoPlayerView.setPlayer(player);
+
+                    player.setPlayWhenReady(true);
+
+                    DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+                    MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory
+                                                                                    ("Exoplayer"))
+                                                                                   .createMediaSource(uri);
+                    player.prepare(mediaSource);
                 } catch (StreamCreationException e) {
                     e.printStackTrace();
                 }
@@ -117,22 +159,13 @@ public class MainActivity extends AppCompatActivity {
         final String[] names = new String[formats.size()];
         final int[] indices = new int[formats.size()];
         for (int i = 0; i < formats.size(); ++i) {
-            names[i] = formats.get(i).getClass().getSimpleName();
+            names[i] = formats.get(i).getDisplayName();
             indices[i] = formats.get(i).getFormatIndex();
         }
         args.putStringArray(FormatPickerDialog.ARGUMENT_VALUES, names);
         args.putIntArray(FormatPickerDialog.ARGUMENT_INDICES, indices);
         dialog.setArguments(args);
         dialog.show(getSupportFragmentManager(), FormatPickerDialog.TAG);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        unregisterReceiver(deviceDisconnectedReceiver);
-
-        EventBus.getDefault().unregister(this);
     }
 
     /**

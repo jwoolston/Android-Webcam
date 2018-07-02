@@ -3,7 +3,7 @@ package com.jwoolston.android.uvc.interfaces.streaming;
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
  */
-abstract class AVideoStreamHeader {
+abstract class VideoStreamHeader {
 
     protected static final int bNumFormats      = 3; //p
     protected static final int wTotalLength     = 4;
@@ -12,7 +12,7 @@ abstract class AVideoStreamHeader {
     private final int numberFormats;
     private final int endpointAddress;
 
-    protected AVideoStreamHeader(byte[] descriptor) throws IllegalArgumentException {
+    protected VideoStreamHeader(byte[] descriptor) throws IllegalArgumentException {
         numberFormats = (0xFF & descriptor[bNumFormats]);
         endpointAddress = (0xFF & descriptor[bEndpointAddress]);
     }

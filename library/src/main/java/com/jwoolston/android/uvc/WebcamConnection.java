@@ -3,6 +3,8 @@ package com.jwoolston.android.uvc;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.jwoolston.android.libusb.DevicePermissionDenied;
 import com.jwoolston.android.libusb.UsbDeviceConnection;
 import com.jwoolston.android.libusb.UsbManager;
@@ -11,7 +13,11 @@ import com.jwoolston.android.uvc.interfaces.InterfaceAssociationDescriptor;
 import com.jwoolston.android.uvc.interfaces.VideoControlInterface;
 import com.jwoolston.android.uvc.interfaces.VideoStreamingInterface;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
+import com.jwoolston.android.uvc.streaming.StreamCreationException;
+import com.jwoolston.android.uvc.streaming.StreamManager;
+
 import java.util.List;
+
 import timber.log.Timber;
 
 /**
@@ -80,11 +86,10 @@ class WebcamConnection {
      *
      * @throws StreamCreationException Thrown if there is a problem establishing the stream buffer.
      */
-    Uri beginConnectionStreaming(@NonNull Context context, @NonNull VideoFormat format) throws StreamCreationException {
+    Uri beginConnectionStreaming(@NonNull Context context, @Nullable VideoFormat format) throws StreamCreationException {
         Timber.d("Establishing streaming parameters.");
         streamManager = new StreamManager(usbDeviceConnection, controlInterface, streamingInterface);
-        streamManager.establishStreaming(format, format.getDefaultFrame());
-        return null;
+        return streamManager.establishStreaming(format, format != null ? format.getDefaultFrame() : null);
     }
 
     /**
