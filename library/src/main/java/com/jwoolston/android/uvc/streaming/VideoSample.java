@@ -19,9 +19,10 @@ public class VideoSample {
         return buffer;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         final StringBuilder sb = new StringBuilder("VideoSample{");
-        sb.append("buffer=").append(buffer);
+        sb.append("buffer=\n").append(buffer); //Hexdump.dumpHexString(buffer.array(), 0, 256));
         sb.append('}');
         return sb.toString();
     }

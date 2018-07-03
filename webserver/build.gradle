@@ -29,6 +29,7 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
 
+    implementation "com.jakewharton.timber:timber:$timber_version"
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
 
     testImplementation 'junit:junit:4.12'

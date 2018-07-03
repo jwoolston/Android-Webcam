@@ -10,24 +10,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.jwoolston.android.libusb.DevicePermissionDenied;
 import com.jwoolston.android.uvc.UnknownDeviceException;
 import com.jwoolston.android.uvc.Webcam;
 import com.jwoolston.android.uvc.WebcamManager;
 import com.jwoolston.android.uvc.interfaces.streaming.VideoFormat;
 import com.jwoolston.android.uvc.streaming.StreamCreationException;
+import com.jwoolston.android.uvc.webserver.MjpegServer;
+import java.io.IOException;
 import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
+        try {
+            MjpegServer server = new MjpegServer(this, 9000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -115,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     Timber.d("Initating streaming with format: %s", format);
                     Uri uri = webcam.beginStreaming(this, format);
 
-                    TrackSelection.Factory videoTrackSelectionFactory =
+                    /*TrackSelection.Factory videoTrackSelectionFactory =
                             new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
                     TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
                     ExoPlayer player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
@@ -130,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory
                                                                                     ("Exoplayer"))
                                                                                    .createMediaSource(uri);
-                    player.prepare(mediaSource);
+                    player.prepare(mediaSource);*/
                 } catch (StreamCreationException e) {
                     e.printStackTrace();
                 }

@@ -56,7 +56,7 @@ constructor(payload: ByteBuffer, packetSize: Int) {
     private val presentationTime: Int
     private val sourceClockReference: SourceClockReference?
 
-    private val payload: ByteBuffer
+    val payload: ByteBuffer
 
     init {
         payload.order(ByteOrder.LITTLE_ENDIAN)

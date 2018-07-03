@@ -145,8 +145,8 @@ public class StreamManager implements IsochronousTransferCallback {
         int maxPacketSize = endpoint.getEndpoint().getMaxPacketSize();
         Timber.v("Payload Size: %d", maxPayload);
         Timber.v("Max Packet Size: %d", maxPacketSize);
-        isoPacketSize = 128; //maxPacketSize > maxPayload ? maxPayload : maxPacketSize;
-        isoPacketCount = 24; //(maxPacketSize > maxPayload) ? 2 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
+        isoPacketSize = maxPacketSize > maxPayload ? maxPayload : maxPacketSize;
+        isoPacketCount = (maxPacketSize > maxPayload) ? 1 : maxPayload/endpoint.getEndpoint().getMaxPacketSize();
         ByteBuffer buffer = ByteBuffer.allocateDirect(isoPacketCount * isoPacketSize);
         Timber.v("Packet size: %d", isoPacketSize);
         Timber.v("Packet count: %d", isoPacketCount);
@@ -167,14 +167,15 @@ public class StreamManager implements IsochronousTransferCallback {
         if (result < 0) {
             throw new IOException("Failure in isochronous callback:" + LibusbError.fromNative(result));
         } else {
-            /*final byte[] raw = new byte[data.limit()];
+            final byte[] raw = new byte[data.limit()];
             data.rewind();
-            data.get(raw);*/
+            data.get(raw);
             data.rewind();
-            //Timber.d("Transfer Length: %d", data.limit());
-            //Timber.d(" \n%s", Hexdump.dumpHexString(raw));
+            Timber.d("Transfer Length: %d", data.limit());
+            Timber.d(" \n%s", Hexdump.dumpHexString(raw));
             while (data.hasRemaining()) {
                 Payload payload = new Payload(data, isoPacketSize);
+                //Timber.i("Adding payload: \n%s", Hexdump.dumpHexString(payload.getPayload().array()));
                 VideoSample sample = sampleFactory.addPayload(payload);
                 if (sample != null) {
                     Timber.d("Video Sample: %s", sample);

@@ -6,7 +6,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import timber.log.Timber;
 
 /**
  * @author Jared Woolston (Jared.Woolston@gmail.com)
@@ -39,7 +38,6 @@ public class FrameSampleFactory implements VideoSampleFactory {
         try {
             payload.dumpToBuffer(currentBuffer);
         } catch (BufferUnderflowException | BufferOverflowException e) {
-            Timber.w("Payload: %s", payload);
             throw new IOException(e);
         }
 
